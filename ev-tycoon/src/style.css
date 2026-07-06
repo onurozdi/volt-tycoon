@@ -182,8 +182,15 @@ html, body {
 .vcard-stock b { display: block; font-size: 19px; color: var(--text); }
 .vcard-stock.full b { color: var(--gold); }
 
-/* Üretim / satış satırları */
-.line-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+/* Üretim / satış satırları: iki satır da aynı ızgarada — buton, bar ve
+   elmas hücresi alt alta tam hizalanır (satışta 3. hücre boş kalır) */
+.line-row {
+  display: grid;
+  grid-template-columns: 96px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
 
 .bar {
   flex: 1;
@@ -242,13 +249,13 @@ button {
 .btn .icon { width: 15px; height: 15px; }
 
 .btn-produce {
-  min-width: 92px;
+  width: 100%;
   background: linear-gradient(180deg, #1391e6, #0d6cbe);
   color: #eaf6ff;
   box-shadow: var(--glow-blue), inset 0 1px 0 #ffffff33;
 }
 .btn-sell {
-  min-width: 92px;
+  width: 100%;
   background: linear-gradient(180deg, #e64f8f, #b93a74);
   color: #ffeef6;
   box-shadow: 0 0 12px #ff5e9b44, inset 0 1px 0 #ffffff33;
@@ -287,7 +294,7 @@ button {
   background: #0e2a22;
   border-color: #1e6b52;
   color: var(--cyan);
-  min-width: 92px;
+  width: 100%;
   cursor: default;
 }
 
@@ -307,6 +314,8 @@ button {
   font-size: 11px;
   padding: 6px 9px;
 }
+/* Üretim satırındaki elmas butonu hücresini tam doldursun */
+.line-row .btn-gem { width: 100%; padding: 6px 4px; }
 
 .btn-ad {
   background: linear-gradient(180deg, #e6a013, #bd7f0d);
