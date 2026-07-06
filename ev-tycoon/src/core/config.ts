@@ -191,7 +191,7 @@ export const GEM_COST_INSTANT_CLAIM = 3;
 export const GEM_COST_BOOST = 10;
 export const BOOST_HOURS = 4;
 export const BOOST_MULT = 2;
-export const STARTING_GEMS = 10;
+export const STARTING_GEMS = 5;
 
 // Reklam ödülleri
 export const AD_REWARD_GEMS = 5;
@@ -208,14 +208,14 @@ export interface AchievementDef {
 // 1,5 katı olmalı. Böylece çok sabırlı bir oyuncu hiç video izlemeden
 // tüm lisansları alabilir.
 // Güncel doğrulama: lisanslar 10+25+30+35+40 = 140 + atölye 20 = 160
-// → gerek 240. Havuz: başlangıç 10 + başarımlar 232 = 242 ≥ 240 ✓
+// → gerek 240. Havuz: başlangıç 5 + başarımlar 236 = 241 ≥ 240 ✓
 //
 // TEMPO: Eşikler ×10 büyür (100→1K→10K→100K satış; $10K→$100K→$1M→$10M).
 // Erken oyunda başarımlar dakikalar içinde, geç oyunda saatler/günler
 // arayla gelir — oyuncu devamlılığı için bilinçli yavaşlama.
 export const ACHIEVEMENTS: AchievementDef[] = [
-  { id: 'firstSale', gems: 2, check: (s) => s.stats.totalSold >= 1 },
-  { id: 'firstTech', gems: 2, check: (s) => Object.values(s.lines).some((l) => l.technicians >= 1) },
+  { id: 'firstSale', gems: 4, check: (s) => s.stats.totalSold >= 1 },
+  { id: 'firstTech', gems: 4, check: (s) => Object.values(s.lines).some((l) => l.technicians >= 1) },
   { id: 'firstManager', gems: 5, check: (s) => Object.values(s.lines).some((l) => l.prodManager || l.salesManager) },
   { id: 'firstResearch', gems: 3, check: (s) => Object.values(s.research).some((v) => v >= 1) },
   { id: 'sold100', gems: 5, check: (s) => s.stats.totalSold >= 100 },
