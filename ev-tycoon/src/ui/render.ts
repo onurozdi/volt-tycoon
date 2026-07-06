@@ -127,10 +127,12 @@ function renderTab(tab: Tab): void {
 function renderHome(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('home.title')}</div>`));
   c.appendChild(el(`<div class="screen-sub">${t('home.subtitle')}</div>`));
+  const cards = el(`<div class="cards"></div>`);
+  c.appendChild(cards);
   for (const v of VEHICLES) {
     const line = S.lines[v.id];
-    if (line.unlocked) c.appendChild(vehicleCard(v.id));
-    else c.appendChild(lockedCard(v.id));
+    if (line.unlocked) cards.appendChild(vehicleCard(v.id));
+    else cards.appendChild(lockedCard(v.id));
   }
 }
 

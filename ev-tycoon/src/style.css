@@ -131,13 +131,18 @@ html, body {
 
 /* ============ Araç kartı ============ */
 
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
 .vcard {
   position: relative;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 12px;
-  margin-bottom: 14px;
   overflow: hidden;
 }
 
@@ -254,12 +259,24 @@ button {
   color: var(--text);
   width: 100%;
   justify-content: space-between;
-  padding: 8px 10px;
+  padding: 6px 10px;
+  /* etiket 1 veya 2 satır olsa da tüm butonlar aynı boyda kalsın */
+  min-height: 46px;
 }
-.btn-buy .cost { color: var(--lime); font-weight: 800; }
+.btn-buy .cost { color: var(--lime); font-weight: 800; flex: none; margin-left: 8px; }
 .btn-buy.cant .cost { color: var(--danger); }
-.btn-buy .who { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 12px; }
-.btn-buy .who .icon { width: 16px; height: 16px; color: var(--blue); }
+.btn-buy .who {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+.btn-buy .who > span { line-height: 1.15; letter-spacing: 0.2px; }
+.btn-buy .who .icon { width: 16px; height: 16px; flex: none; color: var(--blue); }
 
 .btn:disabled, .btn.disabled {
   filter: grayscale(0.7) brightness(0.65);
@@ -570,3 +587,31 @@ button {
 
 .icon { display: inline-grid; place-items: center; }
 .icon svg { width: 100%; height: 100%; display: block; }
+
+/* ============ Tablet / geniş ekran ============ */
+
+@media (min-width: 700px) {
+  #app { max-width: 800px; }
+
+  /* Araç kartları yan yana */
+  .cards {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  /* Diğer sekmelerde içerik okunur genişlikte ortalansın */
+  .screen-title,
+  .screen-sub,
+  #content > .panel,
+  #content > .stat-grid,
+  #content > .rp-badge,
+  #content > .settings-row,
+  #content > .about {
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .tab { font-size: 11px; }
+  .tab .icon { width: 24px; height: 24px; }
+}

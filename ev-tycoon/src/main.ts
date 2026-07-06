@@ -13,18 +13,28 @@ setLang(state.settings.lang);
 // Geliştirme kolaylığı: konsoldan durum incelemek için
 (window as unknown as { __state: unknown }).__state = state;
 
-// Motor olayları → görsel/işitsel geri bildirim
+// Motor olayları → görsel/işitsel geri bildirim.
+// Otomatik (manager'lı) üretim/satışta ses çalınmaz; sesler yalnızca
+// oyuncunun kendi başlattığı işlemlerde gelir — aksi halde hızlanan
+// üretim sürekli bip sesine dönüşüyor.
+let lastFloat = 0;
 setEngineEvents({
-  onSale: (_id, amount) => {
-    sfx.sale();
-    // satış olduğunda paranın yanında küçük uçuş efekti
-    const hud = document.querySelector('.hud-money');
-    if (hud) {
-      const r = hud.getBoundingClientRect();
-      floatMoney(r.right + 8, r.bottom + 6, `+${fmtMoney(amount)}`);
+  onSale: (id, amount) => {
+    if (!state.lines[id]?.salesManager) sfx.sale();
+    // satış olduğunda paranın yanında küçük uçuş efekti (sık satışta seyrelt)
+    const now = performance.now();
+    if (now - lastFloat > 300) {
+      lastFloat = now;
+      const hud = document.querySelector('.hud-money');
+      if (hud) {
+        const r = hud.getBoundingClientRect();
+        floatMoney(r.right + 8, r.bottom + 6, `+${fmtMoney(amount)}`);
+      }
     }
   },
-  onProduce: () => sfx.produce(),
+  onProduce: (id) => {
+    if (!state.lines[id]?.prodManager) sfx.produce();
+  },
   onAchievement: (id, gems) => {
     sfx.achievement();
     toast(t('toast.achievement', { name: t('ach.' + id), gems }), 'gold');
