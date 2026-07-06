@@ -1,11 +1,11 @@
 import './style.css';
 import { AUTOSAVE_INTERVAL, SAVE_KEY } from './core/config';
+import { isPaused } from './core/clock';
 import { computeOffline, setEngineEvents, tick } from './core/engine';
-import { fmtMoney } from './core/formulas';
 import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
-import { floatMoney, initUI, persist, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { initUI, persist, saleFloat, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
 
 const state = loadGame() ?? newGame(detectLang());
 setLang(state.settings.lang);
@@ -17,20 +17,11 @@ setLang(state.settings.lang);
 // Otomatik (manager'lı) üretim/satışta ses çalınmaz; sesler yalnızca
 // oyuncunun kendi başlattığı işlemlerde gelir — aksi halde hızlanan
 // üretim sürekli bip sesine dönüşüyor.
-let lastFloat = 0;
 setEngineEvents({
   onSale: (id, amount) => {
     if (!state.lines[id]?.salesManager) sfx.sale();
-    // satış olduğunda paranın yanında küçük uçuş efekti (sık satışta seyrelt)
-    const now = performance.now();
-    if (now - lastFloat > 300) {
-      lastFloat = now;
-      const hud = document.querySelector('.hud-money');
-      if (hud) {
-        const r = hud.getBoundingClientRect();
-        floatMoney(r.right + 8, r.bottom + 6, `+${fmtMoney(amount)}`);
-      }
-    }
+    // uçan para: yalnızca Home sekmesinde, o aracın satış barının ucundan
+    saleFloat(id, amount);
   },
   onProduce: (id) => {
     if (!state.lines[id]?.prodManager) sfx.produce();
@@ -59,6 +50,11 @@ function step(): void {
   const now = performance.now();
   let dt = (now - last) / 1000;
   last = now;
+  // Haber popup'ı açıkken oyun duraklatılır — üretim/satış/etki ilerlemez
+  if (isPaused()) {
+    updateFrame(0);
+    return;
+  }
   // Sekme arka planda uzun kalırsa dev dt gelmesin (offline hesabı ayrı ele alınır)
   if (dt > 1) dt = 1;
   if (dt > 0) {

@@ -13,6 +13,10 @@ export interface LineState {
   salesManager: boolean;
   totalSold: number;
   totalProduced: number;
+  /** bu hattın toplam satış geliri (ciro) */
+  revenue: number;
+  /** bu hatta yapılan para harcaması (lisans + personel + müdürler) */
+  spent: number;
 }
 
 export interface GameState {
@@ -32,7 +36,7 @@ export interface GameState {
   nextEventIn: number;
   achievements: string[];
   stats: { totalEarned: number; totalProduced: number; totalSold: number };
-  settings: { lang: 'en' | 'tr'; sound: boolean };
+  settings: { lang: 'en' | 'tr' | 'es'; sound: boolean };
   lastSeen: number; // epoch ms
   createdAt: number;
 }
@@ -51,10 +55,12 @@ export function newLine(unlocked: boolean): LineState {
     salesManager: false,
     totalSold: 0,
     totalProduced: 0,
+    revenue: 0,
+    spent: 0,
   };
 }
 
-export function newGame(lang: 'en' | 'tr'): GameState {
+export function newGame(lang: 'en' | 'tr' | 'es'): GameState {
   const lines: Record<string, LineState> = {};
   for (const v of VEHICLES) lines[v.id] = newLine(v.unlockCost === 0);
   const locations: Record<string, boolean> = {};
@@ -108,12 +114,18 @@ export function loadGame(): GameState | null {
     for (const l of LOCATIONS) {
       if (s.locations[l.id] === undefined) s.locations[l.id] = l.unlockCost === 0;
     }
-    // Personel tavanı eklenmeden önceki kayıtlar tavanın üstünde olabilir
+    // Personel tavanı eklenmeden önceki kayıtlar tavanın üstünde olabilir;
+    // ciro/harcama alanları da eski kayıtlarda eksik olabilir
     for (const v of VEHICLES) {
       const cap = LOCATIONS.find((l) => l.id === v.locationId)?.staffCap ?? 6;
       const line = s.lines[v.id];
       line.technicians = Math.min(line.technicians, cap);
       line.salesReps = Math.min(line.salesReps, cap);
+      if (typeof line.revenue !== 'number') line.revenue = 0;
+      if (typeof line.spent !== 'number') line.spent = 0;
+    }
+    if (s.settings.lang !== 'en' && s.settings.lang !== 'tr' && s.settings.lang !== 'es') {
+      s.settings.lang = 'en';
     }
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;

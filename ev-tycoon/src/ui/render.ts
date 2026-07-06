@@ -3,6 +3,7 @@ import {
   LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
+import { setPaused } from '../core/clock';
 import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
@@ -11,7 +12,7 @@ import {
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
-  claimDuration, claimReward, fmt, fmtMoney, fmtTime, prodInterval, researchCost,
+  batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, prodInterval, researchCost,
   researchLevel, sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
 } from '../core/formulas';
 import type { GameState } from '../core/state';
@@ -22,7 +23,7 @@ import { showRewardedAd } from './ads';
 import { icon } from './art';
 import { setSoundEnabled, sfx } from './audio';
 
-export type Tab = 'home' | 'research' | 'garage' | 'market' | 'settings';
+export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'settings';
 
 let S: GameState;
 let currentTab: Tab = 'home';
@@ -63,6 +64,25 @@ export function floatMoney(x: number, y: number, text: string): void {
   setTimeout(() => node.remove(), 950);
 }
 
+/** dakikadaki hız için kısa sayı: 10 altı 1 ondalık, üstü tam sayı */
+function fmtRate(n: number): string {
+  return n >= 10 ? String(Math.round(n)) : n.toFixed(1);
+}
+
+// Satış uçan parası: yalnızca Home sekmesinde, o aracın satış barının
+// bittiği noktadan yükselir (sık satışta seyreltilir)
+let lastSaleFloat = 0;
+export function saleFloat(vehicleId: string, amount: number): void {
+  if (currentTab !== 'home') return;
+  const now = performance.now();
+  if (now - lastSaleFloat < 300) return;
+  const bar = document.querySelector(`.vcard[data-vid="${vehicleId}"] .sell-row .bar`);
+  if (!bar) return;
+  lastSaleFloat = now;
+  const r = bar.getBoundingClientRect();
+  floatMoney(r.right - 6, r.top + r.height / 2, `+${fmtMoney(amount)}`);
+}
+
 function refresh(): void {
   renderTab(currentTab);
 }
@@ -90,7 +110,8 @@ function renderHUD(): void {
 const TABS: Array<{ id: Tab; icn: string }> = [
   { id: 'home', icn: 'home' },
   { id: 'research', icn: 'flask' },
-  { id: 'garage', icn: 'trophy' },
+  { id: 'stats', icn: 'chart' },
+  { id: 'ach', icn: 'trophy' },
   { id: 'market', icn: 'cart' },
   { id: 'settings', icn: 'settings' },
 ];
@@ -123,7 +144,8 @@ function renderTab(tab: Tab): void {
   c.scrollTop = 0;
   if (tab === 'home') renderHome(c);
   else if (tab === 'research') renderResearch(c);
-  else if (tab === 'garage') renderGarage(c);
+  else if (tab === 'stats') renderStats(c);
+  else if (tab === 'ach') renderAchievements(c);
   else if (tab === 'market') renderMarket(c);
   else renderSettings(c);
 }
@@ -187,7 +209,7 @@ function vehicleCard(id: string): HTMLElement {
   const v = VEHICLES.find((x) => x.id === id)!;
   const line = S.lines[id];
 
-  const card = el(`<div class="vcard" style="--accent:${v.accent}">
+  const card = el(`<div class="vcard" data-vid="${v.id}" style="--accent:${v.accent}">
     <div class="vcard-head">
       <div class="vcard-icon">${icon(v.icon)}</div>
       <div>
@@ -199,12 +221,12 @@ function vehicleCard(id: string): HTMLElement {
     </div>
     <div class="line-row prod-row">
       <button class="btn btn-produce"></button>
-      <div class="bar"><div class="bar-fill prodfill"></div><div class="bar-label prodlabel"></div></div>
+      <div class="bar"><div class="bar-fill prodfill"></div><div class="bar-label prodlabel"></div><span class="bar-rate prodrate"></span></div>
       <button class="btn btn-gem gem-prod">${icon('gem')}${GEM_COST_INSTANT_PROD}</button>
     </div>
     <div class="line-row sell-row">
       <button class="btn btn-sell"></button>
-      <div class="bar"><div class="bar-fill sellbar"></div><div class="bar-label selllabel"></div></div>
+      <div class="bar"><div class="bar-fill sellbar"></div><div class="bar-label selllabel"></div><span class="bar-rate sellrate"></span></div>
       <button class="btn btn-gem gem-sell">${icon('gem')}${GEM_COST_INSTANT_PROD}</button>
     </div>
     <div class="staff-grid">
@@ -250,6 +272,8 @@ function vehicleCard(id: string): HTMLElement {
   const sellFill = q('.sellbar');
   const prodLabel = q('.prodlabel');
   const sellLabel = q('.selllabel');
+  const prodRate = q('.prodrate');
+  const sellRate = q('.sellrate');
   const btnTech = q('.buy-tech') as HTMLButtonElement;
   const btnRep = q('.buy-rep') as HTMLButtonElement;
   const btnPM = q('.buy-pm') as HTMLButtonElement;
@@ -326,8 +350,14 @@ function vehicleCard(id: string): HTMLElement {
     capEl.textContent = `/ ${cap}`;
     stockBox.classList.toggle('full', line.stock >= cap);
 
+    // Hız sayaçları: dakikada kaç araç üretilir/satılır
+    const pIntNow = prodInterval(S, v, line);
+    const sIntNow = sellInterval(S, v, line);
+    prodRate.textContent = t('ui.perMin', { n: fmtRate((60 / pIntNow) * batchSize(S)) });
+    sellRate.textContent = t('ui.perMin', { n: fmtRate(60 / sIntNow) });
+
     // Üretim
-    const pInt = prodInterval(S, v, line);
+    const pInt = pIntNow;
     const pActive = line.producing || line.prodManager;
     const pPct = pActive ? Math.min(100, (line.prodElapsed / pInt) * 100) : 0;
     prodFill.style.width = `${pPct}%`;
@@ -539,10 +569,11 @@ function renderResearch(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-sub" style="margin-top:10px">${t('research.more')}</div>`));
 }
 
-// ---------- GARAGE (istatistik + başarımlar) ----------
+// ---------- STATS (istatistikler + grafik) ----------
 
-function renderGarage(c: HTMLElement): void {
-  c.appendChild(el(`<div class="screen-title">${t('garage.title')}</div>`));
+function renderStats(c: HTMLElement): void {
+  c.appendChild(el(`<div class="screen-title">${t('stats.title')}</div>`));
+  c.appendChild(el(`<div class="screen-sub">${t('stats.sub')}</div>`));
   const grid = el(`<div class="stat-grid">
     <div class="stat-box"><b class="st-earned"></b><span>${t('garage.totalEarned')}</span></div>
     <div class="stat-box"><b class="st-prod"></b><span>${t('garage.totalProduced')}</span></div>
@@ -558,7 +589,75 @@ function renderGarage(c: HTMLElement): void {
     e3.textContent = fmt(S.stats.totalSold);
   });
 
-  c.appendChild(el(`<div class="screen-sub" style="margin-top:4px">${t('garage.achievements')}</div>`));
+  const owned = VEHICLES.filter((v) => S.lines[v.id].unlocked);
+
+  // Ciro payı grafiği — canlı büyüyen yatay barlar
+  const chart = el(`<div class="panel">
+    <div class="panel-name" style="margin-bottom:10px">${t('stats.chart')}</div>
+    <div class="chart"></div>
+  </div>`);
+  c.appendChild(chart);
+  const chartBox = chart.querySelector('.chart') as HTMLElement;
+  const rows: Array<{ fill: HTMLElement; val: HTMLElement; id: string }> = [];
+  for (const v of owned) {
+    const row = el(`<div class="chart-row">
+      <span class="chart-name">${v.name}</span>
+      <div class="chart-track"><div class="chart-fill" style="background:${v.accent}"></div></div>
+      <span class="chart-val"></span>
+    </div>`);
+    chartBox.appendChild(row);
+    rows.push({
+      fill: row.querySelector('.chart-fill') as HTMLElement,
+      val: row.querySelector('.chart-val') as HTMLElement,
+      id: v.id,
+    });
+  }
+  updaters.push(() => {
+    const max = Math.max(1, ...owned.map((v) => S.lines[v.id].revenue));
+    for (const r of rows) {
+      const rev = S.lines[r.id].revenue;
+      r.fill.style.width = `${Math.max(rev > 0 ? 3 : 0, (rev / max) * 100)}%`;
+      r.val.textContent = fmtMoney(rev);
+    }
+  });
+
+  // Araç başına kârlılık kartları
+  for (const v of owned) {
+    const p = el(`<div class="panel profit-card" style="--accent:${v.accent}">
+      <div class="panel-row" style="margin-bottom:8px">
+        <div class="panel-icon" style="color:${v.accent}">${icon(v.icon)}</div>
+        <div style="flex:1"><div class="panel-name">${v.name}</div></div>
+        <div class="panel-side"><span class="pc-sold"></span></div>
+      </div>
+      <div class="profit-grid">
+        <div><span>${t('stats.revenue')}</span><b class="pc-rev"></b></div>
+        <div><span>${t('stats.spent')}</span><b class="pc-spent"></b></div>
+        <div><span>${t('stats.net')}</span><b class="pc-net"></b></div>
+      </div>
+    </div>`);
+    c.appendChild(p);
+    const soldEl = p.querySelector('.pc-sold') as HTMLElement;
+    const revEl = p.querySelector('.pc-rev') as HTMLElement;
+    const spentEl = p.querySelector('.pc-spent') as HTMLElement;
+    const netEl = p.querySelector('.pc-net') as HTMLElement;
+    updaters.push(() => {
+      const line = S.lines[v.id];
+      const net = line.revenue - line.spent;
+      soldEl.textContent = `${fmt(line.totalSold)} ${t('stats.soldUnit')}`;
+      revEl.textContent = fmtMoney(line.revenue);
+      spentEl.textContent = fmtMoney(line.spent);
+      netEl.textContent = (net >= 0 ? '+' : '−') + fmtMoney(Math.abs(net));
+      netEl.classList.toggle('neg', net < 0);
+    });
+  }
+}
+
+// ---------- ACHIEVEMENTS (başarımlar) ----------
+
+function renderAchievements(c: HTMLElement): void {
+  c.appendChild(el(`<div class="screen-title">${t('ach.title')}</div>`));
+  const earnedCount = S.achievements.length;
+  c.appendChild(el(`<div class="screen-sub">${earnedCount} / ${ACHIEVEMENTS.length}</div>`));
   for (const a of ACHIEVEMENTS) {
     const earned = S.achievements.includes(a.id);
     c.appendChild(
@@ -700,11 +799,13 @@ function renderSettings(c: HTMLElement): void {
     <span class="seg">
       <button class="btn lang-en">EN</button>
       <button class="btn lang-tr">TR</button>
+      <button class="btn lang-es">ES</button>
     </span>
   </div>`);
   c.appendChild(langRow);
   const bEn = langRow.querySelector('.lang-en') as HTMLButtonElement;
   const bTr = langRow.querySelector('.lang-tr') as HTMLButtonElement;
+  const bEs = langRow.querySelector('.lang-es') as HTMLButtonElement;
   const applyLang = (l: Lang): void => {
     S.settings.lang = l;
     setLang(l);
@@ -715,9 +816,11 @@ function renderSettings(c: HTMLElement): void {
   };
   bEn.addEventListener('click', () => applyLang('en'));
   bTr.addEventListener('click', () => applyLang('tr'));
+  bEs.addEventListener('click', () => applyLang('es'));
   updaters.push(() => {
     bEn.classList.toggle('on', getLang() === 'en');
     bTr.classList.toggle('on', getLang() === 'tr');
+    bEs.classList.toggle('on', getLang() === 'es');
   });
 
   // Ses
@@ -798,6 +901,10 @@ function eventFxText(def: NewsEventDef): string {
 
 export function showNewsEvent(def: NewsEventDef): void {
   const good = def.mult >= 1;
+  // Popup açıkken oyun tamamen durur: üretim/satış ilerlemez, etki
+  // süresi işlemez, yeni popup birikmez. Kapatınca etki süresi baştan
+  // başlar — oyuncu hiçbir saniyesini kaçırmaz.
+  setPaused(true);
   const overlay = el(`<div class="modal-overlay">
     <div class="modal event-modal ${good ? 'good' : 'bad'}">
       <div class="event-badge">${good ? '📈' : '📉'} ${t('event.breaking')}</div>
@@ -813,6 +920,10 @@ export function showNewsEvent(def: NewsEventDef): void {
   (overlay.querySelector('.ev-ok') as HTMLButtonElement).addEventListener('click', () => {
     sfx.click();
     overlay.remove();
+    if (S.activeEvent && S.activeEvent.id === def.id) {
+      S.activeEvent.until = Date.now() + def.durationSec * 1000;
+    }
+    setPaused(false);
   });
 }
 

@@ -106,6 +106,7 @@ export function tick(s: GameState, dt: number): void {
         const amount = sellPrice(s, v);
         s.money += amount;
         s.stats.totalEarned += amount;
+        line.revenue += amount;
         events.onSale?.(v.id, amount);
         if (!line.salesManager) {
           line.selling = false;
@@ -162,6 +163,7 @@ export function buyTechnician(s: GameState, id: string): boolean {
   const cost = staffCost(v.techBaseCost, line.technicians);
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
+  line.spent += cost;
   line.technicians += 1;
   return true;
 }
@@ -173,6 +175,7 @@ export function buySalesRep(s: GameState, id: string): boolean {
   const cost = staffCost(v.repBaseCost, line.salesReps);
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
+  line.spent += cost;
   line.salesReps += 1;
   return true;
 }
@@ -182,6 +185,7 @@ export function buyProdManager(s: GameState, id: string): boolean {
   const v = vehicleDef(id);
   if (!line.unlocked || line.prodManager || s.money < v.prodManagerCost) return false;
   s.money -= v.prodManagerCost;
+  line.spent += v.prodManagerCost;
   line.prodManager = true;
   line.producing = false;
   return true;
@@ -192,6 +196,7 @@ export function buySalesManager(s: GameState, id: string): boolean {
   const v = vehicleDef(id);
   if (!line.unlocked || line.salesManager || s.money < v.salesManagerCost) return false;
   s.money -= v.salesManagerCost;
+  line.spent += v.salesManagerCost;
   line.salesManager = true;
   line.selling = false;
   return true;
@@ -214,6 +219,7 @@ export function unlockVehicle(s: GameState, id: string): boolean {
   if (line.unlocked || s.money < v.unlockCost || s.gems < v.unlockGems) return false;
   s.money -= v.unlockCost;
   s.gems -= v.unlockGems;
+  line.spent += v.unlockCost;
   line.unlocked = true;
   return true;
 }
@@ -265,6 +271,7 @@ export function gemInstantSell(s: GameState, id: string): boolean {
   const amount = sellPrice(s, v);
   s.money += amount;
   s.stats.totalEarned += amount;
+  line.revenue += amount;
   line.sellElapsed = 0;
   if (!line.salesManager) line.selling = false;
   checkAchievements(s);
@@ -328,6 +335,7 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
     line.stock = Math.max(0, Math.min(cap, line.stock + lineProduced - lineSold));
     line.totalProduced += lineProduced;
     line.totalSold += lineSold;
+    line.revenue += lineSold * sellPriceNoBoost(s, v);
     s.stats.totalProduced += lineProduced;
     s.stats.totalSold += lineSold;
     produced += lineProduced;
@@ -382,6 +390,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
     line.stock = newStock;
     line.totalProduced += lineProduced;
     line.totalSold += lineSold;
+    line.revenue += lineSold * price;
     s.stats.totalProduced += lineProduced;
     s.stats.totalSold += lineSold;
     produced += lineProduced;
