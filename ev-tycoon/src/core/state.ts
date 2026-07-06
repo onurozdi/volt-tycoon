@@ -68,7 +68,12 @@ export function newGame(lang: 'en' | 'tr'): GameState {
   };
 }
 
+// Sıfırlama sonrası beforeunload/visibilitychange kayıtları eski durumu
+// geri yazmasın diye kalıcı kapatma bayrağı
+let wiped = false;
+
 export function saveGame(s: GameState): void {
+  if (wiped) return;
   s.lastSeen = Date.now();
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(s));
@@ -94,5 +99,6 @@ export function loadGame(): GameState | null {
 }
 
 export function resetGame(): void {
+  wiped = true;
   localStorage.removeItem(SAVE_KEY);
 }
