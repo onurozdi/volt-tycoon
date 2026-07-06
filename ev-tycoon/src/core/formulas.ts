@@ -95,6 +95,11 @@ export function claimReward(s: GameState): number {
   return Math.round((CLAIM_REWARD + rAdd(s, 'claimAdd')) * rMult(s, 'claimMult'));
 }
 
+/** Mucit alındı mı? (otomatik claim — Ar-Ge personeli merdiveninin ilki) */
+export function hasAutoClaim(s: GameState): boolean {
+  return researchLevel(s, 'inventor') >= 1;
+}
+
 export function offlineCapSeconds(s: GameState): number {
   return FX.offlineHours[researchLevel(s, 'offline')] * 3600;
 }

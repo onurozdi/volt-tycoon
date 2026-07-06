@@ -280,7 +280,7 @@ export const CLAIM_REWARD = 5; // RP (baz — research ile artar)
 export type ResearchFx =
   | 'prodTime' | 'sellTime' | 'price' | 'cap'
   | 'claimTime' | 'claimAdd' | 'claimMult'
-  | 'batch' | 'offline';
+  | 'batch' | 'offline' | 'autoclaim';
 
 export interface ResearchDef {
   id: string;
@@ -295,6 +295,9 @@ export interface ResearchDef {
 
 export const RESEARCH: ResearchDef[] = [
   // ---- Katman 1 — Garage ----
+  // Ar-Ge personeli merdiveni: Mucit otomatik claim'i açar, sonraki
+  // tesislerdeki personalar claim'i iyileştirir (süre/çarpan)
+  { id: 'inventor', locationId: 'garage', maxLevel: 1, costs: [200], icon: 'person', fx: 'autoclaim', val: 1 },
   { id: 'assembly', locationId: 'garage', maxLevel: 3, costs: [10, 30, 80], icon: 'gear', fx: 'prodTime', val: 0.9 },
   { id: 'marketing', locationId: 'garage', maxLevel: 3, costs: [10, 30, 80], icon: 'megaphone', fx: 'price', val: 1.15 },
   { id: 'tinker', locationId: 'garage', maxLevel: 2, costs: [15, 45], icon: 'wrench', fx: 'claimAdd', val: 3 },
@@ -303,16 +306,19 @@ export const RESEARCH: ResearchDef[] = [
   { id: 'quickclaim', locationId: 'garage', maxLevel: 1, costs: [40], icon: 'bolt', fx: 'claimTime', val: 0.75 },
   { id: 'batch', locationId: 'garage', maxLevel: 1, costs: [120], icon: 'stack', fx: 'batch', val: 1 },
   // ---- Katman 2 — Workshop ----
+  { id: 'rndassistant', locationId: 'workshop', maxLevel: 1, costs: [300], icon: 'person', fx: 'claimTime', val: 0.8 },
   { id: 'reverseeng', locationId: 'workshop', maxLevel: 2, costs: [80, 180], icon: 'flask', fx: 'claimAdd', val: 5 },
   { id: 'logistics', locationId: 'workshop', maxLevel: 2, costs: [90, 200], icon: 'cart', fx: 'sellTime', val: 0.85 },
   { id: 'robotics', locationId: 'workshop', maxLevel: 2, costs: [120, 260], icon: 'gear', fx: 'prodTime', val: 0.9 },
   { id: 'bulkstorage', locationId: 'workshop', maxLevel: 1, costs: [150], icon: 'box', fx: 'cap', val: 1.5 },
   // ---- Katman 3 — Factory ----
+  { id: 'rndmanager', locationId: 'factory', maxLevel: 1, costs: [900], icon: 'tie', fx: 'claimMult', val: 1.5 },
   { id: 'rdlab', locationId: 'factory', maxLevel: 2, costs: [350, 700], icon: 'flask', fx: 'claimTime', val: 0.8 },
   { id: 'brandpower', locationId: 'factory', maxLevel: 2, costs: [400, 800], icon: 'megaphone', fx: 'price', val: 1.2 },
   { id: 'automation', locationId: 'factory', maxLevel: 2, costs: [500, 1000], icon: 'gear', fx: 'prodTime', val: 0.9 },
   { id: 'gigabatch', locationId: 'factory', maxLevel: 1, costs: [900], icon: 'stack', fx: 'batch', val: 1 },
   // ---- Katman 4 — Gigafactory ----
+  { id: 'singularity', locationId: 'gigafactory', maxLevel: 1, costs: [4500], icon: 'tie', fx: 'claimMult', val: 2 },
   { id: 'quantumclaim', locationId: 'gigafactory', maxLevel: 1, costs: [2000], icon: 'bolt', fx: 'claimMult', val: 2 },
   { id: 'aicore', locationId: 'gigafactory', maxLevel: 2, costs: [2500, 5000], icon: 'gear', fx: 'prodTime', val: 0.85 },
   { id: 'globalbrand', locationId: 'gigafactory', maxLevel: 2, costs: [3000, 6000], icon: 'megaphone', fx: 'price', val: 1.25 },

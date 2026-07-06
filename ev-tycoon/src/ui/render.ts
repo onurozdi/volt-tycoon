@@ -12,8 +12,8 @@ import {
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
-  batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, prodInterval, researchCost,
-  researchLevel, sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
+  batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, hasAutoClaim, prodInterval,
+  researchCost, researchLevel, sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
 } from '../core/formulas';
 import type { GameState } from '../core/state';
 import { resetGame, saveGame } from '../core/state';
@@ -514,14 +514,26 @@ function renderResearch(c: HTMLElement): void {
   updaters.push(() => {
     rpVal.textContent = fmt(S.rp);
     const dur = claimDuration(S);
-    const ready = S.claimElapsed >= dur;
-    msg.textContent = ready ? t('ui.claimReady') : t('ui.claimFilling');
+    const auto = hasAutoClaim(S);
+    const ready = !auto && S.claimElapsed >= dur;
+    msg.textContent = auto
+      ? `🤖 ${t('research.inventor.name')} — ${t('ui.auto')}`
+      : ready
+        ? t('ui.claimReady')
+        : t('ui.claimFilling');
     fill.style.width = `${Math.min(100, (S.claimElapsed / dur) * 100)}%`;
     label.textContent = ready ? '✓' : fmtTime(dur - S.claimElapsed);
-    btnClaim.textContent = `${t('ui.claim')} +${claimReward(S)}`;
-    btnClaim.disabled = !ready;
-    btnGem.style.visibility = ready ? 'hidden' : 'visible';
-    btnAdClaim.style.visibility = ready ? 'hidden' : 'visible';
+    if (auto) {
+      btnClaim.textContent = `${t('ui.auto')} +${claimReward(S)}`;
+      btnClaim.disabled = true;
+      btnGem.style.visibility = 'hidden';
+      btnAdClaim.style.visibility = 'hidden';
+    } else {
+      btnClaim.textContent = `${t('ui.claim')} +${claimReward(S)}`;
+      btnClaim.disabled = !ready;
+      btnGem.style.visibility = ready ? 'hidden' : 'visible';
+      btnAdClaim.style.visibility = ready ? 'hidden' : 'visible';
+    }
   });
 
   // Araştırma listesi — haberlerle aynı tier mantığı: yalnızca açık
@@ -991,6 +1003,7 @@ export function showWelcomeBack(report: OfflineReport): void {
         <div class="wb-cell"><b>${fmtMoney(report.earned)}</b><span>${t('wb.earned')}</span></div>
       </div>
       ${report.claimReady ? `<p>🧪 ${t('wb.claimReady')}</p>` : ''}
+      ${report.rp > 0 ? `<p>🤖 +${fmt(report.rp)} ${t('research.points')}</p>` : ''}
       <div class="modal-btns">
         <button class="btn btn-buy wb-collect">${t('ui.collect')}</button>
         ${report.earned > 0 ? `<button class="btn btn-ad wb-double">${icon('play')}${t('ui.double')}</button>` : ''}

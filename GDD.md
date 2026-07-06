@@ -122,6 +122,19 @@ Tavana ulaşan buton "MAX" olur. Sayaç `3/6` biçiminde gösterilir. Not: perso
 - **Claim**: 4 dakikada dolar; dolunca oyuncu claim eder → **baz 5 RP** (research ile artar: `(5 + toplamsal) × çarpımsal`). Offline'da da dolar (tek sefer, birikmez).
 - **Research ağacı tier'lıdır** (haberlerle aynı mantık): her tesisin kendi araştırmaları vardır ve yalnızca o tesis açıkken görünür. RP kazanım hızını artıran araştırmalar her tier'a serpiştirilmiştir — research ekonomisi kendi kendini besler.
 
+### Ar-Ge personeli merdiveni (otomatik claim)
+
+Her tesiste bir "Ar-Ge personası" araştırması vardır; ilki otomasyonu açar, sonrakiler iyileştirir:
+
+| Tesis | Persona | Etki | Maliyet (RP) |
+|---|---|---|---|
+| Garage | **Mucit** | Claim dolduğunda otomatik toplanır (offline dahil) | 200 |
+| Workshop | **Ar-Ge Asistanı** | Claim süresi ×0,8 | 300 |
+| Factory | **R&D Manager** | Claim başına RP ×1,5 | 900 |
+| Giga | **Tekillik Çekirdeği** | Claim başına RP ×2 | 4.500 |
+
+Mucit'ten önce claim manuel tıklamayla toplanır (erken oyunun "uğrama" ritüeli); Mucit orta oyunda kazanılan bir konfor terfisidir.
+
 | Tier | Araştırma | Etki | Maliyet (RP) |
 |---|---|---|---|
 | Garage | Efficient Assembly I–III | üretim −10%/sv | 10/30/80 |

@@ -6,8 +6,9 @@ import {
 } from './config';
 import type { NewsEventDef } from './config';
 import {
-  batchSize, claimDuration, claimReward, offlineCapSeconds, prodInterval, researchCost,
-  sellInterval, sellPrice, sellPriceNoBoost, staffCapFor, staffCost, stockCap, vehicleDef,
+  batchSize, claimDuration, claimReward, hasAutoClaim, offlineCapSeconds, prodInterval,
+  researchCost, sellInterval, sellPrice, sellPriceNoBoost, staffCapFor, staffCost,
+  stockCap, vehicleDef,
 } from './formulas';
 import type { GameState } from './state';
 
@@ -17,6 +18,8 @@ export interface OfflineReport {
   sold: number;
   earned: number;
   claimReady: boolean;
+  /** Ar-Ge Müdürü'nün offline topladığı RP */
+  rp: number;
 }
 
 export interface EngineEvents {
@@ -60,8 +63,17 @@ function tickNewsEvents(s: GameState, dt: number): void {
 export function tick(s: GameState, dt: number): void {
   tickNewsEvents(s, dt);
 
-  // Claim dolumu
-  s.claimElapsed = Math.min(s.claimElapsed + dt, claimDuration(s));
+  // Claim dolumu (Ar-Ge Müdürü varsa dolduğunda otomatik toplanır)
+  if (hasAutoClaim(s)) {
+    s.claimElapsed += dt;
+    const dur = claimDuration(s);
+    while (s.claimElapsed >= dur) {
+      s.claimElapsed -= dur;
+      s.rp += claimReward(s);
+    }
+  } else {
+    s.claimElapsed = Math.min(s.claimElapsed + dt, claimDuration(s));
+  }
 
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
@@ -345,7 +357,7 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
   s.money += earned;
   s.stats.totalEarned += earned;
   checkAchievements(s);
-  return { seconds, produced, sold, earned, claimReady: false };
+  return { seconds, produced, sold, earned, claimReady: false, rp: 0 };
 }
 
 // ---------- Offline progress ----------
@@ -359,10 +371,21 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   if (rawSec < OFFLINE_MIN_SECONDS) return null;
   const T = Math.min(rawSec, offlineCapSeconds(s));
 
-  // Claim offline da dolar
-  const beforeClaim = s.claimElapsed;
-  s.claimElapsed = Math.min(s.claimElapsed + T, claimDuration(s));
-  const claimReady = s.claimElapsed >= claimDuration(s) && beforeClaim < claimDuration(s);
+  // Claim offline da dolar; Mucit varsa dolan claim'ler otomatik toplanır
+  const dur = claimDuration(s);
+  let rpGained = 0;
+  let claimReady = false;
+  if (hasAutoClaim(s)) {
+    const total = s.claimElapsed + T;
+    const claims = Math.floor(total / dur);
+    rpGained = claims * claimReward(s);
+    s.rp += rpGained;
+    s.claimElapsed = total % dur;
+  } else {
+    const beforeClaim = s.claimElapsed;
+    s.claimElapsed = Math.min(beforeClaim + T, dur);
+    claimReady = s.claimElapsed >= dur && beforeClaim < dur;
+  }
 
   let produced = 0;
   let sold = 0;
@@ -410,8 +433,8 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   }
 
   checkAchievements(s);
-  if (produced === 0 && sold === 0 && !claimReady) return null;
-  return { seconds: Math.floor(T), produced, sold, earned, claimReady };
+  if (produced === 0 && sold === 0 && !claimReady && rpGained === 0) return null;
+  return { seconds: Math.floor(T), produced, sold, earned, claimReady, rp: rpGained };
 }
 
 /** Welcome-back ekranında reklamla ×2: raporun kazancı kadar tekrar ekler */
