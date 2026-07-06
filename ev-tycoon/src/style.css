@@ -835,6 +835,20 @@ button {
 .seg .btn.on { color: var(--cyan); border-color: var(--cyan); box-shadow: var(--glow-cyan); }
 .about { text-align: center; color: var(--text-dim); font-size: 11px; margin-top: 18px; }
 
+/* Yasal bölüm */
+.legal-panel .seg .btn { font-size: 11px; }
+.legal-text { font-size: 10.5px; color: var(--text-dim); line-height: 1.45; margin-top: 6px; }
+.legal-modal { text-align: left; max-height: 80dvh; display: flex; flex-direction: column; }
+.legal-modal h2 { text-align: center; font-size: 15px; }
+.legal-body {
+  overflow-y: auto;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.55;
+  white-space: pre-line;
+  padding-right: 4px;
+}
+
 .icon { display: inline-grid; place-items: center; }
 .icon svg { width: 100%; height: 100%; display: block; }
 

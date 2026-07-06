@@ -195,6 +195,33 @@ const en: Dict = {
   'settings.cancel': 'Cancel',
   'settings.about': 'Volt Tycoon v0.1.0 — built with ⚡',
 
+  // Yasal
+  'legal.title': 'Legal',
+  'legal.privacy': 'Privacy Policy',
+  'legal.terms': 'Terms of Use',
+  'legal.copyright': '© 2026 Volt Tycoon. All rights reserved.',
+  'legal.fiction': 'All characters, companies, brands and news in this game are fictional. Any resemblance to real persons or companies is coincidental and intended as parody.',
+  'legal.privacyBody': `Your game progress is stored only on your device. We do not collect, store or share any personal data.
+
+The game does not require an account and does not access your contacts, location, camera or files.
+
+This test version shows simulated ads only. The mobile release will show rewarded video ads served by third-party ad networks (e.g. Google AdMob), which may process data as described in their own privacy policies. Where required, you will be asked for consent before any ads are shown.
+
+Deleting the app (or clearing browser data in the web version) permanently removes your save.
+
+Questions? Contact us via the store page of the app.`,
+  'legal.termsBody': `Volt Tycoon is provided free of charge, for entertainment purposes, "as is" and without warranties of any kind.
+
+In-game currencies (money, gems, research points) are fictional, have no real-world value, cannot be exchanged for real money and are not refundable.
+
+Watching optional rewarded ads is always your choice; rewards are granted only for fully watched ads.
+
+We may update, change or discontinue the game and its content (including balance changes) at any time.
+
+Using cheats, exploits or automated tools may result in loss of progress.
+
+By playing, you accept these terms.`,
+
   // Welcome back
   'wb.title': 'WELCOME BACK!',
   'wb.away': 'You were away for {time}.',
@@ -466,6 +493,32 @@ const tr: Dict = {
   'settings.cancel': 'Vazgeç',
   'settings.about': 'Volt Tycoon v0.1.0 — ⚡ ile yapıldı',
 
+  'legal.title': 'Yasal',
+  'legal.privacy': 'Gizlilik Politikası',
+  'legal.terms': 'Kullanım Koşulları',
+  'legal.copyright': '© 2026 Volt Tycoon. Tüm hakları saklıdır.',
+  'legal.fiction': 'Bu oyundaki tüm karakterler, şirketler, markalar ve haberler kurgusaldır. Gerçek kişi veya kurumlarla benzerlikler tesadüfidir ve parodi amaçlıdır.',
+  'legal.privacyBody': `Oyun ilerlemeniz yalnızca cihazınızda saklanır. Hiçbir kişisel veri toplamaz, saklamaz veya paylaşmayız.
+
+Oyun hesap gerektirmez; kişilerinize, konumunuza, kameranıza veya dosyalarınıza erişmez.
+
+Bu test sürümünde yalnızca simüle reklamlar gösterilir. Mobil sürümde ödüllü video reklamları üçüncü taraf reklam ağları (ör. Google AdMob) tarafından sunulacak ve bu ağlar verileri kendi gizlilik politikalarında açıklandığı şekilde işleyebilecektir. Gerekli olan yerlerde, reklam gösterilmeden önce onayınız istenir.
+
+Uygulamayı silmek (web sürümünde tarayıcı verilerini temizlemek) kaydınızı kalıcı olarak siler.
+
+Sorularınız için uygulamanın mağaza sayfasından bize ulaşabilirsiniz.`,
+  'legal.termsBody': `Volt Tycoon ücretsizdir, eğlence amaçlıdır ve "olduğu gibi", hiçbir garanti verilmeksizin sunulur.
+
+Oyun içi para birimleri (para, elmas, araştırma puanı) kurgusaldır; gerçek dünyada değeri yoktur, gerçek paraya çevrilemez ve iade edilemez.
+
+İsteğe bağlı ödüllü reklamları izlemek her zaman sizin seçiminizdir; ödüller yalnızca tamamen izlenen reklamlar için verilir.
+
+Oyunu ve içeriğini (denge değişiklikleri dahil) dilediğimiz zaman güncelleyebilir, değiştirebilir veya sonlandırabiliriz.
+
+Hile, açık istismarı veya otomasyon araçları kullanmak ilerleme kaybıyla sonuçlanabilir.
+
+Oynayarak bu koşulları kabul etmiş olursunuz.`,
+
   'wb.title': 'TEKRAR HOŞ GELDİN!',
   'wb.away': '{time} boyunca uzaktaydın.',
   'wb.produced': 'Üretilen',
@@ -725,6 +778,32 @@ const es: Dict = {
   'settings.resetBtn': 'BORRAR TODO',
   'settings.cancel': 'Cancelar',
   'settings.about': 'Volt Tycoon v0.1.0 — hecho con ⚡',
+
+  'legal.title': 'Legal',
+  'legal.privacy': 'Política de Privacidad',
+  'legal.terms': 'Condiciones de Uso',
+  'legal.copyright': '© 2026 Volt Tycoon. Todos los derechos reservados.',
+  'legal.fiction': 'Todos los personajes, empresas, marcas y noticias de este juego son ficticios. Cualquier parecido con personas o empresas reales es pura coincidencia y tiene intención de parodia.',
+  'legal.privacyBody': `Tu progreso se guarda únicamente en tu dispositivo. No recopilamos, almacenamos ni compartimos datos personales.
+
+El juego no requiere cuenta y no accede a tus contactos, ubicación, cámara ni archivos.
+
+Esta versión de prueba solo muestra anuncios simulados. La versión móvil mostrará anuncios de vídeo con recompensa servidos por redes publicitarias de terceros (p. ej. Google AdMob), que pueden tratar datos según sus propias políticas de privacidad. Donde sea obligatorio, se pedirá tu consentimiento antes de mostrar anuncios.
+
+Eliminar la app (o borrar los datos del navegador en la versión web) elimina tu partida de forma permanente.
+
+¿Dudas? Contáctanos desde la página de la tienda de la app.`,
+  'legal.termsBody': `Volt Tycoon es gratuito, con fines de entretenimiento, y se ofrece "tal cual", sin garantías de ningún tipo.
+
+Las monedas del juego (dinero, gemas, puntos de investigación) son ficticias, no tienen valor real, no pueden cambiarse por dinero real y no son reembolsables.
+
+Ver anuncios con recompensa es siempre opcional; las recompensas se otorgan solo por anuncios vistos por completo.
+
+Podemos actualizar, cambiar o descontinuar el juego y su contenido (incluidos ajustes de balance) en cualquier momento.
+
+El uso de trampas, exploits o herramientas automatizadas puede conllevar la pérdida del progreso.
+
+Al jugar, aceptas estas condiciones.`,
 
   'wb.title': '¡BIENVENIDO DE NUEVO!',
   'wb.away': 'Estuviste fuera {time}.',

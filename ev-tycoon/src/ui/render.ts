@@ -877,6 +877,37 @@ function renderSettings(c: HTMLElement): void {
     });
   });
 
+  // Yasal bölüm
+  const legal = el(`<div class="panel legal-panel">
+    <div class="panel-name" style="margin-bottom:8px">${t('legal.title')}</div>
+    <div class="seg" style="margin-bottom:10px">
+      <button class="btn show-privacy">${t('legal.privacy')}</button>
+      <button class="btn show-terms">${t('legal.terms')}</button>
+    </div>
+    <div class="legal-text">${t('legal.fiction')}</div>
+    <div class="legal-text">${t('legal.copyright')}</div>
+  </div>`);
+  c.appendChild(legal);
+  const showLegalDoc = (titleKey: string, bodyKey: string): void => {
+    const overlay = el(`<div class="modal-overlay">
+      <div class="modal legal-modal">
+        <h2>${t(titleKey)}</h2>
+        <div class="legal-body">${t(bodyKey)}</div>
+        <div class="modal-btns"><button class="btn btn-buy m-close">${t('ui.close')}</button></div>
+      </div>
+    </div>`);
+    document.body.appendChild(overlay);
+    (overlay.querySelector('.m-close') as HTMLButtonElement).addEventListener('click', () => overlay.remove());
+  };
+  (legal.querySelector('.show-privacy') as HTMLButtonElement).addEventListener('click', () => {
+    sfx.click();
+    showLegalDoc('legal.privacy', 'legal.privacyBody');
+  });
+  (legal.querySelector('.show-terms') as HTMLButtonElement).addEventListener('click', () => {
+    sfx.click();
+    showLegalDoc('legal.terms', 'legal.termsBody');
+  });
+
   c.appendChild(el(`<div class="about">${t('settings.about')}</div>`));
 }
 
