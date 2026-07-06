@@ -764,7 +764,9 @@ function renderSettings(c: HTMLElement): void {
 
 export function rotateNews(immediate = false): void {
   const box = $('#ticker');
-  const pool = NEWS.filter((n) => n.vehicleId === null || S.lines[n.vehicleId]?.unlocked);
+  const pool = NEWS.filter(
+    (n) => S.locations[n.locationId] && (n.vehicleId === null || S.lines[n.vehicleId]?.unlocked),
+  );
   const pick = pool[Math.floor(Math.random() * pool.length)];
   box.innerHTML = `<span class="tk-badge">EV NEWS</span><span class="tk-wrap"><span class="tk-text">${t(pick.key)}</span></span>`;
   if (immediate) newsTimer = 0;

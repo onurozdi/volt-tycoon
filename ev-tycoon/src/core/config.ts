@@ -237,27 +237,37 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
 ];
 
-// Haber havuzu: vehicleId null → genel haber, dolu → o araç açık olmalı
+// Haber havuzu — mekân katmanına bağlı (GDD 9: mekân büyüdükçe ciddileşir).
+// locationId: o mekân açık olmalı. vehicleId: o araç açık olmalı.
 export interface NewsDef {
   key: string;
+  locationId: string;
   vehicleId: string | null;
 }
 
 export const NEWS: NewsDef[] = [
-  { key: 'news.generic1', vehicleId: null },
-  { key: 'news.generic2', vehicleId: null },
-  { key: 'news.generic3', vehicleId: null },
-  { key: 'news.generic4', vehicleId: null },
-  { key: 'news.generic5', vehicleId: null },
-  { key: 'news.zipvolt1', vehicleId: 'zipvolt' },
-  { key: 'news.zipvolt2', vehicleId: 'zipvolt' },
-  { key: 'news.voltrider1', vehicleId: 'voltrider' },
-  { key: 'news.voltrider2', vehicleId: 'voltrider' },
-  { key: 'news.econoev1', vehicleId: 'econoev' },
-  { key: 'news.econoev2', vehicleId: 'econoev' },
-  { key: 'news.trihauler1', vehicleId: 'trihauler' },
-  { key: 'news.fairwaygo1', vehicleId: 'fairwaygo' },
-  { key: 'news.citypod1', vehicleId: 'citypod' },
+  // Katman 1 — Home Garage: mahalle mizahı
+  { key: 'news.g1', locationId: 'garage', vehicleId: null },
+  { key: 'news.g2', locationId: 'garage', vehicleId: null },
+  { key: 'news.g3', locationId: 'garage', vehicleId: null },
+  { key: 'news.g4', locationId: 'garage', vehicleId: null },
+  { key: 'news.g5', locationId: 'garage', vehicleId: null },
+  { key: 'news.g6', locationId: 'garage', vehicleId: null },
+  { key: 'news.zipvolt1', locationId: 'garage', vehicleId: 'zipvolt' },
+  { key: 'news.zipvolt2', locationId: 'garage', vehicleId: 'zipvolt' },
+  { key: 'news.voltrider1', locationId: 'garage', vehicleId: 'voltrider' },
+  { key: 'news.voltrider2', locationId: 'garage', vehicleId: 'voltrider' },
+  { key: 'news.econoev1', locationId: 'garage', vehicleId: 'econoev' },
+  { key: 'news.econoev2', locationId: 'garage', vehicleId: 'econoev' },
+  // Katman 2 — Workshop: şehir/belediye
+  { key: 'news.w1', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w2', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w3', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w4', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w5', locationId: 'workshop', vehicleId: null },
+  { key: 'news.trihauler1', locationId: 'workshop', vehicleId: 'trihauler' },
+  { key: 'news.fairwaygo1', locationId: 'workshop', vehicleId: 'fairwaygo' },
+  { key: 'news.citypod1', locationId: 'workshop', vehicleId: 'citypod' },
 ];
 
 // ---- Haber olayları (popup + geçici oynanış etkisi) ----
@@ -266,6 +276,8 @@ export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price';
 
 export interface NewsEventDef {
   id: string;
+  /** olayın çıkabilmesi için açık olması gereken mekân */
+  locationId: string;
   /** null → tüm araçlar; dolu → yalnızca o araç (ve araç açıksa çıkar) */
   vehicleId: string | null;
   kind: EventKind;
@@ -275,19 +287,26 @@ export interface NewsEventDef {
 }
 
 export const NEWS_EVENTS: NewsEventDef[] = [
-  // Olumlu
-  { id: 'viral_zipvolt', vehicleId: 'zipvolt', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
-  { id: 'viral_voltrider', vehicleId: 'voltrider', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
-  { id: 'viral_econoev', vehicleId: 'econoev', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
-  { id: 'viral_trihauler', vehicleId: 'trihauler', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
-  { id: 'viral_fairwaygo', vehicleId: 'fairwaygo', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
-  { id: 'viral_citypod', vehicleId: 'citypod', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
-  { id: 'battery_deal', vehicleId: null, kind: 'prodSpeed', mult: 1.3, durationSec: 90, positive: true },
-  { id: 'ev_expo', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 90, positive: true },
-  { id: 'subsidy', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 120, positive: true },
-  // Hafif olumsuz
-  { id: 'parts_delay', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
-  { id: 'market_dip', vehicleId: null, kind: 'price', mult: 0.85, durationSec: 60, positive: false },
+  // ---- Katman 1 — Home Garage: mahalle olayları ----
+  { id: 'trash_batteries', locationId: 'garage', vehicleId: null, kind: 'prodSpeed', mult: 1.3, durationSec: 90, positive: true },
+  { id: 'neighbor_cable', locationId: 'garage', vehicleId: null, kind: 'prodSpeed', mult: 1.2, durationSec: 120, positive: true },
+  { id: 'kids_race', locationId: 'garage', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 90, positive: true },
+  { id: 'garage_sale', locationId: 'garage', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 90, positive: true },
+  { id: 'fuse_blown', locationId: 'garage', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
+  { id: 'neighbor_complaint', locationId: 'garage', vehicleId: null, kind: 'sellSpeed', mult: 0.9, durationSec: 60, positive: false },
+  { id: 'viral_zipvolt', locationId: 'garage', vehicleId: 'zipvolt', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_voltrider', locationId: 'garage', vehicleId: 'voltrider', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_econoev', locationId: 'garage', vehicleId: 'econoev', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  // ---- Katman 2 — Workshop: şehir/belediye olayları ----
+  { id: 'mayor_visit', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 1.3, durationSec: 90, positive: true },
+  { id: 'city_parking', locationId: 'workshop', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 120, positive: true },
+  { id: 'battery_deal', locationId: 'workshop', vehicleId: null, kind: 'prodSpeed', mult: 1.3, durationSec: 90, positive: true },
+  { id: 'subsidy', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 120, positive: true },
+  { id: 'grid_maintenance', locationId: 'workshop', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
+  { id: 'market_dip', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 0.85, durationSec: 60, positive: false },
+  { id: 'viral_trihauler', locationId: 'workshop', vehicleId: 'trihauler', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_fairwaygo', locationId: 'workshop', vehicleId: 'fairwaygo', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_citypod', locationId: 'workshop', vehicleId: 'citypod', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
 ];
 
 export const EVENT_GAP_MIN = 240; // sn — iki olay arası en az

@@ -136,6 +136,19 @@ Tavana ulaşan buton "MAX" olur. Sayaç `3/6` biçiminde gösterilir. Not: perso
 
 **a) Haber bandı (ticker):** Ana ekranda kayan mizahi/atmosferik haberler. Havuz, kilit durumuna göre filtrelenir. Oynanışa etkisi yoktur.
 
+### Haber hiyerarşisi (mekân büyüdükçe ciddileşir)
+
+Her haber ve haber olayı bir **mekân katmanına** bağlıdır; yalnızca o mekân açıksa havuza girer. Ton, katmanla birlikte olgunlaşır:
+
+| Katman | Mekân | Ton | Örnek |
+|---|---|---|---|
+| 1 | Home Garage | Mahalle mizahı — komşular, kediler, uzatma kabloları | "Komşunun çöpünde 4 akü buldun!" |
+| 2 | Workshop | Şehir/belediye — başkan ziyareti, park indirimi, şebeke bakımı | "Belediyeden elektrikli araçlara ücretsiz park!" |
+| 3 | Factory (ileride) | Sektörel, görece ciddi — tedarik zinciri, ihracat, borsa | "Çeyrek raporu beklentileri aştı." |
+| 4–5 | Global (ileride) | Kurumsal parodi — Tesla/Musk *benzeri* ama telifsiz parodi isimler | "Rakip CEO 'Peron Tusk' roketle işe gitti." |
+
+Alt katman haberleri havuzdan çıkmaz (mahalle esprisi hep tatlı kalır) ama üst katmanlar açıldıkça havuz ciddileşen içerikle genişler. Gerçek kişi/marka adı KULLANILMAZ — mağaza güvenliği için parodi adlar.
+
 **b) Haber olayları (popup):** Seyrek aralıklarla (4–7 dakikada bir, rastgele) ekrana "SON DAKİKA" popup'ı çıkar ve **geçici bir oynanış etkisi** uygular. Kurallar:
 
 - Etkiler çoğunlukla olumludur (%75); olumsuz olaylar seyrek ve hafiftir (%25, en fazla −%15).

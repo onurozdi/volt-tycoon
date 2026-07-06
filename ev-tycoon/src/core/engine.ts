@@ -45,7 +45,10 @@ function tickNewsEvents(s: GameState, dt: number): void {
   s.nextEventIn = EVENT_GAP_MIN + Math.random() * (EVENT_GAP_MAX - EVENT_GAP_MIN);
   const wantPositive = Math.random() < EVENT_POSITIVE_CHANCE;
   const pool = NEWS_EVENTS.filter(
-    (e) => e.positive === wantPositive && (e.vehicleId === null || s.lines[e.vehicleId]?.unlocked),
+    (e) =>
+      e.positive === wantPositive &&
+      s.locations[e.locationId] &&
+      (e.vehicleId === null || s.lines[e.vehicleId]?.unlocked),
   );
   if (pool.length === 0) return;
   const def = pool[Math.floor(Math.random() * pool.length)];
