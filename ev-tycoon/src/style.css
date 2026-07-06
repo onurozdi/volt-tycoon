@@ -197,14 +197,14 @@ html, body {
   text-align: center;
   color: var(--cyan);
   text-shadow: var(--glow-cyan);
-  margin: 2px 0 2px;
+  margin: 4px 0 14px;
 }
 
 .screen-sub {
   text-align: center;
   color: var(--text-dim);
   font-size: 12px;
-  margin-bottom: 14px;
+  margin: -8px 0 14px; /* başlığın alt boşluğunu kısmen geri alır */
   letter-spacing: 0.5px;
 }
 
@@ -826,10 +826,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 2px;
+  gap: 12px;
+  padding: 14px 16px;
   font-size: 14px;
   font-weight: 600;
+  margin-bottom: 14px;
 }
+.legal-panel { padding: 14px 16px; }
 .seg { display: flex; gap: 6px; }
 .seg .btn { padding: 7px 14px; background: #0a1330; border: 1px solid var(--line); color: var(--text-dim); }
 .seg .btn.on { color: var(--cyan); border-color: var(--cyan); box-shadow: var(--glow-cyan); }
