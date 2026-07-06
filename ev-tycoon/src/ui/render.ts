@@ -89,7 +89,10 @@ function refresh(): void {
 
 // ---------- HUD ----------
 
-let hudMoney: HTMLElement, hudGems: HTMLElement, hudBoost: HTMLElement;
+let hudMoney: HTMLElement, hudGems: HTMLElement, hudBoost: HTMLElement, hudRate: HTMLElement;
+
+// Gelir hızı: son ~10 sn'nin gerçek kazancından ölçülür (dürüst gösterge)
+const incomeSamples: Array<{ t: number; earned: number }> = [];
 
 function renderHUD(): void {
   const hud = $('#hud');
@@ -97,10 +100,11 @@ function renderHUD(): void {
   hud.appendChild(el(`<div class="hud-brand">${icon('bolt')}<span>VOLT TYCOON</span>${icon('bolt')}</div>`));
   const row = el(`<div class="hud-stats"></div>`);
   hud.appendChild(row);
-  row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span></div>`));
+  row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span><span class="rate"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));
   hudMoney = row.querySelector('.hud-money .val') as HTMLElement;
+  hudRate = row.querySelector('.hud-money .rate') as HTMLElement;
   hudGems = row.querySelector('.hud-gems .val') as HTMLElement;
   hudBoost = row.querySelector('.hud-boost') as HTMLElement;
 }
@@ -986,6 +990,15 @@ export function updateFrame(dt: number): void {
     hudMoney.textContent = fmt(S.money);
     lastMoney = S.money;
   }
+
+  // Gelir hızı göstergesi (para hapının sağ ucu)
+  const now = performance.now();
+  incomeSamples.push({ t: now, earned: S.stats.totalEarned });
+  while (incomeSamples.length > 2 && now - incomeSamples[0].t > 10_000) incomeSamples.shift();
+  const first = incomeSamples[0];
+  const span = (now - first.t) / 1000;
+  const rate = span > 2 ? ((S.stats.totalEarned - first.earned) / span) * 60 : 0;
+  hudRate.textContent = rate > 0 ? t('ui.perMin', { n: '+' + fmtMoney(rate) }) : '';
   if (S.gems !== lastGems) {
     hudGems.textContent = String(S.gems);
     lastGems = S.gems;

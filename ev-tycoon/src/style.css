@@ -115,6 +115,14 @@ html, body {
 .hud-stat .icon { width: 17px; height: 17px; }
 .hud-money { color: var(--lime); flex: 1; }
 .hud-money .icon { color: var(--lime); filter: drop-shadow(0 0 5px #c8f43e88); }
+.hud-money .rate {
+  margin-left: auto;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 0.2px;
+  font-variant-numeric: tabular-nums;
+}
 /* Gem kimliği: butonlarla aynı premium mor */
 .hud-gems { color: #c9b6ff; background: #191040cc; border-color: #6b4ddb99; }
 .hud-gems .icon { color: #c9b6ff; filter: drop-shadow(0 0 5px #a98aff); }
