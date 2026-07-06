@@ -153,16 +153,16 @@ function renderTab(tab: Tab): void {
 // ---------- HOME ----------
 
 function renderHome(c: HTMLElement): void {
-  c.appendChild(el(`<div class="screen-title">${t('home.title')}</div>`));
-  c.appendChild(el(`<div class="screen-sub">${t('home.subtitle')}</div>`));
   // Kademeli açılım: açık mekânlar + yalnızca SIRADAKİ kilitli mekân görünür;
-  // daha sonrakiler tamamen gizli kalır (merak unsuru)
+  // daha sonrakiler tamamen gizli kalır (merak unsuru).
+  // Her tesis aynı yapıyı kullanır: başlık + altında özlü söz.
   for (const loc of LOCATIONS) {
-    c.appendChild(el(`<div class="loc-header">${icon(loc.icon)}<span>${t(loc.nameKey)}</span></div>`));
+    c.appendChild(el(`<div class="loc-title">${icon(loc.icon)}<span>${t(loc.nameKey)}</span></div>`));
     if (!S.locations[loc.id]) {
       c.appendChild(locationUnlockCard(loc.id));
       break;
     }
+    c.appendChild(el(`<div class="loc-motto">${t(loc.nameKey + '.motto')}</div>`));
     const cards = el(`<div class="cards"></div>`);
     c.appendChild(cards);
     for (const v of VEHICLES.filter((x) => x.locationId === loc.id)) {

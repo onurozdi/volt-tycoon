@@ -250,7 +250,45 @@ html, body {
   box-shadow: 0 0 16px #ffd35e55, inset 0 1px 0 #ffffff77;
 }
 
-/* Mekân bölüm başlığı */
+/* Tesis bölüm başlığı + özlü söz (ana sayfa) */
+.loc-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 18px 2px 3px;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  text-shadow: 0 0 8px #3ef0c855;
+}
+.loc-title:first-child { margin-top: 4px; }
+.loc-title .icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  filter: drop-shadow(0 0 5px currentColor);
+}
+.loc-title::before,
+.loc-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  max-width: 70px;
+}
+.loc-title::before { background: linear-gradient(90deg, transparent, var(--line)); }
+.loc-title::after { background: linear-gradient(90deg, var(--line), transparent); }
+.loc-motto {
+  text-align: center;
+  font-size: 11.5px;
+  font-style: italic;
+  color: var(--text-dim);
+  letter-spacing: 0.4px;
+  margin-bottom: 12px;
+}
+
+/* Mekân bölüm başlığı (research sekmesi) */
 .loc-header {
   display: flex;
   align-items: center;

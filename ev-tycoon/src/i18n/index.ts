@@ -27,6 +27,10 @@ const en: Dict = {
   'loc.workshop.desc': 'A real production floor with room for bigger vehicles. Opens 3 new production lines…',
   'loc.factory.desc': 'A full-scale automotive plant. Real cars, real numbers. Opens 3 new production lines…',
   'loc.gigafactory.desc': 'Colossal halls, robotic swarms, global ambitions. Opens 3 new production lines…',
+  'loc.garage.motto': 'Every empire starts in a garage.',
+  'loc.workshop.motto': 'Where hobbies become businesses.',
+  'loc.factory.motto': 'Real steel, real scale.',
+  'loc.gigafactory.motto': 'Think in gigawatts.',
 
   // Genel UI
   'ui.produce': 'PRODUCE',
@@ -302,6 +306,10 @@ const tr: Dict = {
   'loc.workshop.desc': 'Daha büyük araçlara yer açan gerçek bir üretim katı. 3 yeni üretim hattı açar…',
   'loc.factory.desc': 'Tam ölçekli bir otomotiv fabrikası. Gerçek arabalar, gerçek rakamlar. 3 yeni üretim hattı açar…',
   'loc.gigafactory.desc': 'Devasa holler, robot orduları, küresel hedefler. 3 yeni üretim hattı açar…',
+  'loc.garage.motto': 'Her imparatorluk bir garajda başlar.',
+  'loc.workshop.motto': 'Hobilerin işe dönüştüğü yer.',
+  'loc.factory.motto': 'Gerçek çelik, gerçek ölçek.',
+  'loc.gigafactory.motto': 'Gigavat cinsinden düşün.',
 
   'ui.produce': 'ÜRET',
   'ui.sell': 'SAT',
@@ -559,6 +567,10 @@ const es: Dict = {
   'loc.workshop.desc': 'Una planta de producción real con espacio para vehículos más grandes. Abre 3 nuevas líneas…',
   'loc.factory.desc': 'Una planta automotriz a gran escala. Coches reales, números reales. Abre 3 nuevas líneas…',
   'loc.gigafactory.desc': 'Naves colosales, enjambres robóticos, ambiciones globales. Abre 3 nuevas líneas…',
+  'loc.garage.motto': 'Todo imperio empieza en un garaje.',
+  'loc.workshop.motto': 'Donde los hobbies se vuelven negocios.',
+  'loc.factory.motto': 'Acero real, escala real.',
+  'loc.gigafactory.motto': 'Piensa en gigavatios.',
 
   'ui.produce': 'PRODUCIR',
   'ui.sell': 'VENDER',
