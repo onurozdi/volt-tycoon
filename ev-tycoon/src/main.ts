@@ -1,8 +1,8 @@
 import './style.css';
-import { AUTOSAVE_INTERVAL } from './core/config';
+import { AUTOSAVE_INTERVAL, SAVE_KEY } from './core/config';
 import { computeOffline, setEngineEvents, tick } from './core/engine';
 import { fmtMoney } from './core/formulas';
-import { loadGame, newGame, saveGame } from './core/state';
+import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
 import { floatMoney, initUI, persist, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
@@ -86,3 +86,12 @@ document.addEventListener('visibilitychange', () => {
 });
 
 window.addEventListener('beforeunload', () => saveGame(state));
+
+// Başka bir sekmede kayıt sıfırlanırsa bu sekme eski durumu geri yazmasın:
+// kaydı devre dışı bırak ve baştan başla
+window.addEventListener('storage', (e) => {
+  if (e.key === SAVE_KEY && e.newValue === null) {
+    resetGame();
+    location.reload();
+  }
+});
