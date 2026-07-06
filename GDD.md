@@ -41,6 +41,26 @@ Oyuncu küçük bir **ev garajında** elektrikli araç üretmeye başlar. Amaç:
 
 Lisans hem para hem gem ister. Gem'ler başarımlardan ve ödüllü videodan kazanılır — böylece video izlemenin somut bir amacı olur ama zorunlu değildir (başarımlar da yeter).
 
+## 4b. Workshop (2. mekân)
+
+**Atölye**, $75.000'a açılır (yalnızca para; gem lisanslarda). Açılınca ana ekranda kendi bölüm başlığı altında 3 yeni üretim hattı gelir:
+
+| # | İsim | Sınıf | Lisans (para) | Lisans (gem) | Üretim | Satış | Fiyat | Stok |
+|---|---|---|---|---|---|---|---|---|
+| 4 | **TriHauler** | Elektrikli kargo trike | $35K | 💎 30 | 75 sn | 40 sn | $3.400 | 12 |
+| 5 | **FairwayGo** | Elektrikli golf aracı | $180K | 💎 35 | 150 sn | 80 sn | $16K | 10 |
+| 6 | **CityPod** | Mahalle elektrikli aracı (NEV) | $900K | 💎 40 | 360 sn | 180 sn | $90K | 8 |
+
+Personel bedelleri (teknisyen ≈ fiyat×2,2, müdürler ≈ fiyat×40, ×1,35 artış aynı):
+
+| Araç | Teknisyen | Satış Temsilcisi | Üretim Müdürü | Satış Müdürü |
+|---|---|---|---|---|
+| TriHauler | $7,5K | $6K | $130K | $160K |
+| FairwayGo | $36K | $29K | $640K | $770K |
+| CityPod | $200K | $160K | $3,6M | $4,3M |
+
+Araca özel haberler ve viral olaylar Workshop araçları için de tanımlıdır.
+
 ### Başlangıç ekonomi değerleri
 
 | Araç | Üretim süresi | Satış süresi | Satış fiyatı | Stok limiti |
@@ -140,7 +160,11 @@ Lisans hem para hem gem ister. Gem'ler başarımlardan ve ödüllü videodan kaz
 
 > **Reklam asla zorunlu olamaz.** Başlangıç gem'i + ("Tam Kadro" hariç) başarımlardan kazanılabilir toplam gem, kümülatif lisans gem bedelinin **en az 1,5 katı** olmalıdır. Yeni araç/lokasyon eklerken bu oran korunur.
 
-Güncel doğrulama: başlangıç 10 + başarımlar 47 = **57 gem** kazanılabilir; lisans ihtiyacı 10 + 25 = **35 gem**; 57 ≥ 52,5 (=35×1,5) ✓. Sabırlı oyuncu yolda birkaç küçük gem harcaması yapsa bile reklamsız tüm lisansları alabilir.
+Güncel doğrulama (Workshop dahil): lisanslar 10+25+30+35+40 = **140 gem** → gerek 210. Havuz: başlangıç 10 + ("Tam Kadro" hariç) başarımlar 202 = **212 ≥ 210** ✓.
+
+### Başarım temposu (bilinçli yavaşlama)
+
+Eşikler ×10 büyür: 100 → 1.000 → 10.000 → 100.000 satış; $10K → $100K → $1M → $10M kazanç. İlk 10 dakikada 4-5 başarım gelir (erken ödül yoğunluğu), orta oyunda saatte 1-2'ye, geç oyunda günlere yayılır. Yeni mekânlar açıldıkça üst katmanlar eklenir; tempo hiçbir zaman erken oyundaki yoğunluğa geri dönmez.
 
 ## 11. UI Yapısı
 

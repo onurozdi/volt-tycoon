@@ -180,6 +180,26 @@ html, body {
   gap: 14px;
 }
 
+/* Mekân bölüm başlığı */
+.loc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 2px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: var(--text-dim);
+}
+.loc-header .icon { width: 16px; height: 16px; color: var(--cyan); }
+.loc-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+.loc-header:first-of-type { margin-top: 4px; }
+
 .vcard {
   position: relative;
   background: var(--panel);
@@ -350,14 +370,22 @@ button {
   font-size: 14px;
 }
 
+/* Gem butonları: premium mor kimlik — "yetersiz/kırmızı" hissi vermez.
+   Gem gerçekten yetmiyorsa .cant ile solar. */
 .btn-gem {
-  background: #2a0e24;
-  border-color: #6b1e56;
-  color: var(--pink);
+  background: #191040;
+  border-color: #6b4ddb99;
+  color: #c9b6ff;
   font-size: 11px;
   padding: 6px 9px;
+  box-shadow: 0 0 10px #7b5cff33;
 }
-/* Üretim satırındaki elmas butonu hücresini tam doldursun */
+.btn-gem .icon { filter: drop-shadow(0 0 4px #a98aff); }
+.btn-gem.cant {
+  filter: grayscale(0.8) brightness(0.55);
+  box-shadow: none;
+}
+/* Üretim/satış satırındaki elmas butonu hücresini tam doldursun */
 .line-row .btn-gem { width: 100%; padding: 6px 4px; }
 
 .btn-ad {

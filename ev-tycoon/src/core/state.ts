@@ -1,4 +1,4 @@
-import { SAVE_KEY, SAVE_VERSION, STARTING_GEMS, VEHICLES } from './config';
+import { LOCATIONS, SAVE_KEY, SAVE_VERSION, STARTING_GEMS, VEHICLES } from './config';
 
 export interface LineState {
   unlocked: boolean;
@@ -21,6 +21,8 @@ export interface GameState {
   gems: number;
   rp: number; // research points
   lines: Record<string, LineState>;
+  /** mekân kilitleri: id -> açık mı */
+  locations: Record<string, boolean>;
   research: Record<string, number>; // id -> seviye
   claimElapsed: number;
   boostUntil: number; // epoch ms; ×2 gelir boostunun bitişi
@@ -55,12 +57,15 @@ export function newLine(unlocked: boolean): LineState {
 export function newGame(lang: 'en' | 'tr'): GameState {
   const lines: Record<string, LineState> = {};
   for (const v of VEHICLES) lines[v.id] = newLine(v.unlockCost === 0);
+  const locations: Record<string, boolean> = {};
+  for (const l of LOCATIONS) locations[l.id] = l.unlockCost === 0;
   return {
     version: SAVE_VERSION,
     money: 0,
     gems: STARTING_GEMS,
     rp: 0,
     lines,
+    locations,
     research: {},
     claimElapsed: 0,
     boostUntil: 0,
@@ -95,9 +100,13 @@ export function loadGame(): GameState | null {
     if (!raw) return null;
     const s = JSON.parse(raw) as GameState;
     if (typeof s.version !== 'number' || !s.lines) return null;
-    // İleride eklenen araçlar eski kayıtlarda eksik olabilir
+    // İleride eklenen araçlar/mekânlar eski kayıtlarda eksik olabilir
     for (const v of VEHICLES) {
       if (!s.lines[v.id]) s.lines[v.id] = newLine(v.unlockCost === 0);
+    }
+    if (!s.locations) s.locations = {};
+    for (const l of LOCATIONS) {
+      if (s.locations[l.id] === undefined) s.locations[l.id] = l.unlockCost === 0;
     }
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;

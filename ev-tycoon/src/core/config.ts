@@ -1,11 +1,24 @@
 // Tüm oyun dengesi bu dosyadadır. GDD.md ile senkron tutulur.
 
+export interface LocationDef {
+  id: string;
+  nameKey: string;
+  unlockCost: number; // 0 = baştan açık (yalnızca para; gem lisanslarda)
+  icon: string;
+}
+
+export const LOCATIONS: LocationDef[] = [
+  { id: 'garage', nameKey: 'loc.garage', unlockCost: 0, icon: 'home' },
+  { id: 'workshop', nameKey: 'loc.workshop', unlockCost: 75_000, icon: 'gear' },
+];
+
 export interface VehicleDef {
   id: string;
   /** i18n anahtarı değil — marka adı, çevrilmez */
   name: string;
   /** i18n anahtarı: araç sınıfı (kick scooter, e-bike...) */
   classKey: string;
+  locationId: string;
   unlockCost: number; // 0 = baştan açık
   unlockGems: number; // lisans için gem bedeli
   baseProdTime: number; // saniye
@@ -26,6 +39,7 @@ export const VEHICLES: VehicleDef[] = [
     id: 'zipvolt',
     name: 'ZipVolt',
     classKey: 'class.kickscooter',
+    locationId: 'garage',
     unlockCost: 0,
     unlockGems: 0,
     baseProdTime: 4,
@@ -43,6 +57,7 @@ export const VEHICLES: VehicleDef[] = [
     id: 'voltrider',
     name: 'VoltRider',
     classKey: 'class.ebike',
+    locationId: 'garage',
     unlockCost: 600,
     unlockGems: 10,
     baseProdTime: 12,
@@ -60,6 +75,7 @@ export const VEHICLES: VehicleDef[] = [
     id: 'econoev',
     name: 'Econo EV',
     classKey: 'class.microcar',
+    locationId: 'garage',
     unlockCost: 9000,
     unlockGems: 25,
     baseProdTime: 45,
@@ -72,6 +88,61 @@ export const VEHICLES: VehicleDef[] = [
     salesManagerCost: 48000,
     icon: 'microcar',
     accent: '#c8f43e',
+  },
+  // ---- Workshop (2. mekân) ----
+  {
+    id: 'trihauler',
+    name: 'TriHauler',
+    classKey: 'class.cargotrike',
+    locationId: 'workshop',
+    unlockCost: 35_000,
+    unlockGems: 30,
+    baseProdTime: 75,
+    baseSellTime: 40,
+    basePrice: 3400,
+    baseStockCap: 12,
+    techBaseCost: 7500,
+    repBaseCost: 6000,
+    prodManagerCost: 130_000,
+    salesManagerCost: 160_000,
+    icon: 'trike',
+    accent: '#ff9d3e',
+  },
+  {
+    id: 'fairwaygo',
+    name: 'FairwayGo',
+    classKey: 'class.golfcart',
+    locationId: 'workshop',
+    unlockCost: 180_000,
+    unlockGems: 35,
+    baseProdTime: 150,
+    baseSellTime: 80,
+    basePrice: 16_000,
+    baseStockCap: 10,
+    techBaseCost: 36_000,
+    repBaseCost: 29_000,
+    prodManagerCost: 640_000,
+    salesManagerCost: 770_000,
+    icon: 'golfcart',
+    accent: '#5eff8f',
+  },
+  {
+    id: 'citypod',
+    name: 'CityPod',
+    classKey: 'class.nev',
+    locationId: 'workshop',
+    unlockCost: 900_000,
+    unlockGems: 40,
+    baseProdTime: 360,
+    baseSellTime: 180,
+    basePrice: 90_000,
+    baseStockCap: 8,
+    techBaseCost: 200_000,
+    repBaseCost: 160_000,
+    prodManagerCost: 3_600_000,
+    salesManagerCost: 4_300_000,
+    icon: 'citypod',
+    accent: '#b06bff',
   },
 ];
 
@@ -131,18 +202,32 @@ export interface AchievementDef {
 // TASARIM KURALI: Reklamsız kazanılabilir toplam gem (başlangıç +
 // "allVehicles" HARİÇ başarımlar), kümülatif lisans gem bedelinin en az
 // 1,5 katı olmalı. Böylece çok sabırlı bir oyuncu hiç video izlemeden
-// tüm lisansları alabilir. Güncel durum: 10 + 47 = 57 ≥ 1,5 × 35 = 52,5 ✓
+// tüm lisansları alabilir.
+// Güncel doğrulama: lisanslar 10+25+30+35+40 = 140 → gerek 210.
+// Havuz: başlangıç 10 + başarımlar 202 = 212 ≥ 210 ✓
+//
+// TEMPO: Eşikler ×10 büyür (100→1K→10K→100K satış; $10K→$100K→$1M→$10M).
+// Erken oyunda başarımlar dakikalar içinde, geç oyunda saatler/günler
+// arayla gelir — oyuncu devamlılığı için bilinçli yavaşlama.
 export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'firstSale', gems: 2, check: (s) => s.stats.totalSold >= 1 },
-  { id: 'sold100', gems: 5, check: (s) => s.stats.totalSold >= 100 },
-  { id: 'sold1000', gems: 10, check: (s) => s.stats.totalSold >= 1000 },
   { id: 'firstTech', gems: 2, check: (s) => Object.values(s.lines).some((l) => l.technicians >= 1) },
-  { id: 'techSquad', gems: 5, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 10 },
   { id: 'firstManager', gems: 5, check: (s) => Object.values(s.lines).some((l) => l.prodManager || l.salesManager) },
-  { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
   { id: 'firstResearch', gems: 3, check: (s) => Object.values(s.research).some((v) => v >= 1) },
+  { id: 'sold100', gems: 5, check: (s) => s.stats.totalSold >= 100 },
+  { id: 'techSquad', gems: 5, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 10 },
   { id: 'earned10k', gems: 5, check: (s) => s.stats.totalEarned >= 10_000 },
+  { id: 'sold1000', gems: 10, check: (s) => s.stats.totalSold >= 1000 },
   { id: 'earned100k', gems: 10, check: (s) => s.stats.totalEarned >= 100_000 },
+  { id: 'workshopOpen', gems: 15, check: (s) => !!s.locations['workshop'] },
+  { id: 'sold10k', gems: 20, check: (s) => s.stats.totalSold >= 10_000 },
+  { id: 'earned1m', gems: 20, check: (s) => s.stats.totalEarned >= 1_000_000 },
+  { id: 'techArmy', gems: 10, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 50 },
+  { id: 'autoEmpire', gems: 10, check: (s) => Object.values(s.lines).filter((l) => l.unlocked && l.prodManager && l.salesManager).length >= 4 },
+  { id: 'researchMaster', gems: 25, check: (s) => RESEARCH.every((r) => (s.research[r.id] ?? 0) >= r.maxLevel) },
+  { id: 'sold100k', gems: 25, check: (s) => s.stats.totalSold >= 100_000 },
+  { id: 'earned10m', gems: 30, check: (s) => s.stats.totalEarned >= 10_000_000 },
+  { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
 ];
 
 // Haber havuzu: vehicleId null → genel haber, dolu → o araç açık olmalı
@@ -163,6 +248,9 @@ export const NEWS: NewsDef[] = [
   { key: 'news.voltrider2', vehicleId: 'voltrider' },
   { key: 'news.econoev1', vehicleId: 'econoev' },
   { key: 'news.econoev2', vehicleId: 'econoev' },
+  { key: 'news.trihauler1', vehicleId: 'trihauler' },
+  { key: 'news.fairwaygo1', vehicleId: 'fairwaygo' },
+  { key: 'news.citypod1', vehicleId: 'citypod' },
 ];
 
 // ---- Haber olayları (popup + geçici oynanış etkisi) ----
@@ -184,6 +272,9 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'viral_zipvolt', vehicleId: 'zipvolt', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
   { id: 'viral_voltrider', vehicleId: 'voltrider', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
   { id: 'viral_econoev', vehicleId: 'econoev', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_trihauler', vehicleId: 'trihauler', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_fairwaygo', vehicleId: 'fairwaygo', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_citypod', vehicleId: 'citypod', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
   { id: 'battery_deal', vehicleId: null, kind: 'prodSpeed', mult: 1.3, durationSec: 90, positive: true },
   { id: 'ev_expo', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 90, positive: true },
   { id: 'subsidy', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 120, positive: true },

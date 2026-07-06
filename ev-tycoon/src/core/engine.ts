@@ -2,7 +2,7 @@ import {
   ACHIEVEMENTS, AD_REWARD_GEMS, BOOST_HOURS, CLAIM_REWARD,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
+  LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
 } from './config';
 import type { NewsEventDef } from './config';
 import {
@@ -192,6 +192,15 @@ export function buySalesManager(s: GameState, id: string): boolean {
   return true;
 }
 
+export function unlockLocation(s: GameState, id: string): boolean {
+  const def = LOCATIONS.find((l) => l.id === id);
+  if (!def || s.locations[id] || s.money < def.unlockCost) return false;
+  s.money -= def.unlockCost;
+  s.locations[id] = true;
+  checkAchievements(s);
+  return true;
+}
+
 export function unlockVehicle(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
@@ -233,6 +242,25 @@ export function gemInstantProd(s: GameState, id: string): boolean {
   s.stats.totalProduced += made;
   line.prodElapsed = 0;
   if (!line.prodManager) line.producing = false;
+  return true;
+}
+
+export function gemInstantSell(s: GameState, id: string): boolean {
+  const line = s.lines[id];
+  const v = vehicleDef(id);
+  if (!line.unlocked || s.gems < GEM_COST_INSTANT_PROD) return false;
+  if (line.stock <= 0) return false;
+  if (!line.selling && !line.salesManager) return false;
+  s.gems -= GEM_COST_INSTANT_PROD;
+  line.stock -= 1;
+  line.totalSold += 1;
+  s.stats.totalSold += 1;
+  const amount = sellPrice(s, v);
+  s.money += amount;
+  s.stats.totalEarned += amount;
+  line.sellElapsed = 0;
+  if (!line.salesManager) line.selling = false;
+  checkAchievements(s);
   return true;
 }
 

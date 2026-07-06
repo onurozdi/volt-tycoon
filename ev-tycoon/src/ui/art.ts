@@ -38,6 +38,37 @@ export const ART: Record<string, string> = {
     <path d="M32 36l3-5-2-1 3-5" stroke-width="2" opacity="0.9"/>
   `),
 
+  trike: S(`
+    <circle cx="12" cy="48" r="7"/>
+    <circle cx="40" cy="48" r="7"/>
+    <circle cx="54" cy="48" r="7"/>
+    <path d="M12 48l8-18h10l4 10"/>
+    <path d="M20 30l-3-7h7"/>
+    <rect x="34" y="28" width="26" height="14" rx="2"/>
+    <path d="M40 28v14M50 28v14" opacity="0.5"/>
+    <path d="M34 48h-8" opacity="0.7"/>
+  `),
+  golfcart: S(`
+    <path d="M10 44v-8l6-2 4-14c0.5-2 2-3 4-3h6"/>
+    <path d="M30 17h18c2 0 3 1.5 3 3v16"/>
+    <path d="M30 17v19"/>
+    <path d="M14 36h40c1.5 0 3 1.5 3 3v5"/>
+    <circle cx="20" cy="48" r="6"/>
+    <circle cx="48" cy="48" r="6"/>
+    <path d="M26 48h16"/>
+    <path d="M44 10h8l-4 7" opacity="0.7"/>
+    <path d="M36 26h8" opacity="0.6"/>
+  `),
+  citypod: S(`
+    <path d="M14 46c-3 0-5-2-5-5 0-8 4-19 10-22 4-2 18-2 24 0 7 2.5 12 12 12 20 0 4-2 7-6 7"/>
+    <path d="M20 22h26" opacity="0.6"/>
+    <path d="M32 19v14" opacity="0.6"/>
+    <circle cx="22" cy="47" r="6"/>
+    <circle cx="44" cy="47" r="6"/>
+    <path d="M28 47h10"/>
+    <path d="M46 34l3-4-2-1 3-4" stroke-width="2" opacity="0.9"/>
+  `),
+
   // --- UI ikonları ---
   bolt: S(`<path d="M36 6L16 36h12l-4 22 24-32H34l2-20z"/>`),
   gear: S(`

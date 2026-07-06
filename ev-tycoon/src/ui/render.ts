@@ -1,13 +1,13 @@
 import {
   ACHIEVEMENTS, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
+  LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
 import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
-  unlockVehicle, adFillClaim, adRewardBoost, adRewardGems, doubleOfflineEarnings,
-  hasAnyManager, timeWarp,
+  unlockVehicle, unlockLocation, adFillClaim, adRewardBoost, adRewardGems,
+  doubleOfflineEarnings, gemInstantSell, hasAnyManager, timeWarp,
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
@@ -130,13 +130,51 @@ function renderTab(tab: Tab): void {
 function renderHome(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('home.title')}</div>`));
   c.appendChild(el(`<div class="screen-sub">${t('home.subtitle')}</div>`));
-  const cards = el(`<div class="cards"></div>`);
-  c.appendChild(cards);
-  for (const v of VEHICLES) {
-    const line = S.lines[v.id];
-    if (line.unlocked) cards.appendChild(vehicleCard(v.id));
-    else cards.appendChild(lockedCard(v.id));
+  for (const loc of LOCATIONS) {
+    c.appendChild(el(`<div class="loc-header">${icon(loc.icon)}<span>${t(loc.nameKey)}</span></div>`));
+    if (!S.locations[loc.id]) {
+      c.appendChild(locationUnlockCard(loc.id));
+      continue;
+    }
+    const cards = el(`<div class="cards"></div>`);
+    c.appendChild(cards);
+    for (const v of VEHICLES.filter((x) => x.locationId === loc.id)) {
+      const line = S.lines[v.id];
+      if (line.unlocked) cards.appendChild(vehicleCard(v.id));
+      else cards.appendChild(lockedCard(v.id));
+    }
   }
+}
+
+function locationUnlockCard(id: string): HTMLElement {
+  const loc = LOCATIONS.find((l) => l.id === id)!;
+  const card = el(`<div class="vcard locked loc-unlock" style="--accent:#3a4a7a">
+    <div class="vcard-head">
+      <div class="vcard-icon">${icon(loc.icon)}</div>
+      <div style="flex:1">
+        <div class="vcard-title">${t(loc.nameKey)}</div>
+        <div class="vcard-class">${t(loc.nameKey + '.desc')}</div>
+      </div>
+      <div class="vcard-stock">${icon('lock')}</div>
+    </div>
+    <div class="locked-row">
+      <button class="btn btn-unlock">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}</button>
+    </div>
+  </div>`);
+  const btn = card.querySelector('.btn-unlock') as HTMLButtonElement;
+  btn.addEventListener('click', () => {
+    if (unlockLocation(S, id)) {
+      sfx.achievement();
+      refresh();
+    } else {
+      toast(t('toast.notEnoughMoney'), 'err');
+      sfx.error();
+    }
+  });
+  updaters.push(() => {
+    btn.disabled = S.money < loc.unlockCost;
+  });
+  return card;
 }
 
 function vehicleCard(id: string): HTMLElement {
@@ -161,6 +199,7 @@ function vehicleCard(id: string): HTMLElement {
     <div class="line-row sell-row">
       <button class="btn btn-sell"></button>
       <div class="bar"><div class="bar-fill sellbar"></div><div class="bar-label selllabel"></div></div>
+      <button class="btn btn-gem gem-sell">${icon('gem')}${GEM_COST_INSTANT_PROD}</button>
     </div>
     <div class="staff-grid">
       <div class="staff-cell">
@@ -200,6 +239,7 @@ function vehicleCard(id: string): HTMLElement {
   const btnProd = q('.btn-produce') as HTMLButtonElement;
   const btnSell = q('.btn-sell') as HTMLButtonElement;
   const btnGemProd = q('.gem-prod') as HTMLButtonElement;
+  const btnGemSell = q('.gem-sell') as HTMLButtonElement;
   const prodFill = q('.prodfill');
   const sellFill = q('.sellbar');
   const prodLabel = q('.prodlabel');
@@ -227,6 +267,15 @@ function vehicleCard(id: string): HTMLElement {
     if (gemInstantProd(S, id)) {
       sfx.buy();
       floatMoney((e as MouseEvent).clientX, (e as MouseEvent).clientY, '+📦');
+    } else {
+      toast(t('toast.notEnoughGems'), 'err');
+      sfx.error();
+    }
+  });
+  btnGemSell.addEventListener('click', (e) => {
+    if (gemInstantSell(S, id)) {
+      sfx.buy();
+      floatMoney((e as MouseEvent).clientX, (e as MouseEvent).clientY, `+${fmtMoney(sellPrice(S, v))}`);
     } else {
       toast(t('toast.notEnoughGems'), 'err');
       sfx.error();
@@ -291,6 +340,7 @@ function vehicleCard(id: string): HTMLElement {
       btnProd.disabled = line.producing || line.stock >= cap;
     }
     btnGemProd.style.visibility = pActive && line.stock < cap ? 'visible' : 'hidden';
+    btnGemProd.classList.toggle('cant', S.gems < GEM_COST_INSTANT_PROD);
 
     // Satış
     const sInt = sellInterval(S, v, line);
@@ -307,6 +357,8 @@ function vehicleCard(id: string): HTMLElement {
       btnSell.className = 'btn btn-sell';
       btnSell.disabled = line.selling || line.stock <= 0;
     }
+    btnGemSell.style.visibility = sActive ? 'visible' : 'hidden';
+    btnGemSell.classList.toggle('cant', S.gems < GEM_COST_INSTANT_PROD);
 
     // Personel
     const tc = staffCost(v.techBaseCost, line.technicians);
