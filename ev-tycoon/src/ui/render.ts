@@ -1,12 +1,13 @@
 import {
   ACHIEVEMENTS, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  NEWS, NEWS_EVENTS, RESEARCH, VEHICLES,
+  NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
 import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
-  unlockVehicle, adRewardBoost, adRewardGems, doubleOfflineEarnings,
+  unlockVehicle, adFillClaim, adRewardBoost, adRewardGems, doubleOfflineEarnings,
+  hasAnyManager, timeWarp,
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
@@ -340,6 +341,7 @@ function vehicleCard(id: string): HTMLElement {
 
 function lockedCard(id: string): HTMLElement {
   const v = VEHICLES.find((x) => x.id === id)!;
+  const gemPart = v.unlockGems > 0 ? ` + 💎${v.unlockGems}` : '';
   const card = el(`<div class="vcard locked" style="--accent:#3a4a7a">
     <div class="vcard-head">
       <div class="vcard-icon">${icon(v.icon)}</div>
@@ -350,7 +352,7 @@ function lockedCard(id: string): HTMLElement {
       <div class="vcard-stock">${icon('lock')}</div>
     </div>
     <div class="locked-row">
-      <button class="btn btn-unlock">${t('ui.unlock')} — ${fmtMoney(v.unlockCost)}</button>
+      <button class="btn btn-unlock">${t('ui.unlock')} — ${fmtMoney(v.unlockCost)}${gemPart}</button>
     </div>
   </div>`);
   const btn = card.querySelector('.btn-unlock') as HTMLButtonElement;
@@ -359,12 +361,12 @@ function lockedCard(id: string): HTMLElement {
       sfx.achievement();
       refresh();
     } else {
-      toast(t('toast.notEnoughMoney'), 'err');
+      toast(t(S.money < v.unlockCost ? 'toast.notEnoughMoney' : 'toast.notEnoughGems'), 'err');
       sfx.error();
     }
   });
   updaters.push(() => {
-    btn.disabled = S.money < v.unlockCost;
+    btn.disabled = S.money < v.unlockCost || S.gems < v.unlockGems;
   });
   return card;
 }
@@ -382,6 +384,7 @@ function renderResearch(c: HTMLElement): void {
     <button class="btn btn-claim"></button>
     <div class="claim-gem-row">
       <button class="btn btn-gem gem-claim">${icon('gem')}${GEM_COST_INSTANT_CLAIM} ${t('ui.instant')}</button>
+      <button class="btn btn-ad ad-claim">${icon('play')}${t('ui.watchAd')}</button>
     </div>
   </div>`);
   c.appendChild(panel);
@@ -403,6 +406,12 @@ function renderResearch(c: HTMLElement): void {
       sfx.error();
     }
   });
+  const btnAdClaim = q('.ad-claim') as HTMLButtonElement;
+  btnAdClaim.addEventListener('click', () => {
+    showRewardedAd(() => {
+      if (adFillClaim(S)) sfx.achievement();
+    });
+  });
 
   const rpVal = c.querySelector('.rp-val') as HTMLElement;
   updaters.push(() => {
@@ -415,6 +424,7 @@ function renderResearch(c: HTMLElement): void {
     btnClaim.textContent = `${t('ui.claim')} +5`;
     btnClaim.disabled = !ready;
     btnGem.style.visibility = ready ? 'hidden' : 'visible';
+    btnAdClaim.style.visibility = ready ? 'hidden' : 'visible';
   });
 
   // Araştırma listesi
@@ -528,6 +538,35 @@ function renderMarket(c: HTMLElement): void {
     if (active) {
       boostBtn.innerHTML = `${t('ui.active')} ${fmtTime((S.boostUntil - Date.now()) / 1000)}`;
     }
+  });
+
+  // Zaman Atlaması (reklamla)
+  const warp = el(`<div class="panel">
+    <div class="panel-row">
+      <div class="panel-icon" style="color:var(--cyan)">${icon('bolt')}</div>
+      <div style="flex:1">
+        <div class="panel-name">${t('market.warp.name')}</div>
+        <div class="panel-desc">${t('market.warp.desc', { mins: TIME_WARP_MINUTES })}</div>
+      </div>
+      <div class="panel-side"><button class="btn btn-ad ad-warp">${icon('play')}${t('ui.watchAd')}</button></div>
+    </div>
+  </div>`);
+  c.appendChild(warp);
+  const warpBtn = warp.querySelector('.ad-warp') as HTMLButtonElement;
+  warpBtn.addEventListener('click', () => {
+    if (!hasAnyManager(S)) {
+      toast(t('market.warp.none'), 'err');
+      sfx.error();
+      return;
+    }
+    showRewardedAd(() => {
+      const rep = timeWarp(S, TIME_WARP_MINUTES * 60);
+      sfx.achievement();
+      toast(`⏩ +${fmtMoney(rep.earned)}`, 'gold');
+    });
+  });
+  updaters.push(() => {
+    warpBtn.classList.toggle('disabled', !hasAnyManager(S));
   });
 
   // Reklamla gems

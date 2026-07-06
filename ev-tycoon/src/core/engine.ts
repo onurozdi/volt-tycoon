@@ -195,8 +195,9 @@ export function buySalesManager(s: GameState, id: string): boolean {
 export function unlockVehicle(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
-  if (line.unlocked || s.money < v.unlockCost) return false;
+  if (line.unlocked || s.money < v.unlockCost || s.gems < v.unlockGems) return false;
   s.money -= v.unlockCost;
+  s.gems -= v.unlockGems;
   line.unlocked = true;
   return true;
 }
@@ -258,6 +259,50 @@ export function adRewardGems(s: GameState): void {
 export function adRewardBoost(s: GameState): void {
   const base = Math.max(Date.now(), s.boostUntil);
   s.boostUntil = base + BOOST_HOURS * 3600_000;
+}
+
+export function adFillClaim(s: GameState): boolean {
+  if (s.claimElapsed >= claimDuration(s)) return false;
+  s.claimElapsed = claimDuration(s);
+  return true;
+}
+
+/** Herhangi bir hatta müdür var mı? (Zaman Atlaması için ön koşul) */
+export function hasAnyManager(s: GameState): boolean {
+  return Object.values(s.lines).some((l) => l.unlocked && (l.prodManager || l.salesManager));
+}
+
+/**
+ * Zaman Atlaması (reklam ödülü): `seconds` sürelik otomatik üretim+satış
+ * anında işletilir. Offline hesabıyla aynı kapalı-form mantığı kullanır;
+ * boost uygulanmaz.
+ */
+export function timeWarp(s: GameState, seconds: number): OfflineReport {
+  let produced = 0;
+  let sold = 0;
+  let earned = 0;
+  for (const v of VEHICLES) {
+    const line = s.lines[v.id];
+    if (!line.unlocked) continue;
+    const cap = stockCap(s, v);
+    const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
+    const sellRate = line.salesManager ? 1 / sellInterval(s, v, line) : 0;
+    const rawProduced = prodRate * seconds;
+    const lineSold = Math.floor(Math.min(sellRate * seconds, line.stock + rawProduced));
+    const lineProduced = Math.floor(Math.max(0, Math.min(rawProduced, lineSold + cap - line.stock)));
+    line.stock = Math.max(0, Math.min(cap, line.stock + lineProduced - lineSold));
+    line.totalProduced += lineProduced;
+    line.totalSold += lineSold;
+    s.stats.totalProduced += lineProduced;
+    s.stats.totalSold += lineSold;
+    produced += lineProduced;
+    sold += lineSold;
+    earned += lineSold * sellPriceNoBoost(s, v);
+  }
+  s.money += earned;
+  s.stats.totalEarned += earned;
+  checkAchievements(s);
+  return { seconds, produced, sold, earned, claimReady: false };
 }
 
 // ---------- Offline progress ----------

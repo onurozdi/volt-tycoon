@@ -7,6 +7,7 @@ export interface VehicleDef {
   /** i18n anahtarı: araç sınıfı (kick scooter, e-bike...) */
   classKey: string;
   unlockCost: number; // 0 = baştan açık
+  unlockGems: number; // lisans için gem bedeli
   baseProdTime: number; // saniye
   baseSellTime: number; // saniye
   basePrice: number; // $
@@ -26,6 +27,7 @@ export const VEHICLES: VehicleDef[] = [
     name: 'ZipVolt',
     classKey: 'class.kickscooter',
     unlockCost: 0,
+    unlockGems: 0,
     baseProdTime: 4,
     baseSellTime: 3,
     basePrice: 12,
@@ -42,6 +44,7 @@ export const VEHICLES: VehicleDef[] = [
     name: 'VoltRider',
     classKey: 'class.ebike',
     unlockCost: 600,
+    unlockGems: 10,
     baseProdTime: 12,
     baseSellTime: 8,
     basePrice: 95,
@@ -58,6 +61,7 @@ export const VEHICLES: VehicleDef[] = [
     name: 'Econo EV',
     classKey: 'class.microcar',
     unlockCost: 9000,
+    unlockGems: 25,
     baseProdTime: 45,
     baseSellTime: 25,
     basePrice: 1100,
@@ -116,6 +120,7 @@ export const STARTING_GEMS = 10;
 
 // Reklam ödülleri
 export const AD_REWARD_GEMS = 5;
+export const TIME_WARP_MINUTES = 15;
 
 export interface AchievementDef {
   id: string;

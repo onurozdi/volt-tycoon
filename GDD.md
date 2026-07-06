@@ -33,11 +33,13 @@ Oyuncu küçük bir **ev garajında** elektrikli araç üretmeye başlar. Amaç:
 
 ## 4. Araçlar (Home Garage — 3 araç)
 
-| # | İsim | Sınıf | Profil | Açılış |
-|---|---|---|---|---|
-| 1 | **ZipVolt** | Elektrikli kick scooter | Çok hızlı üretim, ucuz | Baştan açık |
-| 2 | **VoltRider** | E-Bike | Orta | $600 |
-| 3 | **Econo EV** | Mikro elektrikli araba | Yavaş, pahalı | $9.000 |
+| # | İsim | Sınıf | Profil | Lisans (para) | Lisans (gem) |
+|---|---|---|---|---|---|
+| 1 | **ZipVolt** | Elektrikli kick scooter | Çok hızlı üretim, ucuz | Baştan açık | — |
+| 2 | **VoltRider** | E-Bike | Orta | $600 | 💎 10 |
+| 3 | **Econo EV** | Mikro elektrikli araba | Yavaş, pahalı | $9.000 | 💎 25 |
+
+Lisans hem para hem gem ister. Gem'ler başarımlardan ve ödüllü videodan kazanılır — böylece video izlemenin somut bir amacı olur ama zorunlu değildir (başarımlar da yeter).
 
 ### Başlangıç ekonomi değerleri
 
@@ -81,7 +83,12 @@ Oyuncu küçük bir **ev garajında** elektrikli araç üretmeye başlar. Amaç:
 
 ## 7. Reklam (oyuncuyu yormayan)
 
-- **Ödüllü video** (isteğe bağlı): offline kazancı ×2, 4 saat ×2 gelir boostu, +5 gem.
+- **Ödüllü video** (hepsi isteğe bağlı):
+  - Offline kazancı ×2 (Welcome Back ekranında)
+  - +5 gem (Market)
+  - 4 saat ×2 gelir boostu (Market)
+  - **Zaman Atlaması**: 15 dakikalık otomatik üretim+satış geliri anında (Market; en az bir müdür gerekir)
+  - Claim'i anında doldur (Research ekranı)
 - Zorunlu geçiş reklamı (interstitial) **yok**. Banner **yok** (MVP'de).
 - Webde reklamlar simüle edilir; Capacitor aşamasında AdMob bağlanır.
 
