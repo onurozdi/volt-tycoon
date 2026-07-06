@@ -6,6 +6,7 @@ import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
 import { initUI, persist, saleFloat, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { initTutorial } from './ui/tutorial';
 
 const state = loadGame() ?? newGame(detectLang());
 setLang(state.settings.lang);
@@ -40,6 +41,7 @@ setEngineEvents({
 const report = computeOffline(state, Date.now());
 
 initUI(state);
+initTutorial(state);
 if (report) showWelcomeBack(report);
 
 // Ana döngü: sabit zamanlayıcı (arka planda rAF durduğu için ona bağlanmıyoruz)

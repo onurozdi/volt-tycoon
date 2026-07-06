@@ -37,6 +37,8 @@ export interface GameState {
   achievements: string[];
   stats: { totalEarned: number; totalProduced: number; totalSold: number };
   settings: { lang: 'en' | 'tr' | 'es'; sound: boolean };
+  /** öğretici adımı: 0 = hikâye bekliyor, 1..N = adımlar, 99 = bitti */
+  tutStep: number;
   lastSeen: number; // epoch ms
   createdAt: number;
 }
@@ -81,6 +83,7 @@ export function newGame(lang: 'en' | 'tr' | 'es'): GameState {
     achievements: [],
     stats: { totalEarned: 0, totalProduced: 0, totalSold: 0 },
     settings: { lang, sound: true },
+    tutStep: 0,
     lastSeen: Date.now(),
     createdAt: Date.now(),
   };
@@ -127,6 +130,8 @@ export function loadGame(): GameState | null {
     if (s.settings.lang !== 'en' && s.settings.lang !== 'tr' && s.settings.lang !== 'es') {
       s.settings.lang = 'en';
     }
+    // Öğretici bu alandan önceki kayıtlarda yok: mevcut oyuncuyu rahatsız etme
+    if (typeof s.tutStep !== 'number') s.tutStep = 99;
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;
     if (s.activeEvent === undefined) s.activeEvent = null;

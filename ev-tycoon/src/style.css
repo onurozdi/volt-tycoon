@@ -805,6 +805,57 @@ button {
 @keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(-8px); } }
 
+/* ============ Öğretici ============ */
+
+.tut-story .tut-emoji { font-size: 34px; margin-bottom: 6px; }
+.tut-story p { font-size: 13.5px; line-height: 1.55; color: var(--text); }
+
+.tut-bubble {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(env(safe-area-inset-bottom) + 96px);
+  width: min(92vw, 420px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #1a2c5f, #12204a);
+  border: 1px solid var(--gold);
+  box-shadow: 0 0 16px #ffd35e44, 0 6px 20px #000a;
+  animation: tut-in 0.3s ease;
+}
+@keyframes tut-in { from { opacity: 0; transform: translateX(-50%) translateY(10px); } }
+.tut-bubble .tut-text { flex: 1; font-size: 12.5px; line-height: 1.4; font-weight: 600; }
+.tut-bubble .tut-btns { display: flex; gap: 6px; flex: none; }
+.tut-bubble .tut-next {
+  background: linear-gradient(180deg, #ffca3a, #d99a12);
+  color: #241c08;
+  font-size: 11px;
+  padding: 7px 12px;
+}
+.tut-bubble .tut-skip {
+  background: #0a1330;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  font-size: 11px;
+  padding: 7px 10px;
+}
+
+/* Hedef öğe parlaması */
+.tut-glow {
+  position: relative;
+  z-index: 6;
+  box-shadow: 0 0 0 3px var(--gold), 0 0 18px #ffd35ecc !important;
+  animation: tut-pulse 1.1s ease-in-out infinite;
+}
+@keyframes tut-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--gold), 0 0 10px #ffd35e88; }
+  50% { box-shadow: 0 0 0 3px var(--gold), 0 0 24px #ffd35eee; }
+}
+
 /* Para uçuşu efekti */
 .float-money {
   position: fixed;
