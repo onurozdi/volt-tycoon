@@ -43,7 +43,7 @@ Lisans hem para hem gem ister. Gem'ler başarımlardan ve ödüllü videodan kaz
 
 ## 4b. Workshop (2. mekân)
 
-**Atölye**, $75.000'a açılır (yalnızca para; gem lisanslarda). Açılınca ana ekranda kendi bölüm başlığı altında 3 yeni üretim hattı gelir:
+**Atölye**, **$75.000 + 💎20** ile açılır. Açılmadan önce içindeki araçlar GÖRÜNMEZ — kilit kartı yalnızca "3 yeni üretim hattı" der (merak unsuru). Açılınca ana ekranda kendi bölüm başlığı altında 3 yeni hat gelir:
 
 | # | İsim | Sınıf | Lisans (para) | Lisans (gem) | Üretim | Satış | Fiyat | Stok |
 |---|---|---|---|---|---|---|---|---|
@@ -79,6 +79,18 @@ Araca özel haberler ve viral olaylar Workshop araçları için de tanımlıdır
 
 - Technician: üretim hızını artırır. `Smax = 4`, `τ = 8` (üretim süresi asla baz sürenin 1/4'ünün altına inmez).
 - Sales Rep: satış hızını artırır. Aynı formül, `Smax = 4`, `τ = 8`.
+
+### Personel tavanı (mekâna göre)
+
+Küçük mekânda az çalışan — parayla sınırsız coşturulamaz. Tavan **araç başına, rol başına**dır ve her yeni mekânda artar:
+
+| Mekân | Teknisyen tavanı | Satış Temsilcisi tavanı |
+|---|---|---|
+| Home Garage | 6 | 6 |
+| Workshop | 12 | 12 |
+| (gelecek mekânlar) | 20+ | 20+ |
+
+Tavana ulaşan buton "MAX" olur. Sayaç `3/6` biçiminde gösterilir. Not: personel gerektiren başarım eşikleri her zaman toplam kapasitenin altında tutulur (örn. Teknisyen Ordusu 40 < 54 kapasite).
 - Production Manager: oto-üretim + offline üretim.
 - Sales Manager: oto-satış + offline satış.
 
@@ -160,7 +172,7 @@ Araca özel haberler ve viral olaylar Workshop araçları için de tanımlıdır
 
 > **Reklam asla zorunlu olamaz.** Başlangıç gem'i + ("Tam Kadro" hariç) başarımlardan kazanılabilir toplam gem, kümülatif lisans gem bedelinin **en az 1,5 katı** olmalıdır. Yeni araç/lokasyon eklerken bu oran korunur.
 
-Güncel doğrulama (Workshop dahil): lisanslar 10+25+30+35+40 = **140 gem** → gerek 210. Havuz: başlangıç 10 + ("Tam Kadro" hariç) başarımlar 202 = **212 ≥ 210** ✓.
+Güncel doğrulama (Workshop dahil): lisanslar 10+25+30+35+40 = 140 + atölye açılışı 20 = **160 gem** → gerek 240. Havuz: başlangıç 10 + ("Tam Kadro" hariç) başarımlar 232 = **242 ≥ 240** ✓.
 
 ### Başarım temposu (bilinçli yavaşlama)
 

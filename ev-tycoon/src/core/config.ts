@@ -3,13 +3,17 @@
 export interface LocationDef {
   id: string;
   nameKey: string;
-  unlockCost: number; // 0 = baştan açık (yalnızca para; gem lisanslarda)
+  unlockCost: number; // 0 = baştan açık
+  unlockGems: number;
+  /** araç başına, rol başına (teknisyen/temsilci) personel tavanı —
+      küçük mekânda az çalışan; her yeni mekânda artar */
+  staffCap: number;
   icon: string;
 }
 
 export const LOCATIONS: LocationDef[] = [
-  { id: 'garage', nameKey: 'loc.garage', unlockCost: 0, icon: 'home' },
-  { id: 'workshop', nameKey: 'loc.workshop', unlockCost: 75_000, icon: 'gear' },
+  { id: 'garage', nameKey: 'loc.garage', unlockCost: 0, unlockGems: 0, staffCap: 6, icon: 'home' },
+  { id: 'workshop', nameKey: 'loc.workshop', unlockCost: 75_000, unlockGems: 20, staffCap: 12, icon: 'gear' },
 ];
 
 export interface VehicleDef {
@@ -203,8 +207,8 @@ export interface AchievementDef {
 // "allVehicles" HARİÇ başarımlar), kümülatif lisans gem bedelinin en az
 // 1,5 katı olmalı. Böylece çok sabırlı bir oyuncu hiç video izlemeden
 // tüm lisansları alabilir.
-// Güncel doğrulama: lisanslar 10+25+30+35+40 = 140 → gerek 210.
-// Havuz: başlangıç 10 + başarımlar 202 = 212 ≥ 210 ✓
+// Güncel doğrulama: lisanslar 10+25+30+35+40 = 140 + atölye 20 = 160
+// → gerek 240. Havuz: başlangıç 10 + başarımlar 232 = 242 ≥ 240 ✓
 //
 // TEMPO: Eşikler ×10 büyür (100→1K→10K→100K satış; $10K→$100K→$1M→$10M).
 // Erken oyunda başarımlar dakikalar içinde, geç oyunda saatler/günler
@@ -222,11 +226,14 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'workshopOpen', gems: 15, check: (s) => !!s.locations['workshop'] },
   { id: 'sold10k', gems: 20, check: (s) => s.stats.totalSold >= 10_000 },
   { id: 'earned1m', gems: 20, check: (s) => s.stats.totalEarned >= 1_000_000 },
-  { id: 'techArmy', gems: 10, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 50 },
-  { id: 'autoEmpire', gems: 10, check: (s) => Object.values(s.lines).filter((l) => l.unlocked && l.prodManager && l.salesManager).length >= 4 },
+  // techArmy eşiği toplam personel kapasitesinin (garaj 3×6 + atölye 3×12 = 54)
+  // altında kalmalı ki başarım her zaman kazanılabilir olsun
+  { id: 'techArmy', gems: 15, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 40 },
+  { id: 'autoEmpire', gems: 15, check: (s) => Object.values(s.lines).filter((l) => l.unlocked && l.prodManager && l.salesManager).length >= 4 },
   { id: 'researchMaster', gems: 25, check: (s) => RESEARCH.every((r) => (s.research[r.id] ?? 0) >= r.maxLevel) },
   { id: 'sold100k', gems: 25, check: (s) => s.stats.totalSold >= 100_000 },
   { id: 'earned10m', gems: 30, check: (s) => s.stats.totalEarned >= 10_000_000 },
+  { id: 'earned100m', gems: 20, check: (s) => s.stats.totalEarned >= 100_000_000 },
   { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
 ];
 

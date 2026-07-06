@@ -12,7 +12,7 @@ import {
 import type { OfflineReport } from '../core/engine';
 import {
   claimDuration, fmt, fmtMoney, fmtTime, prodInterval, researchCost, researchLevel,
-  sellInterval, sellPrice, staffCost, staffSpeed, stockCap,
+  sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
 } from '../core/formulas';
 import type { GameState } from '../core/state';
 import { resetGame, saveGame } from '../core/state';
@@ -158,7 +158,7 @@ function locationUnlockCard(id: string): HTMLElement {
       <div class="vcard-stock">${icon('lock')}</div>
     </div>
     <div class="locked-row">
-      <button class="btn btn-unlock">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}</button>
+      <button class="btn btn-unlock">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}${loc.unlockGems > 0 ? ` + 💎${loc.unlockGems}` : ''}</button>
     </div>
   </div>`);
   const btn = card.querySelector('.btn-unlock') as HTMLButtonElement;
@@ -167,12 +167,12 @@ function locationUnlockCard(id: string): HTMLElement {
       sfx.achievement();
       refresh();
     } else {
-      toast(t('toast.notEnoughMoney'), 'err');
+      toast(t(S.money < loc.unlockCost ? 'toast.notEnoughMoney' : 'toast.notEnoughGems'), 'err');
       sfx.error();
     }
   });
   updaters.push(() => {
-    btn.disabled = S.money < loc.unlockCost;
+    btn.disabled = S.money < loc.unlockCost || S.gems < loc.unlockGems;
   });
   return card;
 }
@@ -360,15 +360,20 @@ function vehicleCard(id: string): HTMLElement {
     btnGemSell.style.visibility = sActive ? 'visible' : 'hidden';
     btnGemSell.classList.toggle('cant', S.gems < GEM_COST_INSTANT_PROD);
 
-    // Personel
+    // Personel (mekân tavanı: dolunca MAX)
+    const sCap = staffCapFor(v);
+    const techMax = line.technicians >= sCap;
+    const repMax = line.salesReps >= sCap;
     const tc = staffCost(v.techBaseCost, line.technicians);
     const rc = staffCost(v.repBaseCost, line.salesReps);
-    (btnTech.querySelector('.cost') as HTMLElement).textContent = fmtMoney(tc);
-    (btnRep.querySelector('.cost') as HTMLElement).textContent = fmtMoney(rc);
-    btnTech.classList.toggle('cant', S.money < tc);
-    btnRep.classList.toggle('cant', S.money < rc);
-    techInfo.textContent = `×${line.technicians} — ${t('ui.speed')} ×${staffSpeed(line.technicians).toFixed(2)}`;
-    repInfo.textContent = `×${line.salesReps} — ${t('ui.speed')} ×${staffSpeed(line.salesReps).toFixed(2)}`;
+    (btnTech.querySelector('.cost') as HTMLElement).textContent = techMax ? t('ui.max') : fmtMoney(tc);
+    (btnRep.querySelector('.cost') as HTMLElement).textContent = repMax ? t('ui.max') : fmtMoney(rc);
+    btnTech.disabled = techMax;
+    btnRep.disabled = repMax;
+    btnTech.classList.toggle('cant', !techMax && S.money < tc);
+    btnRep.classList.toggle('cant', !repMax && S.money < rc);
+    techInfo.textContent = `${line.technicians}/${sCap} — ${t('ui.speed')} ×${staffSpeed(line.technicians).toFixed(2)}`;
+    repInfo.textContent = `${line.salesReps}/${sCap} — ${t('ui.speed')} ×${staffSpeed(line.salesReps).toFixed(2)}`;
 
     const pmCost = btnPM.querySelector('.cost') as HTMLElement;
     if (line.prodManager) {

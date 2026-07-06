@@ -1,5 +1,6 @@
 import {
-  BOOST_MULT, CLAIM_DURATION, FX, NEWS_EVENTS, RESEARCH, STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
+  BOOST_MULT, CLAIM_DURATION, FX, LOCATIONS, NEWS_EVENTS, RESEARCH,
+  STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
 } from './config';
 import type { EventKind, VehicleDef } from './config';
 import type { GameState, LineState } from './state';
@@ -17,6 +18,11 @@ export function staffSpeed(n: number): number {
 
 export function staffCost(base: number, owned: number): number {
   return Math.ceil(base * Math.pow(STAFF_COST_GROWTH, owned));
+}
+
+/** Araç başına, rol başına personel tavanı (mekâna göre) */
+export function staffCapFor(v: VehicleDef): number {
+  return LOCATIONS.find((l) => l.id === v.locationId)?.staffCap ?? 6;
 }
 
 export function researchLevel(s: GameState, id: string): number {

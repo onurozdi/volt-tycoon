@@ -15,7 +15,7 @@ const en: Dict = {
   'loc.garage': 'HOME GARAGE',
   'loc.workshop': 'WORKSHOP',
   'loc.unlock': 'OPEN THE WORKSHOP',
-  'loc.workshop.desc': 'A real production floor. Unlocks the TriHauler, FairwayGo and CityPod lines.',
+  'loc.workshop.desc': 'A real production floor with room for bigger vehicles. Opens 3 new production lines…',
 
   // Genel UI
   'ui.produce': 'PRODUCE',
@@ -91,7 +91,8 @@ const en: Dict = {
   'ach.workshopOpen': 'Moving Up — workshop opened',
   'ach.sold10k': 'Mass Producer — 10,000 sold',
   'ach.earned1m': 'Millionaire — $1M earned',
-  'ach.techArmy': 'Tech Army — 50 technicians',
+  'ach.techArmy': 'Tech Army — 40 technicians',
+  'ach.earned100m': 'Mogul — $100M earned',
   'ach.autoEmpire': 'Automation Empire — 4 fully automated lines',
   'ach.researchMaster': 'Research Master — everything researched',
   'ach.sold100k': 'Industry Giant — 100,000 sold',
@@ -195,7 +196,7 @@ const tr: Dict = {
   'loc.garage': 'EV GARAJI',
   'loc.workshop': 'ATÖLYE',
   'loc.unlock': 'ATÖLYEYİ AÇ',
-  'loc.workshop.desc': 'Gerçek bir üretim katı. TriHauler, FairwayGo ve CityPod hatlarını açar.',
+  'loc.workshop.desc': 'Daha büyük araçlara yer açan gerçek bir üretim katı. 3 yeni üretim hattı açar…',
 
   'ui.produce': 'ÜRET',
   'ui.sell': 'SAT',
@@ -266,7 +267,8 @@ const tr: Dict = {
   'ach.workshopOpen': 'Sınıf Atlama — atölye açıldı',
   'ach.sold10k': 'Seri Üretici — 10.000 satış',
   'ach.earned1m': 'Milyoner — $1M kazanç',
-  'ach.techArmy': 'Teknisyen Ordusu — 50 teknisyen',
+  'ach.techArmy': 'Teknisyen Ordusu — 40 teknisyen',
+  'ach.earned100m': 'Patron — $100M kazanç',
   'ach.autoEmpire': 'Otomasyon İmparatorluğu — 4 tam otomatik hat',
   'ach.researchMaster': 'Araştırma Ustası — her şey araştırıldı',
   'ach.sold100k': 'Sanayi Devi — 100.000 satış',

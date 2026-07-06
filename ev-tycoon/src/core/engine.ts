@@ -7,7 +7,7 @@ import {
 import type { NewsEventDef } from './config';
 import {
   batchSize, claimDuration, offlineCapSeconds, prodInterval, researchCost,
-  sellInterval, sellPrice, sellPriceNoBoost, staffCost, stockCap, vehicleDef,
+  sellInterval, sellPrice, sellPriceNoBoost, staffCapFor, staffCost, stockCap, vehicleDef,
 } from './formulas';
 import type { GameState } from './state';
 
@@ -155,6 +155,7 @@ export function startSell(s: GameState, id: string): boolean {
 export function buyTechnician(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
+  if (line.technicians >= staffCapFor(v)) return false; // mekân tavanı
   const cost = staffCost(v.techBaseCost, line.technicians);
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
@@ -165,6 +166,7 @@ export function buyTechnician(s: GameState, id: string): boolean {
 export function buySalesRep(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
+  if (line.salesReps >= staffCapFor(v)) return false; // mekân tavanı
   const cost = staffCost(v.repBaseCost, line.salesReps);
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
@@ -194,8 +196,10 @@ export function buySalesManager(s: GameState, id: string): boolean {
 
 export function unlockLocation(s: GameState, id: string): boolean {
   const def = LOCATIONS.find((l) => l.id === id);
-  if (!def || s.locations[id] || s.money < def.unlockCost) return false;
+  if (!def || s.locations[id]) return false;
+  if (s.money < def.unlockCost || s.gems < def.unlockGems) return false;
   s.money -= def.unlockCost;
+  s.gems -= def.unlockGems;
   s.locations[id] = true;
   checkAchievements(s);
   return true;
