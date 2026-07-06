@@ -798,29 +798,35 @@ function renderSettings(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('settings.title')}</div>`));
 
   // Dil
-  const langRow = el(`<div class="panel settings-row lang-row">
+  const LANG_NAMES: Record<Lang, string> = {
+    en: 'English',
+    tr: 'Türkçe',
+    es: 'Español',
+    pt: 'Português',
+    de: 'Deutsch',
+    fr: 'Français',
+  };
+  const langRow = el(`<div class="panel settings-row">
     <span>${t('settings.language')}</span>
-    <span class="seg lang-seg"></span>
+    <select class="lang-select"></select>
   </div>`);
   c.appendChild(langRow);
-  const seg = langRow.querySelector('.lang-seg') as HTMLElement;
-  const applyLang = (l: Lang): void => {
+  const sel = langRow.querySelector('.lang-select') as HTMLSelectElement;
+  for (const l of LANGS) {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = LANG_NAMES[l];
+    if (l === getLang()) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', () => {
+    const l = sel.value as Lang;
     S.settings.lang = l;
     setLang(l);
     sfx.click();
     renderTabbar();
     renderTab('settings');
     rotateNews(true);
-  };
-  const langBtns: Array<{ btn: HTMLButtonElement; lang: Lang }> = [];
-  for (const l of LANGS) {
-    const b = el(`<button class="btn">${l.toUpperCase()}</button>`) as HTMLButtonElement;
-    b.addEventListener('click', () => applyLang(l));
-    seg.appendChild(b);
-    langBtns.push({ btn: b, lang: l });
-  }
-  updaters.push(() => {
-    for (const { btn, lang } of langBtns) btn.classList.toggle('on', getLang() === lang);
   });
 
   // Ses

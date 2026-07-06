@@ -885,9 +885,28 @@ button {
 }
 .legal-panel { padding: 14px 16px; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.lang-row { align-items: flex-start; }
-.lang-seg { max-width: 220px; }
-.lang-seg .btn { padding: 7px 10px; font-size: 12px; }
+
+/* Dil açılır menüsü */
+.lang-select {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan);
+  background: #0a1330;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 34px 9px 12px;
+  cursor: pointer;
+  color-scheme: dark;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--cyan) 50%),
+    linear-gradient(135deg, var(--cyan) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.lang-select:focus { outline: none; border-color: var(--cyan); box-shadow: var(--glow-cyan); }
 .seg .btn { padding: 7px 14px; background: #0a1330; border: 1px solid var(--line); color: var(--text-dim); }
 .seg .btn.on { color: var(--cyan); border-color: var(--cyan); box-shadow: var(--glow-cyan); }
 .about { text-align: center; color: var(--text-dim); font-size: 11px; margin-top: 18px; }
