@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ev-tycoon",
+      "runtimeExecutable": "C:\\Users\\onuro\\tools\\node\\node.exe",
+      "runtimeArgs": ["ev-tycoon/node_modules/vite/bin/vite.js", "ev-tycoon"],
+      "port": 5188
+    }
+  ]
+}

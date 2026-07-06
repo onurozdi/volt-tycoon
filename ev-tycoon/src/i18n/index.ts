@@ -1,0 +1,282 @@
+export type Lang = 'en' | 'tr';
+
+type Dict = Record<string, string>;
+
+const en: Dict = {
+  // Araç sınıfları
+  'class.kickscooter': 'Electric Kick Scooter',
+  'class.ebike': 'Electric Bike',
+  'class.microcar': 'Micro Electric Car',
+
+  // Genel UI
+  'ui.produce': 'PRODUCE',
+  'ui.sell': 'SELL',
+  'ui.auto': 'AUTO',
+  'ui.stock': 'Stock',
+  'ui.price': 'Price',
+  'ui.unlock': 'UNLOCK',
+  'ui.locked': 'LOCKED',
+  'ui.hire': 'Hire',
+  'ui.hired': 'HIRED!',
+  'ui.technician': 'Technician',
+  'ui.salesrep': 'Sales Rep',
+  'ui.prodmanager': 'Production Manager',
+  'ui.salesmanager': 'Sales Manager',
+  'ui.speed': 'speed',
+  'ui.claim': 'CLAIM',
+  'ui.claimReady': 'Research points ready!',
+  'ui.claimFilling': 'Generating research points…',
+  'ui.instant': 'Instant',
+  'ui.level': 'Lv',
+  'ui.max': 'MAX',
+  'ui.buy': 'BUY',
+  'ui.owned': 'OWNED',
+  'ui.active': 'ACTIVE',
+  'ui.watchAd': 'WATCH AD',
+  'ui.free': 'FREE',
+  'ui.close': 'Close',
+  'ui.collect': 'COLLECT',
+  'ui.double': '×2 WITH AD',
+  'ui.adPlaying': 'Ad playing…',
+  'ui.adSim': '(simulated ad — real ads arrive with the mobile build)',
+
+  // Sekmeler
+  'tab.home': 'Home',
+  'tab.research': 'Research',
+  'tab.garage': 'Garage',
+  'tab.market': 'Market',
+  'tab.settings': 'Settings',
+
+  // Home
+  'home.title': 'HOME GARAGE',
+  'home.subtitle': 'Every empire starts in a garage.',
+
+  // Research
+  'research.title': 'RESEARCH LAB',
+  'research.points': 'Research Points',
+  'research.assembly.name': 'Efficient Assembly',
+  'research.assembly.desc': 'All production 10% faster per level.',
+  'research.marketing.name': 'Smart Marketing',
+  'research.marketing.desc': 'All sale prices +15% per level.',
+  'research.warehouse.name': 'Warehouse Expansion',
+  'research.warehouse.desc': 'Stock capacity +50% per level.',
+  'research.offline.name': 'Offline Logistics',
+  'research.offline.desc': 'Offline progress cap: 8h → 12h → 24h.',
+  'research.quickclaim.name': 'Quick Claim',
+  'research.quickclaim.desc': 'Claim timer 25% shorter.',
+  'research.batch.name': 'Batch Production',
+  'research.batch.desc': '+1 vehicle per production cycle.',
+
+  // Garage (istatistik)
+  'garage.title': 'GARAGE STATS',
+  'garage.totalEarned': 'Total earned',
+  'garage.totalProduced': 'Vehicles produced',
+  'garage.totalSold': 'Vehicles sold',
+  'garage.achievements': 'Achievements',
+  'ach.firstSale': 'First Sale',
+  'ach.sold100': 'Salesperson — 100 sold',
+  'ach.sold1000': 'Sales Legend — 1,000 sold',
+  'ach.firstTech': 'First Hire',
+  'ach.firstManager': 'Delegation — first manager',
+  'ach.allVehicles': 'Full Lineup — all vehicles unlocked',
+  'ach.firstResearch': 'Eureka — first research',
+  'ach.earned100k': 'Six Figures — $100K earned',
+  'ach.reward': 'Reward',
+
+  // Market
+  'market.title': 'MARKET',
+  'market.boost.name': 'Income Boost ×2',
+  'market.boost.desc': 'Double all sale income for 4 hours.',
+  'market.boost.active': 'Boost active',
+  'market.adGems.name': 'Free Gems',
+  'market.adGems.desc': 'Watch an ad, get +5 gems.',
+  'market.adBoost.name': 'Free Boost',
+  'market.adBoost.desc': 'Watch an ad, get ×2 income for 4 hours.',
+  'market.gems.title': 'Gem Shop',
+  'market.gems.soon': 'Gem packs (in-app purchase) are coming in a future update. For now, earn gems from achievements and ads!',
+
+  // Settings
+  'settings.title': 'SETTINGS',
+  'settings.language': 'Language',
+  'settings.sound': 'Sound effects',
+  'settings.on': 'ON',
+  'settings.off': 'OFF',
+  'settings.reset': 'Reset save',
+  'settings.resetConfirm': 'This will permanently delete your progress. Are you sure?',
+  'settings.resetBtn': 'DELETE EVERYTHING',
+  'settings.cancel': 'Cancel',
+  'settings.about': 'EV Tycoon v0.1.0 — built with ⚡',
+
+  // Welcome back
+  'wb.title': 'WELCOME BACK!',
+  'wb.away': 'You were away for {time}.',
+  'wb.produced': 'Produced',
+  'wb.sold': 'Sold',
+  'wb.earned': 'Earned',
+  'wb.claimReady': 'Your research claim is ready!',
+
+  // Haberler
+  'news.generic1': 'Lithium prices dip — small EV makers celebrate.',
+  'news.generic2': 'City announces new bike lanes and charging points downtown.',
+  'news.generic3': 'Analysts: garage startups are the new unicorn factories.',
+  'news.generic4': 'Global EV demand hits record high for the third year running.',
+  'news.generic5': 'Solar-charged workshops trending among indie manufacturers.',
+  'news.zipvolt1': 'ZipVolt spotted zipping past traffic — commuters impressed.',
+  'news.zipvolt2': 'Local courier fleet switches to ZipVolt scooters.',
+  'news.voltrider1': 'VoltRider named "Best Budget E-Bike" by City Wheels Magazine.',
+  'news.voltrider2': 'Weekend riders form the first VoltRider fan club.',
+  'news.econoev1': 'Econo EV passes safety tests with flying colors.',
+  'news.econoev2': 'Waiting list for the Econo EV grows to three months.',
+
+  // Bildirimler
+  'toast.achievement': 'Achievement: {name} (+{gems} 💎)',
+  'toast.notEnoughMoney': 'Not enough money',
+  'toast.notEnoughGems': 'Not enough gems',
+  'toast.notEnoughRP': 'Not enough research points',
+};
+
+const tr: Dict = {
+  'class.kickscooter': 'Elektrikli Scooter',
+  'class.ebike': 'Elektrikli Bisiklet',
+  'class.microcar': 'Mikro Elektrikli Araba',
+
+  'ui.produce': 'ÜRET',
+  'ui.sell': 'SAT',
+  'ui.auto': 'OTO',
+  'ui.stock': 'Stok',
+  'ui.price': 'Fiyat',
+  'ui.unlock': 'AÇ',
+  'ui.locked': 'KİLİTLİ',
+  'ui.hire': 'İşe al',
+  'ui.hired': 'ALINDI!',
+  'ui.technician': 'Teknisyen',
+  'ui.salesrep': 'Satış Temsilcisi',
+  'ui.prodmanager': 'Üretim Müdürü',
+  'ui.salesmanager': 'Satış Müdürü',
+  'ui.speed': 'hız',
+  'ui.claim': 'TOPLA',
+  'ui.claimReady': 'Araştırma puanı hazır!',
+  'ui.claimFilling': 'Araştırma puanı üretiliyor…',
+  'ui.instant': 'Anında',
+  'ui.level': 'Sv',
+  'ui.max': 'MAKS',
+  'ui.buy': 'SATIN AL',
+  'ui.owned': 'ALINDI',
+  'ui.active': 'AKTİF',
+  'ui.watchAd': 'REKLAM İZLE',
+  'ui.free': 'ÜCRETSİZ',
+  'ui.close': 'Kapat',
+  'ui.collect': 'TOPLA',
+  'ui.double': 'REKLAMLA ×2',
+  'ui.adPlaying': 'Reklam oynuyor…',
+  'ui.adSim': '(simüle reklam — gerçek reklamlar mobil sürümde gelecek)',
+
+  'tab.home': 'Ana Sayfa',
+  'tab.research': 'Araştırma',
+  'tab.garage': 'Garaj',
+  'tab.market': 'Market',
+  'tab.settings': 'Ayarlar',
+
+  'home.title': 'EV GARAJI',
+  'home.subtitle': 'Her imparatorluk bir garajda başlar.',
+
+  'research.title': 'ARAŞTIRMA LABORATUVARI',
+  'research.points': 'Araştırma Puanı',
+  'research.assembly.name': 'Verimli Montaj',
+  'research.assembly.desc': 'Her seviyede tüm üretim %10 hızlanır.',
+  'research.marketing.name': 'Akıllı Pazarlama',
+  'research.marketing.desc': 'Her seviyede satış fiyatları +%15.',
+  'research.warehouse.name': 'Depo Genişletme',
+  'research.warehouse.desc': 'Her seviyede stok kapasitesi +%50.',
+  'research.offline.name': 'Çevrimdışı Lojistik',
+  'research.offline.desc': 'Çevrimdışı ilerleme tavanı: 8s → 12s → 24s.',
+  'research.quickclaim.name': 'Hızlı Toplama',
+  'research.quickclaim.desc': 'Toplama süresi %25 kısalır.',
+  'research.batch.name': 'Seri Üretim',
+  'research.batch.desc': 'Üretim döngüsü başına +1 araç.',
+
+  'garage.title': 'GARAJ İSTATİSTİKLERİ',
+  'garage.totalEarned': 'Toplam kazanç',
+  'garage.totalProduced': 'Üretilen araç',
+  'garage.totalSold': 'Satılan araç',
+  'garage.achievements': 'Başarımlar',
+  'ach.firstSale': 'İlk Satış',
+  'ach.sold100': 'Satışçı — 100 satış',
+  'ach.sold1000': 'Satış Efsanesi — 1.000 satış',
+  'ach.firstTech': 'İlk Eleman',
+  'ach.firstManager': 'Delegasyon — ilk müdür',
+  'ach.allVehicles': 'Tam Kadro — tüm araçlar açık',
+  'ach.firstResearch': 'Evreka — ilk araştırma',
+  'ach.earned100k': 'Altı Hane — $100K kazanç',
+  'ach.reward': 'Ödül',
+
+  'market.title': 'MARKET',
+  'market.boost.name': 'Gelir Boostu ×2',
+  'market.boost.desc': '4 saat boyunca tüm satış geliri iki katı.',
+  'market.boost.active': 'Boost aktif',
+  'market.adGems.name': 'Ücretsiz Elmas',
+  'market.adGems.desc': 'Reklam izle, +5 elmas kazan.',
+  'market.adBoost.name': 'Ücretsiz Boost',
+  'market.adBoost.desc': 'Reklam izle, 4 saat ×2 gelir kazan.',
+  'market.gems.title': 'Elmas Dükkânı',
+  'market.gems.soon': 'Elmas paketleri (uygulama içi satın alma) ileriki güncellemede gelecek. Şimdilik elmasları başarımlardan ve reklamlardan kazanabilirsin!',
+
+  'settings.title': 'AYARLAR',
+  'settings.language': 'Dil',
+  'settings.sound': 'Ses efektleri',
+  'settings.on': 'AÇIK',
+  'settings.off': 'KAPALI',
+  'settings.reset': 'Kaydı sıfırla',
+  'settings.resetConfirm': 'Tüm ilerlemen kalıcı olarak silinecek. Emin misin?',
+  'settings.resetBtn': 'HER ŞEYİ SİL',
+  'settings.cancel': 'Vazgeç',
+  'settings.about': 'EV Tycoon v0.1.0 — ⚡ ile yapıldı',
+
+  'wb.title': 'TEKRAR HOŞ GELDİN!',
+  'wb.away': '{time} boyunca uzaktaydın.',
+  'wb.produced': 'Üretilen',
+  'wb.sold': 'Satılan',
+  'wb.earned': 'Kazanç',
+  'wb.claimReady': 'Araştırma toplaman hazır!',
+
+  'news.generic1': 'Lityum fiyatları düştü — küçük EV üreticileri sevinçli.',
+  'news.generic2': 'Belediye şehir merkezine yeni bisiklet yolları ve şarj noktaları açıyor.',
+  'news.generic3': 'Analistler: garaj girişimleri yeni unicorn fabrikaları.',
+  'news.generic4': 'Küresel EV talebi üst üste üçüncü yıl rekor kırdı.',
+  'news.generic5': 'Güneş enerjili atölyeler bağımsız üreticiler arasında trend.',
+  'news.zipvolt1': 'ZipVolt trafiği sollarken görüntülendi — yolcular hayran.',
+  'news.zipvolt2': 'Yerel kurye filosu ZipVolt scooterlarına geçti.',
+  'news.voltrider1': 'VoltRider, City Wheels dergisince "En İyi Ekonomik E-Bisiklet" seçildi.',
+  'news.voltrider2': 'Hafta sonu sürücüleri ilk VoltRider fan kulübünü kurdu.',
+  'news.econoev1': 'Econo EV güvenlik testlerini başarıyla geçti.',
+  'news.econoev2': 'Econo EV bekleme listesi üç aya uzadı.',
+
+  'toast.achievement': 'Başarım: {name} (+{gems} 💎)',
+  'toast.notEnoughMoney': 'Yetersiz para',
+  'toast.notEnoughGems': 'Yetersiz elmas',
+  'toast.notEnoughRP': 'Yetersiz araştırma puanı',
+};
+
+const dicts: Record<Lang, Dict> = { en, tr };
+
+let current: Lang = 'en';
+
+export function setLang(l: Lang): void {
+  current = l;
+}
+
+export function getLang(): Lang {
+  return current;
+}
+
+export function t(key: string, params?: Record<string, string | number>): string {
+  let s = dicts[current][key] ?? dicts.en[key] ?? key;
+  if (params) {
+    for (const [k, v] of Object.entries(params)) s = s.replace(`{${k}}`, String(v));
+  }
+  return s;
+}
+
+export function detectLang(): Lang {
+  return navigator.language?.toLowerCase().startsWith('tr') ? 'tr' : 'en';
+}
