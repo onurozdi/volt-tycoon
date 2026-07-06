@@ -53,7 +53,7 @@ Lisans hem para hem gem ister. Gem'ler başarımlardan ve ödüllü videodan kaz
 | 5 | **FairwayGo** | Elektrikli golf aracı | $180K | 💎 35 | 150 sn | 80 sn | $16K | 10 |
 | 6 | **CityPod** | Mahalle elektrikli aracı (NEV) | $900K | 💎 40 | 360 sn | 180 sn | $90K | 8 |
 
-Personel bedelleri (teknisyen ≈ fiyat×2,2, müdürler ≈ fiyat×40, ×1,35 artış aynı):
+Personel bedelleri (teknisyen ≈ fiyat×2,2, müdürler ≈ fiyat×40, ×1,30 artış aynı):
 
 | Araç | Teknisyen | Satış Temsilcisi | Üretim Müdürü | Satış Müdürü |
 |---|---|---|---|---|
@@ -91,7 +91,9 @@ Personel bedelleri aynı oranlar (teknisyen ≈ fiyat×2,2, müdür ≈ fiyat×4
 | VoltRider | 12 sn | 8 sn | $95 | 15 |
 | Econo EV | 45 sn | 25 sn | $1.100 | 10 |
 
-### Personel maliyetleri (araç başına, üstel artış ×1,35)
+### Personel maliyetleri (araç başına, üstel artış ×1,30)
+
+> Denge denetimi (2026-07-07): artış ×1,35'ten ×1,30'a indirildi — tavanlar 20-30'a çıkınca 1,35^29 ≈ ×6.000 geç oyunda tam kadroyu ulaşılamaz kılıyordu. Erken oyun etkisi ihmal edilebilir (~%11).
 
 | Araç | İlk Technician | İlk Sales Rep | Prod. Manager | Sales Manager |
 |---|---|---|---|---|

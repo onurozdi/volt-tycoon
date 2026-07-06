@@ -265,7 +265,9 @@ export const VEHICLES: VehicleDef[] = [
 // Personel eğrisi: Hız = 1 + (SMAX-1) * (1 - e^(-n/TAU))  → azalan getiri
 export const STAFF_SMAX = 4;
 export const STAFF_TAU = 8;
-export const STAFF_COST_GROWTH = 1.35;
+// 1,35'ten indirildi: tavanlar 20-30'a çıkınca üstel artış geç oyunda
+// tam kadroyu ulaşılamaz kılıyordu (1,35^29 ≈ ×6000 → 1,30^29 ≈ ×2000)
+export const STAFF_COST_GROWTH = 1.3;
 
 // Claim / Research
 export const CLAIM_DURATION = 240; // saniye
