@@ -1,4 +1,6 @@
-# EV TYCOON — Game Design Document v1.0 (MVP)
+# VOLT TYCOON — Game Design Document v1.0 (MVP)
+
+> Oyun adı: **VOLT TYCOON** (eski çalışma adı "EV Tycoon"). "Volt" araç markalarının ortak DNA'sı (ZipVolt, VoltRider, Volterra, VoltVan), "Tycoon" tür bilinirliği sağlar. Ad, HUD'un en üstünde her ekranda görünür.
 
 > Yaşayan doküman. Tüm tasarım kararları burada tutulur; kod bu dokümana uyar.
 > Son güncelleme: 2026-07-06

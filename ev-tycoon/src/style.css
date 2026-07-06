@@ -64,12 +64,39 @@ html, body {
 #hud {
   z-index: 5;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: calc(8px + env(safe-area-inset-top)) 14px 8px;
+  flex-direction: column;
+  gap: 6px;
+  padding: calc(6px + env(safe-area-inset-top)) 14px 8px;
   background: linear-gradient(180deg, #0c153acc, #0c153a66);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(6px);
+}
+
+/* Oyun adı — her ekranda görünen marka şeridi */
+.hud-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 5px;
+  background: linear-gradient(90deg, var(--blue), var(--cyan) 45%, var(--lime));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hud-brand .icon {
+  width: 13px;
+  height: 13px;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 5px #3ef0c8aa);
+}
+
+.hud-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .hud-stat {
@@ -88,8 +115,9 @@ html, body {
 .hud-stat .icon { width: 17px; height: 17px; }
 .hud-money { color: var(--lime); flex: 1; }
 .hud-money .icon { color: var(--lime); filter: drop-shadow(0 0 5px #c8f43e88); }
-.hud-gems { color: var(--pink); }
-.hud-gems .icon { color: var(--pink); filter: drop-shadow(0 0 5px #ff5e9b88); }
+/* Gem kimliği: butonlarla aynı premium mor */
+.hud-gems { color: #c9b6ff; background: #191040cc; border-color: #6b4ddb99; }
+.hud-gems .icon { color: #c9b6ff; filter: drop-shadow(0 0 5px #a98aff); }
 .hud-boost {
   color: var(--gold);
   font-size: 12px;
@@ -667,7 +695,7 @@ button {
   z-index: 60;
   left: 50%;
   transform: translateX(-50%);
-  top: calc(52px + env(safe-area-inset-top));
+  top: calc(76px + env(safe-area-inset-top));
   display: flex;
   flex-direction: column;
   gap: 6px;

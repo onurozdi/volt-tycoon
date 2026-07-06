@@ -74,12 +74,15 @@ let hudMoney: HTMLElement, hudGems: HTMLElement, hudBoost: HTMLElement;
 function renderHUD(): void {
   const hud = $('#hud');
   hud.innerHTML = '';
-  hud.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span></div>`));
-  hud.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
-  hud.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));
-  hudMoney = hud.querySelector('.hud-money .val') as HTMLElement;
-  hudGems = hud.querySelector('.hud-gems .val') as HTMLElement;
-  hudBoost = hud.querySelector('.hud-boost') as HTMLElement;
+  hud.appendChild(el(`<div class="hud-brand">${icon('bolt')}<span>VOLT TYCOON</span>${icon('bolt')}</div>`));
+  const row = el(`<div class="hud-stats"></div>`);
+  hud.appendChild(row);
+  row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span></div>`));
+  row.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
+  row.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));
+  hudMoney = row.querySelector('.hud-money .val') as HTMLElement;
+  hudGems = row.querySelector('.hud-gems .val') as HTMLElement;
+  hudBoost = row.querySelector('.hud-boost') as HTMLElement;
 }
 
 // ---------- Alt navigasyon ----------

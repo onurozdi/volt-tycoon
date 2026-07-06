@@ -177,7 +177,7 @@ const en: Dict = {
   'settings.resetConfirm': 'This will permanently delete your progress. Are you sure?',
   'settings.resetBtn': 'DELETE EVERYTHING',
   'settings.cancel': 'Cancel',
-  'settings.about': 'EV Tycoon v0.1.0 — built with ⚡',
+  'settings.about': 'Volt Tycoon v0.1.0 — built with ⚡',
 
   // Welcome back
   'wb.title': 'WELCOME BACK!',
@@ -433,7 +433,7 @@ const tr: Dict = {
   'settings.resetConfirm': 'Tüm ilerlemen kalıcı olarak silinecek. Emin misin?',
   'settings.resetBtn': 'HER ŞEYİ SİL',
   'settings.cancel': 'Vazgeç',
-  'settings.about': 'EV Tycoon v0.1.0 — ⚡ ile yapıldı',
+  'settings.about': 'Volt Tycoon v0.1.0 — ⚡ ile yapıldı',
 
   'wb.title': 'TEKRAR HOŞ GELDİN!',
   'wb.away': '{time} boyunca uzaktaydın.',
