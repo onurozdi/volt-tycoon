@@ -1,8 +1,8 @@
 import {
-  BOOST_MULT, CLAIM_DURATION, FX, LOCATIONS, NEWS_EVENTS, RESEARCH,
+  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, LOCATIONS, NEWS_EVENTS, RESEARCH,
   STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
 } from './config';
-import type { EventKind, VehicleDef } from './config';
+import type { EventKind, ResearchFx, VehicleDef } from './config';
 import type { GameState, LineState } from './state';
 
 export function vehicleDef(id: string): VehicleDef {
@@ -29,6 +29,27 @@ export function researchLevel(s: GameState, id: string): number {
   return s.research[id] ?? 0;
 }
 
+/** Çarpımsal research etkilerinin bileşkesi (val^seviye çarpımı) */
+function rMult(s: GameState, fx: ResearchFx): number {
+  let m = 1;
+  for (const r of RESEARCH) {
+    if (r.fx !== fx) continue;
+    const lvl = researchLevel(s, r.id);
+    if (lvl > 0) m *= Math.pow(r.val, lvl);
+  }
+  return m;
+}
+
+/** Toplamsal research etkilerinin bileşkesi (val × seviye toplamı) */
+function rAdd(s: GameState, fx: ResearchFx): number {
+  let a = 0;
+  for (const r of RESEARCH) {
+    if (r.fx !== fx) continue;
+    a += r.val * researchLevel(s, r.id);
+  }
+  return a;
+}
+
 /** Aktif haber olayının bu araç + etki türü için çarpanı (yoksa 1) */
 export function eventMult(s: GameState, kind: EventKind, vehicleId: string): number {
   const ev = s.activeEvent;
@@ -40,38 +61,38 @@ export function eventMult(s: GameState, kind: EventKind, vehicleId: string): num
 }
 
 export function prodInterval(s: GameState, v: VehicleDef, line: LineState): number {
-  const assembly = Math.pow(FX.assemblyTimeMult, researchLevel(s, 'assembly'));
-  return (v.baseProdTime * assembly) / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
+  return (v.baseProdTime * rMult(s, 'prodTime')) / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
 }
 
 export function sellInterval(s: GameState, v: VehicleDef, line: LineState): number {
-  return v.baseSellTime / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id);
+  return (v.baseSellTime * rMult(s, 'sellTime')) / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id);
 }
 
 export function sellPrice(s: GameState, v: VehicleDef): number {
-  const marketing = Math.pow(FX.marketingPriceMult, researchLevel(s, 'marketing'));
   const boost = Date.now() < s.boostUntil ? BOOST_MULT : 1;
-  return Math.round(v.basePrice * marketing * boost * eventMult(s, 'price', v.id));
+  return Math.round(v.basePrice * rMult(s, 'price') * boost * eventMult(s, 'price', v.id));
 }
 
 /** Boost'suz taban fiyat (offline hesap ve UI için) */
 export function sellPriceNoBoost(s: GameState, v: VehicleDef): number {
-  const marketing = Math.pow(FX.marketingPriceMult, researchLevel(s, 'marketing'));
-  return Math.round(v.basePrice * marketing);
+  return Math.round(v.basePrice * rMult(s, 'price'));
 }
 
 export function stockCap(s: GameState, v: VehicleDef): number {
-  const mult = Math.pow(FX.warehouseCapMult, researchLevel(s, 'warehouse'));
-  return Math.floor(v.baseStockCap * mult);
+  return Math.floor(v.baseStockCap * rMult(s, 'cap'));
 }
 
 export function batchSize(s: GameState): number {
-  return 1 + (researchLevel(s, 'batch') >= 1 ? FX.batchExtra : 0);
+  return 1 + rAdd(s, 'batch');
 }
 
 export function claimDuration(s: GameState): number {
-  const mult = researchLevel(s, 'quickclaim') >= 1 ? FX.quickClaimMult : 1;
-  return CLAIM_DURATION * mult;
+  return CLAIM_DURATION * rMult(s, 'claimTime');
+}
+
+/** Claim başına kazanılan RP: (baz + toplamsal) × çarpımsal */
+export function claimReward(s: GameState): number {
+  return Math.round((CLAIM_REWARD + rAdd(s, 'claimAdd')) * rMult(s, 'claimMult'));
 }
 
 export function offlineCapSeconds(s: GameState): number {

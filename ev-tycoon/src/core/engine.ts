@@ -1,12 +1,12 @@
 import {
-  ACHIEVEMENTS, AD_REWARD_GEMS, BOOST_HOURS, CLAIM_REWARD,
+  ACHIEVEMENTS, AD_REWARD_GEMS, BOOST_HOURS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
   LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
 } from './config';
 import type { NewsEventDef } from './config';
 import {
-  batchSize, claimDuration, offlineCapSeconds, prodInterval, researchCost,
+  batchSize, claimDuration, claimReward, offlineCapSeconds, prodInterval, researchCost,
   sellInterval, sellPrice, sellPriceNoBoost, staffCapFor, staffCost, stockCap, vehicleDef,
 } from './formulas';
 import type { GameState } from './state';
@@ -221,7 +221,7 @@ export function unlockVehicle(s: GameState, id: string): boolean {
 export function claim(s: GameState): boolean {
   if (s.claimElapsed < claimDuration(s)) return false;
   s.claimElapsed = 0;
-  s.rp += CLAIM_REWARD;
+  s.rp += claimReward(s);
   return true;
 }
 

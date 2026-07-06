@@ -69,6 +69,82 @@ export const ART: Record<string, string> = {
     <path d="M46 34l3-4-2-1 3-4" stroke-width="2" opacity="0.9"/>
   `),
 
+  sedan: S(`
+    <path d="M8 42v-5c0-2 1.5-4 4-4l8-2 7-8c1.5-1.8 3.5-3 6-3h8c5 0 9 2.5 11 6l3 5 6 2c2 0.8 3 2.5 3 4v5c0 1.5-1.5 3-3 3h-3"/>
+    <path d="M8 42c0 1.5 1.5 3 3 3h3"/>
+    <circle cx="20" cy="45" r="6"/>
+    <circle cx="46" cy="45" r="6"/>
+    <path d="M26 45h14"/>
+    <path d="M24 31h26" opacity="0.6"/>
+    <path d="M35 21v10" opacity="0.6"/>
+    <path d="M31 38l3-4-2-1 3-4" stroke-width="2" opacity="0.9"/>
+  `),
+  suv: S(`
+    <path d="M8 42v-8c0-2 1.5-3.5 3.5-4l6.5-1.5 5-9c1-2 3-3.5 5.5-3.5h16c3 0 5.5 1.5 7 4l4 8.5 1.5 0.5c2 0.8 3 2.5 3 4.5v8c0 1.5-1.5 3-3 3h-3"/>
+    <path d="M8 42c0 1.5 1.5 3 3 3h3"/>
+    <circle cx="20" cy="45" r="6.5"/>
+    <circle cx="47" cy="45" r="6.5"/>
+    <path d="M27 45h13"/>
+    <path d="M22 29h30" opacity="0.6"/>
+    <path d="M33 18v11M45 18v11" opacity="0.5"/>
+    <path d="M12 26l4-2" opacity="0.7"/>
+  `),
+  pickup: S(`
+    <path d="M6 41v-7c0-1.5 1-3 3-3h3l6-11c1-2 3-3 5-3h9c2 0 3.5 1.5 3.5 3.5V30H56c1.5 0 3 1.5 3 3v8c0 1.5-1.5 2.5-3 2.5h-3"/>
+    <path d="M6 41c0 1.5 1.5 2.5 3 2.5h3"/>
+    <circle cx="18" cy="44" r="6"/>
+    <circle cx="47" cy="44" r="6"/>
+    <path d="M24 44h17"/>
+    <path d="M35 30V20" opacity="0.6"/>
+    <path d="M14 30h21" opacity="0.6"/>
+    <path d="M56 33h-14" opacity="0.5"/>
+  `),
+  van: S(`
+    <path d="M8 44V22c0-2 1.5-4 4-4h30c3 0 6 1.5 8 4l5 7c1.5 2 2 3.5 2 5.5V44"/>
+    <path d="M8 44h49"/>
+    <circle cx="19" cy="46" r="6"/>
+    <circle cx="46" cy="46" r="6"/>
+    <path d="M25 46h15"/>
+    <path d="M42 18v12h13" opacity="0.7"/>
+    <path d="M14 24h20v8H14z" opacity="0.5"/>
+    <path d="M28 39l3-5-2-1 3-5" stroke-width="2" opacity="0.9"/>
+  `),
+  truck: S(`
+    <path d="M4 40V14h26v26"/>
+    <path d="M30 22h12c2 0 4 1 5 3l4 6c1 1.5 1.5 2.5 1.5 4v5h-6"/>
+    <path d="M4 40h4M14 40h16M40 40h4"/>
+    <circle cx="11" cy="43" r="5.5"/>
+    <circle cx="37" cy="43" r="5.5"/>
+    <circle cx="51" cy="43" r="5.5"/>
+    <path d="M34 26h8l3 6h-11z" opacity="0.6"/>
+    <path d="M9 20h16M9 27h16" opacity="0.4"/>
+  `),
+  bus: S(`
+    <rect x="6" y="14" width="52" height="28" rx="5"/>
+    <path d="M6 32h52" opacity="0.7"/>
+    <path d="M13 20h9v8h-9zM27 20h10v8H27zM42 20h9v8h-9z" opacity="0.55"/>
+    <circle cx="17" cy="45" r="5.5"/>
+    <circle cx="47" cy="45" r="5.5"/>
+    <path d="M23 45h18"/>
+    <path d="M50 37h4" opacity="0.9"/>
+    <path d="M28 12V8h8" opacity="0.5"/>
+  `),
+  factory: S(`
+    <path d="M8 52V26l14 8v-8l14 8v-8l14 8"/>
+    <path d="M50 34V12h6v40"/>
+    <path d="M8 52h48"/>
+    <path d="M14 42h6v6h-6zM26 42h6v6h-6zM38 42h6v6h-6z" opacity="0.6"/>
+    <path d="M51 8c0-2 4-2 4 0" opacity="0.5"/>
+  `),
+  giga: S(`
+    <path d="M6 52V30l12 7v-7l12 7v-7l12 7"/>
+    <path d="M42 37V10h8v42"/>
+    <path d="M6 52h52"/>
+    <path d="M11 44h5v5h-5zM21 44h5v5h-5zM31 44h5v5h-5z" opacity="0.6"/>
+    <path d="M58 24l-6 10h5l-4 8" opacity="0.9"/>
+    <path d="M44 16h4M44 22h4" opacity="0.5"/>
+  `),
+
   // --- UI ikonları ---
   bolt: S(`<path d="M36 6L16 36h12l-4 22 24-32H34l2-20z"/>`),
   gear: S(`

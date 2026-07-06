@@ -14,6 +14,8 @@ export interface LocationDef {
 export const LOCATIONS: LocationDef[] = [
   { id: 'garage', nameKey: 'loc.garage', unlockCost: 0, unlockGems: 0, staffCap: 6, icon: 'home' },
   { id: 'workshop', nameKey: 'loc.workshop', unlockCost: 75_000, unlockGems: 20, staffCap: 12, icon: 'gear' },
+  { id: 'factory', nameKey: 'loc.factory', unlockCost: 5_000_000, unlockGems: 30, staffCap: 20, icon: 'factory' },
+  { id: 'gigafactory', nameKey: 'loc.gigafactory', unlockCost: 250_000_000, unlockGems: 40, staffCap: 30, icon: 'giga' },
 ];
 
 export interface VehicleDef {
@@ -148,6 +150,116 @@ export const VEHICLES: VehicleDef[] = [
     icon: 'citypod',
     accent: '#b06bff',
   },
+  // ---- Factory (3. mekân) ----
+  {
+    id: 'volterra',
+    name: 'Volterra',
+    classKey: 'class.sedan',
+    locationId: 'factory',
+    unlockCost: 3_000_000,
+    unlockGems: 35,
+    baseProdTime: 600,
+    baseSellTime: 300,
+    basePrice: 450_000,
+    baseStockCap: 8,
+    techBaseCost: 1_000_000,
+    repBaseCost: 800_000,
+    prodManagerCost: 18_000_000,
+    salesManagerCost: 22_000_000,
+    icon: 'sedan',
+    accent: '#41b0ff',
+  },
+  {
+    id: 'terravolt',
+    name: 'Terravolt',
+    classKey: 'class.suv',
+    locationId: 'factory',
+    unlockCost: 15_000_000,
+    unlockGems: 40,
+    baseProdTime: 1200,
+    baseSellTime: 600,
+    basePrice: 2_000_000,
+    baseStockCap: 6,
+    techBaseCost: 4_400_000,
+    repBaseCost: 3_500_000,
+    prodManagerCost: 80_000_000,
+    salesManagerCost: 96_000_000,
+    icon: 'suv',
+    accent: '#ff5e9b',
+  },
+  {
+    id: 'haulen',
+    name: 'Haulen',
+    classKey: 'class.pickup',
+    locationId: 'factory',
+    unlockCost: 70_000_000,
+    unlockGems: 45,
+    baseProdTime: 2400,
+    baseSellTime: 1200,
+    basePrice: 9_000_000,
+    baseStockCap: 6,
+    techBaseCost: 20_000_000,
+    repBaseCost: 16_000_000,
+    prodManagerCost: 360_000_000,
+    salesManagerCost: 430_000_000,
+    icon: 'pickup',
+    accent: '#ffd35e',
+  },
+  // ---- Gigafactory (4. mekân) ----
+  {
+    id: 'voltvan',
+    name: 'VoltVan',
+    classKey: 'class.van',
+    locationId: 'gigafactory',
+    unlockCost: 300_000_000,
+    unlockGems: 40,
+    baseProdTime: 3600,
+    baseSellTime: 1800,
+    basePrice: 40_000_000,
+    baseStockCap: 6,
+    techBaseCost: 88_000_000,
+    repBaseCost: 70_000_000,
+    prodManagerCost: 1_600_000_000,
+    salesManagerCost: 1_900_000_000,
+    icon: 'van',
+    accent: '#3ef0c8',
+  },
+  {
+    id: 'colossus',
+    name: 'Colossus',
+    classKey: 'class.truck',
+    locationId: 'gigafactory',
+    unlockCost: 1_500_000_000,
+    unlockGems: 45,
+    baseProdTime: 7200,
+    baseSellTime: 3600,
+    basePrice: 180_000_000,
+    baseStockCap: 5,
+    techBaseCost: 400_000_000,
+    repBaseCost: 320_000_000,
+    prodManagerCost: 7_200_000_000,
+    salesManagerCost: 8_600_000_000,
+    icon: 'truck',
+    accent: '#ff9d3e',
+  },
+  {
+    id: 'transitron',
+    name: 'Transitron',
+    classKey: 'class.bus',
+    locationId: 'gigafactory',
+    unlockCost: 7_000_000_000,
+    unlockGems: 50,
+    baseProdTime: 14_400,
+    baseSellTime: 7200,
+    basePrice: 800_000_000,
+    baseStockCap: 4,
+    techBaseCost: 1_760_000_000,
+    repBaseCost: 1_400_000_000,
+    prodManagerCost: 32_000_000_000,
+    salesManagerCost: 38_000_000_000,
+    icon: 'bus',
+    accent: '#c8f43e',
+  },
 ];
 
 // Personel eğrisi: Hız = 1 + (SMAX-1) * (1 - e^(-n/TAU))  → azalan getiri
@@ -157,32 +269,59 @@ export const STAFF_COST_GROWTH = 1.35;
 
 // Claim / Research
 export const CLAIM_DURATION = 240; // saniye
-export const CLAIM_REWARD = 5; // RP
+export const CLAIM_REWARD = 5; // RP (baz — research ile artar)
+
+/**
+ * Research etki türleri:
+ *  - prodTime / sellTime / price / cap / claimTime / claimMult → çarpımsal (val^seviye)
+ *  - claimAdd / batch → toplamsal (val × seviye)
+ *  - offline → özel: FX.offlineHours[seviye]
+ */
+export type ResearchFx =
+  | 'prodTime' | 'sellTime' | 'price' | 'cap'
+  | 'claimTime' | 'claimAdd' | 'claimMult'
+  | 'batch' | 'offline';
 
 export interface ResearchDef {
   id: string;
+  /** bu mekân açık olmalı (haberlerle aynı mantık: tier ile büyür) */
+  locationId: string;
   maxLevel: number;
   costs: number[]; // RP, seviye başına
   icon: string;
+  fx: ResearchFx;
+  val: number;
 }
 
 export const RESEARCH: ResearchDef[] = [
-  { id: 'assembly', maxLevel: 3, costs: [10, 30, 80], icon: 'gear' },
-  { id: 'marketing', maxLevel: 3, costs: [10, 30, 80], icon: 'megaphone' },
-  { id: 'warehouse', maxLevel: 2, costs: [20, 60], icon: 'box' },
-  { id: 'offline', maxLevel: 2, costs: [25, 70], icon: 'moon' },
-  { id: 'quickclaim', maxLevel: 1, costs: [40], icon: 'bolt' },
-  { id: 'batch', maxLevel: 1, costs: [120], icon: 'stack' },
+  // ---- Katman 1 — Garage ----
+  { id: 'assembly', locationId: 'garage', maxLevel: 3, costs: [10, 30, 80], icon: 'gear', fx: 'prodTime', val: 0.9 },
+  { id: 'marketing', locationId: 'garage', maxLevel: 3, costs: [10, 30, 80], icon: 'megaphone', fx: 'price', val: 1.15 },
+  { id: 'tinker', locationId: 'garage', maxLevel: 2, costs: [15, 45], icon: 'wrench', fx: 'claimAdd', val: 3 },
+  { id: 'warehouse', locationId: 'garage', maxLevel: 2, costs: [20, 60], icon: 'box', fx: 'cap', val: 1.5 },
+  { id: 'offline', locationId: 'garage', maxLevel: 2, costs: [25, 70], icon: 'moon', fx: 'offline', val: 0 },
+  { id: 'quickclaim', locationId: 'garage', maxLevel: 1, costs: [40], icon: 'bolt', fx: 'claimTime', val: 0.75 },
+  { id: 'batch', locationId: 'garage', maxLevel: 1, costs: [120], icon: 'stack', fx: 'batch', val: 1 },
+  // ---- Katman 2 — Workshop ----
+  { id: 'reverseeng', locationId: 'workshop', maxLevel: 2, costs: [80, 180], icon: 'flask', fx: 'claimAdd', val: 5 },
+  { id: 'logistics', locationId: 'workshop', maxLevel: 2, costs: [90, 200], icon: 'cart', fx: 'sellTime', val: 0.85 },
+  { id: 'robotics', locationId: 'workshop', maxLevel: 2, costs: [120, 260], icon: 'gear', fx: 'prodTime', val: 0.9 },
+  { id: 'bulkstorage', locationId: 'workshop', maxLevel: 1, costs: [150], icon: 'box', fx: 'cap', val: 1.5 },
+  // ---- Katman 3 — Factory ----
+  { id: 'rdlab', locationId: 'factory', maxLevel: 2, costs: [350, 700], icon: 'flask', fx: 'claimTime', val: 0.8 },
+  { id: 'brandpower', locationId: 'factory', maxLevel: 2, costs: [400, 800], icon: 'megaphone', fx: 'price', val: 1.2 },
+  { id: 'automation', locationId: 'factory', maxLevel: 2, costs: [500, 1000], icon: 'gear', fx: 'prodTime', val: 0.9 },
+  { id: 'gigabatch', locationId: 'factory', maxLevel: 1, costs: [900], icon: 'stack', fx: 'batch', val: 1 },
+  // ---- Katman 4 — Gigafactory ----
+  { id: 'quantumclaim', locationId: 'gigafactory', maxLevel: 1, costs: [2000], icon: 'bolt', fx: 'claimMult', val: 2 },
+  { id: 'aicore', locationId: 'gigafactory', maxLevel: 2, costs: [2500, 5000], icon: 'gear', fx: 'prodTime', val: 0.85 },
+  { id: 'globalbrand', locationId: 'gigafactory', maxLevel: 2, costs: [3000, 6000], icon: 'megaphone', fx: 'price', val: 1.25 },
+  { id: 'hyperlogistics', locationId: 'gigafactory', maxLevel: 2, costs: [2800, 5600], icon: 'cart', fx: 'sellTime', val: 0.8 },
 ];
 
-// Research etkileri (seviye başına)
+// Offline tavanı (offline research seviyesine göre saat)
 export const FX = {
-  assemblyTimeMult: 0.9, // her seviye üretim süresi ×0.9
-  marketingPriceMult: 1.15, // her seviye fiyat ×1.15
-  warehouseCapMult: 1.5, // her seviye kapasite ×1.5
   offlineHours: [8, 12, 24], // seviye 0/1/2
-  quickClaimMult: 0.75,
-  batchExtra: 1, // döngü başına +1 araç
 };
 
 // Gems
@@ -204,15 +343,16 @@ export interface AchievementDef {
 }
 
 // TASARIM KURALI: Reklamsız kazanılabilir toplam gem (başlangıç +
-// "allVehicles" HARİÇ başarımlar), kümülatif lisans gem bedelinin en az
-// 1,5 katı olmalı. Böylece çok sabırlı bir oyuncu hiç video izlemeden
-// tüm lisansları alabilir.
-// Güncel doğrulama: lisanslar 10+25+30+35+40 = 140 + atölye 20 = 160
-// → gerek 240. Havuz: başlangıç 5 + başarımlar 236 = 241 ≥ 240 ✓
+// "allVehicles" HARİÇ başarımlar), kümülatif gem giderlerinin (lisanslar +
+// tesis açılışları) en az 1,5 katı olmalı. Böylece çok sabırlı bir oyuncu
+// hiç video izlemeden her şeyi açabilir.
+// Güncel doğrulama:
+//   Giderler: lisanslar garaj 35 + atölye 105 + fabrika 120 + giga 135 = 395
+//             tesis açılışları 20+30+40 = 90 → toplam 485 → gerek 727,5
+//   Havuz: başlangıç 5 + başarımlar 731 = 736 ≥ 727,5 ✓
 //
-// TEMPO: Eşikler ×10 büyür (100→1K→10K→100K satış; $10K→$100K→$1M→$10M).
-// Erken oyunda başarımlar dakikalar içinde, geç oyunda saatler/günler
-// arayla gelir — oyuncu devamlılığı için bilinçli yavaşlama.
+// TEMPO: Eşikler ×10 büyür (100→1K→…→10M satış; $10K→…→$100B kazanç).
+// Erken oyunda başarımlar dakikalar içinde, geç oyunda günler arayla gelir.
 export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'firstSale', gems: 4, check: (s) => s.stats.totalSold >= 1 },
   { id: 'firstTech', gems: 4, check: (s) => Object.values(s.lines).some((l) => l.technicians >= 1) },
@@ -224,16 +364,27 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'sold1000', gems: 10, check: (s) => s.stats.totalSold >= 1000 },
   { id: 'earned100k', gems: 10, check: (s) => s.stats.totalEarned >= 100_000 },
   { id: 'workshopOpen', gems: 15, check: (s) => !!s.locations['workshop'] },
+  { id: 'researchAdept', gems: 15, check: (s) => Object.values(s.research).reduce((a, b) => a + b, 0) >= 10 },
   { id: 'sold10k', gems: 20, check: (s) => s.stats.totalSold >= 10_000 },
   { id: 'earned1m', gems: 20, check: (s) => s.stats.totalEarned >= 1_000_000 },
-  // techArmy eşiği toplam personel kapasitesinin (garaj 3×6 + atölye 3×12 = 54)
-  // altında kalmalı ki başarım her zaman kazanılabilir olsun
+  // techArmy eşiği toplam kapasitenin altında kalmalı (garaj 18 + atölye 36 = 54)
   { id: 'techArmy', gems: 15, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 40 },
   { id: 'autoEmpire', gems: 15, check: (s) => Object.values(s.lines).filter((l) => l.unlocked && l.prodManager && l.salesManager).length >= 4 },
-  { id: 'researchMaster', gems: 25, check: (s) => RESEARCH.every((r) => (s.research[r.id] ?? 0) >= r.maxLevel) },
+  { id: 'factoryOpen', gems: 25, check: (s) => !!s.locations['factory'] },
   { id: 'sold100k', gems: 25, check: (s) => s.stats.totalSold >= 100_000 },
   { id: 'earned10m', gems: 30, check: (s) => s.stats.totalEarned >= 10_000_000 },
-  { id: 'earned100m', gems: 20, check: (s) => s.stats.totalEarned >= 100_000_000 },
+  { id: 'researchVeteran', gems: 30, check: (s) => Object.values(s.research).reduce((a, b) => a + b, 0) >= 25 },
+  // techLegion: toplam personel (teknisyen+temsilci); kapasite 54×2+120+180=…
+  { id: 'techLegion', gems: 30, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians + l.salesReps, 0) >= 150 },
+  { id: 'autoNation', gems: 30, check: (s) => Object.values(s.lines).filter((l) => l.unlocked && l.prodManager && l.salesManager).length >= 9 },
+  { id: 'gigaOpen', gems: 40, check: (s) => !!s.locations['gigafactory'] },
+  { id: 'earned100m', gems: 40, check: (s) => s.stats.totalEarned >= 100_000_000 },
+  { id: 'sold1m', gems: 40, check: (s) => s.stats.totalSold >= 1_000_000 },
+  { id: 'earned1b', gems: 50, check: (s) => s.stats.totalEarned >= 1_000_000_000 },
+  { id: 'researchMaster', gems: 50, check: (s) => RESEARCH.every((r) => (s.research[r.id] ?? 0) >= r.maxLevel) },
+  { id: 'sold10m', gems: 60, check: (s) => s.stats.totalSold >= 10_000_000 },
+  { id: 'earned10b', gems: 60, check: (s) => s.stats.totalEarned >= 10_000_000_000 },
+  { id: 'earned100b', gems: 70, check: (s) => s.stats.totalEarned >= 100_000_000_000 },
   { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
 ];
 
@@ -268,6 +419,16 @@ export const NEWS: NewsDef[] = [
   { key: 'news.trihauler1', locationId: 'workshop', vehicleId: 'trihauler' },
   { key: 'news.fairwaygo1', locationId: 'workshop', vehicleId: 'fairwaygo' },
   { key: 'news.citypod1', locationId: 'workshop', vehicleId: 'citypod' },
+  // Katman 3 — Factory: sektörel, görece ciddi
+  { key: 'news.f1', locationId: 'factory', vehicleId: null },
+  { key: 'news.f2', locationId: 'factory', vehicleId: null },
+  { key: 'news.f3', locationId: 'factory', vehicleId: null },
+  { key: 'news.f4', locationId: 'factory', vehicleId: null },
+  // Katman 4 — Gigafactory: kurumsal parodi (telifsiz)
+  { key: 'news.x1', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x2', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x3', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x4', locationId: 'gigafactory', vehicleId: null },
 ];
 
 // ---- Haber olayları (popup + geçici oynanış etkisi) ----
@@ -307,6 +468,14 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'viral_trihauler', locationId: 'workshop', vehicleId: 'trihauler', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
   { id: 'viral_fairwaygo', locationId: 'workshop', vehicleId: 'fairwaygo', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
   { id: 'viral_citypod', locationId: 'workshop', vehicleId: 'citypod', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  // ---- Katman 3 — Factory: sektörel olaylar ----
+  { id: 'export_deal', locationId: 'factory', vehicleId: null, kind: 'price', mult: 1.3, durationSec: 120, positive: true },
+  { id: 'fleet_order', locationId: 'factory', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 120, positive: true },
+  { id: 'chip_shortage', locationId: 'factory', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
+  // ---- Katman 4 — Gigafactory: kurumsal parodi ----
+  { id: 'tusk_praise', locationId: 'gigafactory', vehicleId: null, kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'rocket_stunt', locationId: 'gigafactory', vehicleId: null, kind: 'sellSpeed', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'ai_tantrum', locationId: 'gigafactory', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
 ];
 
 export const EVENT_GAP_MIN = 240; // sn — iki olay arası en az

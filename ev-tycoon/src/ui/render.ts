@@ -11,8 +11,8 @@ import {
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
-  claimDuration, fmt, fmtMoney, fmtTime, prodInterval, researchCost, researchLevel,
-  sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
+  claimDuration, claimReward, fmt, fmtMoney, fmtTime, prodInterval, researchCost,
+  researchLevel, sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
 } from '../core/formulas';
 import type { GameState } from '../core/state';
 import { resetGame, saveGame } from '../core/state';
@@ -130,11 +130,13 @@ function renderTab(tab: Tab): void {
 function renderHome(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('home.title')}</div>`));
   c.appendChild(el(`<div class="screen-sub">${t('home.subtitle')}</div>`));
+  // Kademeli açılım: açık mekânlar + yalnızca SIRADAKİ kilitli mekân görünür;
+  // daha sonrakiler tamamen gizli kalır (merak unsuru)
   for (const loc of LOCATIONS) {
     c.appendChild(el(`<div class="loc-header">${icon(loc.icon)}<span>${t(loc.nameKey)}</span></div>`));
     if (!S.locations[loc.id]) {
       c.appendChild(locationUnlockCard(loc.id));
-      continue;
+      break;
     }
     const cards = el(`<div class="cards"></div>`);
     c.appendChild(cards);
@@ -479,51 +481,59 @@ function renderResearch(c: HTMLElement): void {
     msg.textContent = ready ? t('ui.claimReady') : t('ui.claimFilling');
     fill.style.width = `${Math.min(100, (S.claimElapsed / dur) * 100)}%`;
     label.textContent = ready ? '✓' : fmtTime(dur - S.claimElapsed);
-    btnClaim.textContent = `${t('ui.claim')} +5`;
+    btnClaim.textContent = `${t('ui.claim')} +${claimReward(S)}`;
     btnClaim.disabled = !ready;
     btnGem.style.visibility = ready ? 'hidden' : 'visible';
     btnAdClaim.style.visibility = ready ? 'hidden' : 'visible';
   });
 
-  // Araştırma listesi
-  for (const r of RESEARCH) {
-    const item = el(`<div class="panel">
-      <div class="panel-row">
-        <div class="panel-icon">${icon(r.icon)}</div>
-        <div style="flex:1">
-          <div class="panel-name">${t(`research.${r.id}.name`)}</div>
-          <div class="panel-desc">${t(`research.${r.id}.desc`)}</div>
-          <div class="lvl"></div>
+  // Araştırma listesi — haberlerle aynı tier mantığı: yalnızca açık
+  // mekânların araştırmaları görünür, mekân başlığıyla gruplanır
+  for (const loc of LOCATIONS) {
+    if (!S.locations[loc.id]) break;
+    const items = RESEARCH.filter((r) => r.locationId === loc.id);
+    if (items.length === 0) continue;
+    c.appendChild(el(`<div class="loc-header">${icon(loc.icon)}<span>${t(loc.nameKey)}</span></div>`));
+    for (const r of items) {
+      const item = el(`<div class="panel">
+        <div class="panel-row">
+          <div class="panel-icon">${icon(r.icon)}</div>
+          <div style="flex:1">
+            <div class="panel-name">${t(`research.${r.id}.name`)}</div>
+            <div class="panel-desc">${t(`research.${r.id}.desc`)}</div>
+            <div class="lvl"></div>
+          </div>
+          <div class="panel-side">
+            <button class="btn btn-buy rbuy"><span class="cost"></span></button>
+          </div>
         </div>
-        <div class="panel-side">
-          <button class="btn btn-buy rbuy"><span class="cost"></span></button>
-        </div>
-      </div>
-    </div>`);
-    c.appendChild(item);
-    const lvlEl = item.querySelector('.lvl') as HTMLElement;
-    const btn = item.querySelector('.rbuy') as HTMLButtonElement;
-    const costEl = item.querySelector('.cost') as HTMLElement;
-    btn.addEventListener('click', () => {
-      if (buyResearch(S, r.id)) sfx.achievement();
-      else {
-        toast(t('toast.notEnoughRP'), 'err');
-        sfx.error();
-      }
-    });
-    updaters.push(() => {
-      const lvl = researchLevel(S, r.id);
-      lvlEl.textContent = `${t('ui.level')} ${lvl}/${r.maxLevel}`;
-      const cost = researchCost(S, r.id);
-      if (cost === null) {
-        costEl.textContent = t('ui.max');
-        btn.disabled = true;
-      } else {
-        costEl.textContent = `${cost} RP`;
-        btn.classList.toggle('cant', S.rp < cost);
-      }
-    });
+      </div>`);
+      c.appendChild(item);
+      const lvlEl = item.querySelector('.lvl') as HTMLElement;
+      const btn = item.querySelector('.rbuy') as HTMLButtonElement;
+      const costEl = item.querySelector('.cost') as HTMLElement;
+      btn.addEventListener('click', () => {
+        if (buyResearch(S, r.id)) sfx.achievement();
+        else {
+          toast(t('toast.notEnoughRP'), 'err');
+          sfx.error();
+        }
+      });
+      updaters.push(() => {
+        const lvl = researchLevel(S, r.id);
+        lvlEl.textContent = `${t('ui.level')} ${lvl}/${r.maxLevel}`;
+        const cost = researchCost(S, r.id);
+        if (cost === null) {
+          costEl.textContent = t('ui.max');
+          btn.disabled = true;
+        } else {
+          costEl.textContent = `${cost} RP`;
+          btn.classList.toggle('cant', S.rp < cost);
+        }
+      });
+    }
   }
+  c.appendChild(el(`<div class="screen-sub" style="margin-top:10px">${t('research.more')}</div>`));
 }
 
 // ---------- GARAGE (istatistik + başarımlar) ----------
