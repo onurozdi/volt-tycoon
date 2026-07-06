@@ -884,7 +884,10 @@ button {
   margin-bottom: 14px;
 }
 .legal-panel { padding: 14px 16px; }
-.seg { display: flex; gap: 6px; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.lang-row { align-items: flex-start; }
+.lang-seg { max-width: 220px; }
+.lang-seg .btn { padding: 7px 10px; font-size: 12px; }
 .seg .btn { padding: 7px 14px; background: #0a1330; border: 1px solid var(--line); color: var(--text-dim); }
 .seg .btn.on { color: var(--cyan); border-color: var(--cyan); box-shadow: var(--glow-cyan); }
 .about { text-align: center; color: var(--text-dim); font-size: 11px; margin-top: 18px; }

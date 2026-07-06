@@ -1,4 +1,6 @@
 import { LOCATIONS, SAVE_KEY, SAVE_VERSION, STARTING_GEMS, VEHICLES } from './config';
+import { LANGS } from '../i18n';
+import type { Lang } from '../i18n';
 
 export interface LineState {
   unlocked: boolean;
@@ -36,7 +38,7 @@ export interface GameState {
   nextEventIn: number;
   achievements: string[];
   stats: { totalEarned: number; totalProduced: number; totalSold: number };
-  settings: { lang: 'en' | 'tr' | 'es'; sound: boolean };
+  settings: { lang: Lang; sound: boolean };
   /** öğretici adımı: 0 = hikâye bekliyor, 1..N = adımlar, 99 = bitti */
   tutStep: number;
   lastSeen: number; // epoch ms
@@ -62,7 +64,7 @@ export function newLine(unlocked: boolean): LineState {
   };
 }
 
-export function newGame(lang: 'en' | 'tr' | 'es'): GameState {
+export function newGame(lang: Lang): GameState {
   const lines: Record<string, LineState> = {};
   for (const v of VEHICLES) lines[v.id] = newLine(v.unlockCost === 0);
   const locations: Record<string, boolean> = {};
@@ -127,9 +129,7 @@ export function loadGame(): GameState | null {
       if (typeof line.revenue !== 'number') line.revenue = 0;
       if (typeof line.spent !== 'number') line.spent = 0;
     }
-    if (s.settings.lang !== 'en' && s.settings.lang !== 'tr' && s.settings.lang !== 'es') {
-      s.settings.lang = 'en';
-    }
+    if (!LANGS.includes(s.settings.lang)) s.settings.lang = 'en';
     // Öğretici bu alandan önceki kayıtlarda yok: mevcut oyuncuyu rahatsız etme
     if (typeof s.tutStep !== 'number') s.tutStep = 99;
     // Eski kayıtlar için haber olayı alanları

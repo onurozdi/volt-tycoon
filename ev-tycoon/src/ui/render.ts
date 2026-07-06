@@ -17,7 +17,7 @@ import {
 } from '../core/formulas';
 import type { GameState } from '../core/state';
 import { resetGame, saveGame } from '../core/state';
-import { getLang, setLang, t } from '../i18n';
+import { getLang, LANGS, setLang, t } from '../i18n';
 import type { Lang } from '../i18n';
 import { showRewardedAd } from './ads';
 import { icon } from './art';
@@ -798,18 +798,12 @@ function renderSettings(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('settings.title')}</div>`));
 
   // Dil
-  const langRow = el(`<div class="panel settings-row">
+  const langRow = el(`<div class="panel settings-row lang-row">
     <span>${t('settings.language')}</span>
-    <span class="seg">
-      <button class="btn lang-en">EN</button>
-      <button class="btn lang-tr">TR</button>
-      <button class="btn lang-es">ES</button>
-    </span>
+    <span class="seg lang-seg"></span>
   </div>`);
   c.appendChild(langRow);
-  const bEn = langRow.querySelector('.lang-en') as HTMLButtonElement;
-  const bTr = langRow.querySelector('.lang-tr') as HTMLButtonElement;
-  const bEs = langRow.querySelector('.lang-es') as HTMLButtonElement;
+  const seg = langRow.querySelector('.lang-seg') as HTMLElement;
   const applyLang = (l: Lang): void => {
     S.settings.lang = l;
     setLang(l);
@@ -818,13 +812,15 @@ function renderSettings(c: HTMLElement): void {
     renderTab('settings');
     rotateNews(true);
   };
-  bEn.addEventListener('click', () => applyLang('en'));
-  bTr.addEventListener('click', () => applyLang('tr'));
-  bEs.addEventListener('click', () => applyLang('es'));
+  const langBtns: Array<{ btn: HTMLButtonElement; lang: Lang }> = [];
+  for (const l of LANGS) {
+    const b = el(`<button class="btn">${l.toUpperCase()}</button>`) as HTMLButtonElement;
+    b.addEventListener('click', () => applyLang(l));
+    seg.appendChild(b);
+    langBtns.push({ btn: b, lang: l });
+  }
   updaters.push(() => {
-    bEn.classList.toggle('on', getLang() === 'en');
-    bTr.classList.toggle('on', getLang() === 'tr');
-    bEs.classList.toggle('on', getLang() === 'es');
+    for (const { btn, lang } of langBtns) btn.classList.toggle('on', getLang() === lang);
   });
 
   // Ses
