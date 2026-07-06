@@ -84,7 +84,7 @@ function renderHUD(): void {
 const TABS: Array<{ id: Tab; icn: string }> = [
   { id: 'home', icn: 'home' },
   { id: 'research', icn: 'flask' },
-  { id: 'garage', icn: 'wrench' },
+  { id: 'garage', icn: 'trophy' },
   { id: 'market', icn: 'cart' },
   { id: 'settings', icn: 'settings' },
 ];
