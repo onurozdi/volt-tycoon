@@ -108,6 +108,13 @@ export function loadGame(): GameState | null {
     for (const l of LOCATIONS) {
       if (s.locations[l.id] === undefined) s.locations[l.id] = l.unlockCost === 0;
     }
+    // Personel tavanı eklenmeden önceki kayıtlar tavanın üstünde olabilir
+    for (const v of VEHICLES) {
+      const cap = LOCATIONS.find((l) => l.id === v.locationId)?.staffCap ?? 6;
+      const line = s.lines[v.id];
+      line.technicians = Math.min(line.technicians, cap);
+      line.salesReps = Math.min(line.salesReps, cap);
+    }
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;
     if (s.activeEvent === undefined) s.activeEvent = null;
