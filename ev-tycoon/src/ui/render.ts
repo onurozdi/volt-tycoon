@@ -227,38 +227,33 @@ function vehicleCard(id: string): HTMLElement {
       sfx.error();
     }
   });
+  // Not: satın almalarda refresh() çağırmıyoruz; updater'lar her kare
+  // maliyet/etiket/disabled durumlarını zaten güncelliyor. Tam yeniden
+  // çizim ekranda görünür bir titremeye yol açıyordu.
   btnTech.addEventListener('click', () => {
-    if (buyTechnician(S, id)) {
-      sfx.buy();
-      refresh();
-    } else {
+    if (buyTechnician(S, id)) sfx.buy();
+    else {
       toast(t('toast.notEnoughMoney'), 'err');
       sfx.error();
     }
   });
   btnRep.addEventListener('click', () => {
-    if (buySalesRep(S, id)) {
-      sfx.buy();
-      refresh();
-    } else {
+    if (buySalesRep(S, id)) sfx.buy();
+    else {
       toast(t('toast.notEnoughMoney'), 'err');
       sfx.error();
     }
   });
   btnPM.addEventListener('click', () => {
-    if (buyProdManager(S, id)) {
-      sfx.buy();
-      refresh();
-    } else {
+    if (buyProdManager(S, id)) sfx.buy();
+    else {
       toast(t('toast.notEnoughMoney'), 'err');
       sfx.error();
     }
   });
   btnSM.addEventListener('click', () => {
-    if (buySalesManager(S, id)) {
-      sfx.buy();
-      refresh();
-    } else {
+    if (buySalesManager(S, id)) sfx.buy();
+    else {
       toast(t('toast.notEnoughMoney'), 'err');
       sfx.error();
     }
@@ -395,10 +390,7 @@ function renderResearch(c: HTMLElement): void {
   const btnGem = q('.gem-claim') as HTMLButtonElement;
 
   btnClaim.addEventListener('click', () => {
-    if (claim(S)) {
-      sfx.achievement();
-      refresh();
-    }
+    if (claim(S)) sfx.achievement();
   });
   btnGem.addEventListener('click', () => {
     if (gemInstantClaim(S)) sfx.buy();
@@ -441,10 +433,8 @@ function renderResearch(c: HTMLElement): void {
     const btn = item.querySelector('.rbuy') as HTMLButtonElement;
     const costEl = item.querySelector('.cost') as HTMLElement;
     btn.addEventListener('click', () => {
-      if (buyResearch(S, r.id)) {
-        sfx.achievement();
-        refresh();
-      } else {
+      if (buyResearch(S, r.id)) sfx.achievement();
+      else {
         toast(t('toast.notEnoughRP'), 'err');
         sfx.error();
       }
