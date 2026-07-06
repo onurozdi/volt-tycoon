@@ -715,7 +715,7 @@ function updateEventBar(): void {
   if (!def) return;
   bar.classList.add('on');
   bar.classList.toggle('bad', def.mult < 1);
-  bar.innerHTML = `<span>${def.mult >= 1 ? '📈' : '📉'} ${eventFxText(def)}</span><b>${fmtTime((ev.until - Date.now()) / 1000)}</b>`;
+  bar.innerHTML = `<span>${def.mult >= 1 ? '📈' : '📉'} ${t('event.active')}: ${eventFxText(def)}</span><b>${fmtTime((ev.until - Date.now()) / 1000)}</b>`;
 }
 
 // ---------- Welcome back ----------

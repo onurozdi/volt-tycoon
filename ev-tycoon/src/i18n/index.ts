@@ -147,6 +147,7 @@ const en: Dict = {
   'event.scope.all': 'all vehicles',
   'event.duration': 'for {time}',
   'event.ok': 'GOT IT',
+  'event.active': 'Active Effect',
 
   // Bildirimler
   'toast.achievement': 'Achievement: {name} (+{gems} 💎)',
@@ -289,6 +290,7 @@ const tr: Dict = {
   'event.scope.all': 'tüm araçlar',
   'event.duration': '{time} boyunca',
   'event.ok': 'ANLADIM',
+  'event.active': 'Aktif Etki',
 
   'toast.achievement': 'Başarım: {name} (+{gems} 💎)',
   'toast.notEnoughMoney': 'Yetersiz para',

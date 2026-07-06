@@ -33,7 +33,12 @@ export function setEngineEvents(e: EngineEvents): void {
 
 /** Süresi biten olayı temizle; yenisinin zamanı geldiyse tetikle */
 function tickNewsEvents(s: GameState, dt: number): void {
-  if (s.activeEvent && Date.now() > s.activeEvent.until) s.activeEvent = null;
+  if (s.activeEvent && Date.now() > s.activeEvent.until) {
+    s.activeEvent = null;
+    // Yeni olayın geri sayımı etki BİTTİKTEN sonra başlar — etki biter
+    // bitmez yeni popup gelmez, arada her zaman tam bir boşluk olur.
+    s.nextEventIn = EVENT_GAP_MIN + Math.random() * (EVENT_GAP_MAX - EVENT_GAP_MIN);
+  }
   if (s.activeEvent) return; // aktif olay varken geri sayım ilerlemez
   s.nextEventIn -= dt;
   if (s.nextEventIn > 0) return;

@@ -102,7 +102,12 @@ export function loadGame(): GameState | null {
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;
     if (s.activeEvent === undefined) s.activeEvent = null;
-    if (s.activeEvent && Date.now() > s.activeEvent.until) s.activeEvent = null;
+    if (s.activeEvent && Date.now() > s.activeEvent.until) {
+      s.activeEvent = null;
+      s.nextEventIn = Math.max(s.nextEventIn, 120);
+    }
+    // Oyun açılır açılmaz popup gelmesin
+    s.nextEventIn = Math.max(s.nextEventIn, 60);
     return s;
   } catch {
     return null;
