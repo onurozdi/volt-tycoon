@@ -24,6 +24,10 @@ export interface GameState {
   research: Record<string, number>; // id -> seviye
   claimElapsed: number;
   boostUntil: number; // epoch ms; ×2 gelir boostunun bitişi
+  /** aktif haber olayı (yoksa null) */
+  activeEvent: { id: string; until: number } | null;
+  /** bir sonraki haber olayına kalan oyun-içi saniye */
+  nextEventIn: number;
   achievements: string[];
   stats: { totalEarned: number; totalProduced: number; totalSold: number };
   settings: { lang: 'en' | 'tr'; sound: boolean };
@@ -60,6 +64,9 @@ export function newGame(lang: 'en' | 'tr'): GameState {
     research: {},
     claimElapsed: 0,
     boostUntil: 0,
+    activeEvent: null,
+    nextEventIn: 180, // ilk olay ~3. dakikada
+
     achievements: [],
     stats: { totalEarned: 0, totalProduced: 0, totalSold: 0 },
     settings: { lang, sound: true },
@@ -92,6 +99,10 @@ export function loadGame(): GameState | null {
     for (const v of VEHICLES) {
       if (!s.lines[v.id]) s.lines[v.id] = newLine(v.unlockCost === 0);
     }
+    // Eski kayıtlar için haber olayı alanları
+    if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;
+    if (s.activeEvent === undefined) s.activeEvent = null;
+    if (s.activeEvent && Date.now() > s.activeEvent.until) s.activeEvent = null;
     return s;
   } catch {
     return null;

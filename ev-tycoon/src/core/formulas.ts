@@ -1,7 +1,7 @@
 import {
-  BOOST_MULT, CLAIM_DURATION, FX, RESEARCH, STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
+  BOOST_MULT, CLAIM_DURATION, FX, NEWS_EVENTS, RESEARCH, STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
 } from './config';
-import type { VehicleDef } from './config';
+import type { EventKind, VehicleDef } from './config';
 import type { GameState, LineState } from './state';
 
 export function vehicleDef(id: string): VehicleDef {
@@ -23,20 +23,29 @@ export function researchLevel(s: GameState, id: string): number {
   return s.research[id] ?? 0;
 }
 
-export function prodInterval(s: GameState, v: VehicleDef, line: LineState): number {
-  const assembly = Math.pow(FX.assemblyTimeMult, researchLevel(s, 'assembly'));
-  return (v.baseProdTime * assembly) / staffSpeed(line.technicians);
+/** Aktif haber olayının bu araç + etki türü için çarpanı (yoksa 1) */
+export function eventMult(s: GameState, kind: EventKind, vehicleId: string): number {
+  const ev = s.activeEvent;
+  if (!ev || Date.now() > ev.until) return 1;
+  const def = NEWS_EVENTS.find((e) => e.id === ev.id);
+  if (!def || def.kind !== kind) return 1;
+  if (def.vehicleId !== null && def.vehicleId !== vehicleId) return 1;
+  return def.mult;
 }
 
-export function sellInterval(_s: GameState, v: VehicleDef, line: LineState): number {
-  // _s: ileride satış hızını etkileyen research eklenirse kullanılacak
-  return v.baseSellTime / staffSpeed(line.salesReps);
+export function prodInterval(s: GameState, v: VehicleDef, line: LineState): number {
+  const assembly = Math.pow(FX.assemblyTimeMult, researchLevel(s, 'assembly'));
+  return (v.baseProdTime * assembly) / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
+}
+
+export function sellInterval(s: GameState, v: VehicleDef, line: LineState): number {
+  return v.baseSellTime / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id);
 }
 
 export function sellPrice(s: GameState, v: VehicleDef): number {
   const marketing = Math.pow(FX.marketingPriceMult, researchLevel(s, 'marketing'));
   const boost = Date.now() < s.boostUntil ? BOOST_MULT : 1;
-  return Math.round(v.basePrice * marketing * boost);
+  return Math.round(v.basePrice * marketing * boost * eventMult(s, 'price', v.id));
 }
 
 /** Boost'suz taban fiyat (offline hesap ve UI için) */

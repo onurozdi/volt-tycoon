@@ -55,4 +55,8 @@ export const sfx = {
   error(): void {
     blip(180, 0.15, 'sawtooth', 0.04);
   },
+  news(): void {
+    blip(392, 0.12, 'sine', 0.05);
+    setTimeout(() => blip(523, 0.16, 'sine', 0.05), 110);
+  },
 };

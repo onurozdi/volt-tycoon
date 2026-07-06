@@ -5,7 +5,7 @@ import { fmtMoney } from './core/formulas';
 import { loadGame, newGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
-import { floatMoney, initUI, persist, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { floatMoney, initUI, persist, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
 
 const state = loadGame() ?? newGame(detectLang());
 setLang(state.settings.lang);
@@ -38,6 +38,10 @@ setEngineEvents({
   onAchievement: (id, gems) => {
     sfx.achievement();
     toast(t('toast.achievement', { name: t('ach.' + id), gems }), 'gold');
+  },
+  onNewsEvent: (def) => {
+    sfx.news();
+    showNewsEvent(def);
   },
 });
 

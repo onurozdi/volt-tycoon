@@ -93,7 +93,26 @@ Oyuncu küçük bir **ev garajında** elektrikli araç üretmeye başlar. Amaç:
 
 ## 9. Haber Sistemi
 
-Ana ekranda kayan haber bandı (ticker). Havuz, kilit durumuna göre filtrelenir; genel EV/enerji haberleri + araca özel mizahi haberler.
+İki katman:
+
+**a) Haber bandı (ticker):** Ana ekranda kayan mizahi/atmosferik haberler. Havuz, kilit durumuna göre filtrelenir. Oynanışa etkisi yoktur.
+
+**b) Haber olayları (popup):** Seyrek aralıklarla (4–7 dakikada bir, rastgele) ekrana "SON DAKİKA" popup'ı çıkar ve **geçici bir oynanış etkisi** uygular. Kurallar:
+
+- Etkiler çoğunlukla olumludur (%75); olumsuz olaylar seyrek ve hafiftir (%25, en fazla −%15).
+- Etki türleri: üretim hızı, satış hızı veya satış fiyatı çarpanı; tüm araçlara ya da tek araca uygulanabilir.
+- Araca özel olaylar yalnızca o araç açıksa çıkar.
+- Aynı anda tek olay aktif olur; süresi 60–120 sn. Aktif olay HUD altındaki ince şeritte geri sayımla gösterilir.
+- Olaylar çevrimdışında tetiklenmez ve süreleri gerçek zamanla dolar.
+
+| Olay | Etki | Süre |
+|---|---|---|
+| Araç viral oldu (araca özel ×3) | O aracın fiyatı ×1,5 | 90 sn |
+| Batarya indirimi | Tüm üretim hızı ×1,3 | 90 sn |
+| EV fuarı şehirde | Tüm satış hızı ×1,4 | 90 sn |
+| Devlet teşviki | Tüm fiyatlar ×1,25 | 120 sn |
+| Parça gecikmesi (olumsuz) | Tüm üretim hızı ×0,85 | 60 sn |
+| Piyasa durgunluğu (olumsuz) | Tüm fiyatlar ×0,85 | 60 sn |
 
 ## 10. Başarımlar (MVP — gem kaynağı)
 

@@ -1,8 +1,10 @@
 import {
   ACHIEVEMENTS, AD_REWARD_GEMS, BOOST_HOURS, CLAIM_REWARD,
+  EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  OFFLINE_MIN_SECONDS, VEHICLES,
+  NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
 } from './config';
+import type { NewsEventDef } from './config';
 import {
   batchSize, claimDuration, offlineCapSeconds, prodInterval, researchCost,
   sellInterval, sellPrice, sellPriceNoBoost, staffCost, stockCap, vehicleDef,
@@ -21,6 +23,7 @@ export interface EngineEvents {
   onSale?: (vehicleId: string, amount: number) => void;
   onProduce?: (vehicleId: string) => void;
   onAchievement?: (id: string, gems: number) => void;
+  onNewsEvent?: (def: NewsEventDef) => void;
 }
 
 let events: EngineEvents = {};
@@ -28,8 +31,27 @@ export function setEngineEvents(e: EngineEvents): void {
   events = e;
 }
 
+/** Süresi biten olayı temizle; yenisinin zamanı geldiyse tetikle */
+function tickNewsEvents(s: GameState, dt: number): void {
+  if (s.activeEvent && Date.now() > s.activeEvent.until) s.activeEvent = null;
+  if (s.activeEvent) return; // aktif olay varken geri sayım ilerlemez
+  s.nextEventIn -= dt;
+  if (s.nextEventIn > 0) return;
+  s.nextEventIn = EVENT_GAP_MIN + Math.random() * (EVENT_GAP_MAX - EVENT_GAP_MIN);
+  const wantPositive = Math.random() < EVENT_POSITIVE_CHANCE;
+  const pool = NEWS_EVENTS.filter(
+    (e) => e.positive === wantPositive && (e.vehicleId === null || s.lines[e.vehicleId]?.unlocked),
+  );
+  if (pool.length === 0) return;
+  const def = pool[Math.floor(Math.random() * pool.length)];
+  s.activeEvent = { id: def.id, until: Date.now() + def.durationSec * 1000 };
+  events.onNewsEvent?.(def);
+}
+
 /** Ana simülasyon adımı. dt: gerçek saniye. */
 export function tick(s: GameState, dt: number): void {
+  tickNewsEvents(s, dt);
+
   // Claim dolumu
   s.claimElapsed = Math.min(s.claimElapsed + dt, claimDuration(s));
 

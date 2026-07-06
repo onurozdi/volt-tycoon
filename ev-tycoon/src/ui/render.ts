@@ -1,6 +1,8 @@
 import {
-  ACHIEVEMENTS, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD, NEWS, RESEARCH, VEHICLES,
+  ACHIEVEMENTS, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
+  NEWS, NEWS_EVENTS, RESEARCH, VEHICLES,
 } from '../core/config';
+import type { NewsEventDef } from '../core/config';
 import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
@@ -671,6 +673,51 @@ export function rotateNews(immediate = false): void {
   if (immediate) newsTimer = 0;
 }
 
+// ---------- Haber olayı popup + aktif olay şeridi ----------
+
+function eventFxText(def: NewsEventDef): string {
+  const dir = def.mult >= 1 ? 'up' : 'down';
+  const fx = t(`event.fx.${def.kind}.${dir}`, { mult: def.mult });
+  const scope = def.vehicleId
+    ? VEHICLES.find((v) => v.id === def.vehicleId)?.name ?? ''
+    : t('event.scope.all');
+  return `${fx} — ${scope}`;
+}
+
+export function showNewsEvent(def: NewsEventDef): void {
+  const good = def.mult >= 1;
+  const overlay = el(`<div class="modal-overlay">
+    <div class="modal event-modal ${good ? 'good' : 'bad'}">
+      <div class="event-badge">${good ? '📈' : '📉'} ${t('event.breaking')}</div>
+      <h2>${t(`event.${def.id}.title`)}</h2>
+      <p class="event-fx">${eventFxText(def)}</p>
+      <p class="event-dur">${t('event.duration', { time: fmtTime(def.durationSec) })}</p>
+      <div class="modal-btns">
+        <button class="btn ${good ? 'btn-unlock' : 'btn-buy'} ev-ok">${t('event.ok')}</button>
+      </div>
+    </div>
+  </div>`);
+  document.body.appendChild(overlay);
+  (overlay.querySelector('.ev-ok') as HTMLButtonElement).addEventListener('click', () => {
+    sfx.click();
+    overlay.remove();
+  });
+}
+
+function updateEventBar(): void {
+  const bar = $('#eventbar');
+  const ev = S.activeEvent;
+  if (!ev || Date.now() > ev.until) {
+    bar.classList.remove('on', 'bad');
+    return;
+  }
+  const def = NEWS_EVENTS.find((e) => e.id === ev.id);
+  if (!def) return;
+  bar.classList.add('on');
+  bar.classList.toggle('bad', def.mult < 1);
+  bar.innerHTML = `<span>${def.mult >= 1 ? '📈' : '📉'} ${eventFxText(def)}</span><b>${fmtTime((ev.until - Date.now()) / 1000)}</b>`;
+}
+
 // ---------- Welcome back ----------
 
 export function showWelcomeBack(report: OfflineReport): void {
@@ -726,6 +773,7 @@ export function updateFrame(dt: number): void {
     (hudBoost.querySelector('.val') as HTMLElement).textContent = fmtTime((S.boostUntil - Date.now()) / 1000);
   }
 
+  updateEventBar();
   for (const u of updaters) u();
 
   newsTimer += dt;

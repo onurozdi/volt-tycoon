@@ -154,6 +154,37 @@ export const NEWS: NewsDef[] = [
   { key: 'news.econoev2', vehicleId: 'econoev' },
 ];
 
+// ---- Haber olayları (popup + geçici oynanış etkisi) ----
+
+export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price';
+
+export interface NewsEventDef {
+  id: string;
+  /** null → tüm araçlar; dolu → yalnızca o araç (ve araç açıksa çıkar) */
+  vehicleId: string | null;
+  kind: EventKind;
+  mult: number;
+  durationSec: number;
+  positive: boolean;
+}
+
+export const NEWS_EVENTS: NewsEventDef[] = [
+  // Olumlu
+  { id: 'viral_zipvolt', vehicleId: 'zipvolt', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_voltrider', vehicleId: 'voltrider', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'viral_econoev', vehicleId: 'econoev', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
+  { id: 'battery_deal', vehicleId: null, kind: 'prodSpeed', mult: 1.3, durationSec: 90, positive: true },
+  { id: 'ev_expo', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 90, positive: true },
+  { id: 'subsidy', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 120, positive: true },
+  // Hafif olumsuz
+  { id: 'parts_delay', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
+  { id: 'market_dip', vehicleId: null, kind: 'price', mult: 0.85, durationSec: 60, positive: false },
+];
+
+export const EVENT_GAP_MIN = 240; // sn — iki olay arası en az
+export const EVENT_GAP_MAX = 420; // sn — en çok
+export const EVENT_POSITIVE_CHANCE = 0.75;
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye
