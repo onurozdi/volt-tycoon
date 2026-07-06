@@ -615,3 +615,14 @@ button {
   .tab { font-size: 11px; }
   .tab .icon { width: 24px; height: 24px; }
 }
+
+/* Yatay (landscape) tablet: dikey alan kısıtlı, genişliği kullan */
+@media (min-width: 1000px) {
+  #app { max-width: 1100px; }
+
+  .cards { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* Kısa ekranda üst/alt çubuklar daha ince dursun */
+  .screen-title { font-size: 18px; margin-top: 0; }
+  .screen-sub { margin-bottom: 10px; }
+}
