@@ -15,6 +15,7 @@ const en: Dict = {
   'loc.garage': 'HOME GARAGE',
   'loc.workshop': 'WORKSHOP',
   'loc.unlock': 'OPEN THE WORKSHOP',
+  'loc.milestone': 'NEW FACILITY',
   'loc.workshop.desc': 'A real production floor with room for bigger vehicles. Opens 3 new production lines…',
 
   // Genel UI
@@ -196,6 +197,7 @@ const tr: Dict = {
   'loc.garage': 'EV GARAJI',
   'loc.workshop': 'ATÖLYE',
   'loc.unlock': 'ATÖLYEYİ AÇ',
+  'loc.milestone': 'YENİ TESİS',
   'loc.workshop.desc': 'Daha büyük araçlara yer açan gerçek bir üretim katı. 3 yeni üretim hattı açar…',
 
   'ui.produce': 'ÜRET',

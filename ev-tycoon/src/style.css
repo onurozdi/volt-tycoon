@@ -180,6 +180,48 @@ html, body {
   gap: 14px;
 }
 
+/* Mekân açılış kartı: kilometre taşı — sıradan kilitli araçtan belirgin
+   biçimde ayrışır (altın kimlik + nefes alan parıltı) */
+.vcard.loc-unlock {
+  background:
+    radial-gradient(120% 80% at 85% 10%, #ffd35e14 0%, transparent 55%),
+    linear-gradient(160deg, #241c08 0%, #14204a 55%, #101b3c 100%);
+  border-color: #ffd35e77;
+  animation: milestone-glow 2.4s ease-in-out infinite;
+}
+@keyframes milestone-glow {
+  0%, 100% { box-shadow: 0 0 10px #ffd35e2e; }
+  50% { box-shadow: 0 0 24px #ffd35e55; }
+}
+.loc-unlock .loc-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #241c08;
+  background: linear-gradient(90deg, var(--gold), #ffe9a8);
+  padding: 3px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px #ffd35e66;
+}
+.loc-unlock .vcard-icon {
+  color: var(--gold);
+  border-color: #ffd35e66;
+  background: #1d1607;
+}
+.loc-unlock .vcard-title {
+  color: var(--gold);
+  text-shadow: 0 0 10px #ffd35e55;
+  letter-spacing: 2px;
+}
+.loc-unlock .loc-lock { color: #ffd35e99; }
+.btn-unlock.btn-milestone {
+  background: linear-gradient(180deg, #ffca3a, #d99a12);
+  color: #241c08;
+  box-shadow: 0 0 16px #ffd35e55, inset 0 1px 0 #ffffff77;
+}
+
 /* Mekân bölüm başlığı */
 .loc-header {
   display: flex;

@@ -148,17 +148,18 @@ function renderHome(c: HTMLElement): void {
 
 function locationUnlockCard(id: string): HTMLElement {
   const loc = LOCATIONS.find((l) => l.id === id)!;
-  const card = el(`<div class="vcard locked loc-unlock" style="--accent:#3a4a7a">
+  const card = el(`<div class="vcard loc-unlock" style="--accent:var(--gold)">
+    <div class="loc-badge">✦ ${t('loc.milestone')}</div>
     <div class="vcard-head">
       <div class="vcard-icon">${icon(loc.icon)}</div>
       <div style="flex:1">
         <div class="vcard-title">${t(loc.nameKey)}</div>
         <div class="vcard-class">${t(loc.nameKey + '.desc')}</div>
       </div>
-      <div class="vcard-stock">${icon('lock')}</div>
+      <div class="vcard-stock loc-lock">${icon('lock')}</div>
     </div>
     <div class="locked-row">
-      <button class="btn btn-unlock">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}${loc.unlockGems > 0 ? ` + 💎${loc.unlockGems}` : ''}</button>
+      <button class="btn btn-unlock btn-milestone">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}${loc.unlockGems > 0 ? ` + 💎${loc.unlockGems}` : ''}</button>
     </div>
   </div>`);
   const btn = card.querySelector('.btn-unlock') as HTMLButtonElement;
