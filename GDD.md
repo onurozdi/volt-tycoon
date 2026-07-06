@@ -123,7 +123,24 @@ Lisans hem para hem gem ister. Gem'ler başarımlardan ve ödüllü videodan kaz
 
 ## 10. Başarımlar (MVP — gem kaynağı)
 
-İlk satış, 100 satış, 1.000 satış, ilk technician, ilk manager, tüm araçlar açık, ilk research, $100K toplam kazanç… her biri 2–10 gem.
+| Başarım | Koşul | Gem |
+|---|---|---|
+| İlk Satış | 1 satış | 2 |
+| İlk Eleman | 1 teknisyen | 2 |
+| Satışçı | 100 satış | 5 |
+| Teknik Kadro | toplam 10 teknisyen | 5 |
+| Delegasyon | ilk müdür | 5 |
+| Evreka | ilk araştırma | 3 |
+| Beş Hane | $10K toplam kazanç | 5 |
+| Satış Efsanesi | 1.000 satış | 10 |
+| Altı Hane | $100K toplam kazanç | 10 |
+| Tam Kadro | tüm araçlar açık | 10 |
+
+### Reklamsız oynanabilirlik kuralı (tasarım ilkesi)
+
+> **Reklam asla zorunlu olamaz.** Başlangıç gem'i + ("Tam Kadro" hariç) başarımlardan kazanılabilir toplam gem, kümülatif lisans gem bedelinin **en az 1,5 katı** olmalıdır. Yeni araç/lokasyon eklerken bu oran korunur.
+
+Güncel doğrulama: başlangıç 10 + başarımlar 47 = **57 gem** kazanılabilir; lisans ihtiyacı 10 + 25 = **35 gem**; 57 ≥ 52,5 (=35×1,5) ✓. Sabırlı oyuncu yolda birkaç küçük gem harcaması yapsa bile reklamsız tüm lisansları alabilir.
 
 ## 11. UI Yapısı
 

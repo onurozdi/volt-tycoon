@@ -128,14 +128,20 @@ export interface AchievementDef {
   check: (s: import('./state').GameState) => boolean;
 }
 
+// TASARIM KURALI: Reklamsız kazanılabilir toplam gem (başlangıç +
+// "allVehicles" HARİÇ başarımlar), kümülatif lisans gem bedelinin en az
+// 1,5 katı olmalı. Böylece çok sabırlı bir oyuncu hiç video izlemeden
+// tüm lisansları alabilir. Güncel durum: 10 + 47 = 57 ≥ 1,5 × 35 = 52,5 ✓
 export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'firstSale', gems: 2, check: (s) => s.stats.totalSold >= 1 },
   { id: 'sold100', gems: 5, check: (s) => s.stats.totalSold >= 100 },
   { id: 'sold1000', gems: 10, check: (s) => s.stats.totalSold >= 1000 },
   { id: 'firstTech', gems: 2, check: (s) => Object.values(s.lines).some((l) => l.technicians >= 1) },
+  { id: 'techSquad', gems: 5, check: (s) => Object.values(s.lines).reduce((n, l) => n + l.technicians, 0) >= 10 },
   { id: 'firstManager', gems: 5, check: (s) => Object.values(s.lines).some((l) => l.prodManager || l.salesManager) },
   { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
   { id: 'firstResearch', gems: 3, check: (s) => Object.values(s.research).some((v) => v >= 1) },
+  { id: 'earned10k', gems: 5, check: (s) => s.stats.totalEarned >= 10_000 },
   { id: 'earned100k', gems: 10, check: (s) => s.stats.totalEarned >= 100_000 },
 ];
 
