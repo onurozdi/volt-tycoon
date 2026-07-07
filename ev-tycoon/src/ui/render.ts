@@ -1204,10 +1204,19 @@ export function updateFrame(dt: number): void {
 
   updateEventBar();
 
-  // Yaklaşan taksit sayacı (para hapının ortası, kırmızı)
+  // Kredi yükü göstergesi: TÜM kredilerin birleşik dakikalık gideri
+  // (üstteki gelir hızıyla aynı dil) + en yakın taksite geri sayım.
+  // Dakikalık oran, taksitlerin farklı saniyelere denk gelmesinden etkilenmez.
   if (S.loans.length > 0) {
-    const nearest = S.loans.reduce((a, b) => (a.nextIn < b.nextIn ? a : b));
-    hudDue.textContent = `🏦 −${fmtMoney(nearest.installment)} · ${fmtTime(nearest.nextIn)}`;
+    let perMin = 0;
+    let nearest = Infinity;
+    for (const loan of S.loans) {
+      const def = LOANS.find((l) => l.id === loan.defId);
+      if (def) perMin += (loan.installment / def.intervalSec) * 60;
+      if (loan.nextIn < nearest) nearest = loan.nextIn;
+    }
+    const multi = S.loans.length > 1 ? `${S.loans.length}× ` : '';
+    hudDue.textContent = `🏦 ${multi}−${t('ui.perMin', { n: fmtMoney(perMin) })} · ${fmtTime(nearest)}`;
   } else {
     hudDue.textContent = '';
   }
