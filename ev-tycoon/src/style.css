@@ -103,7 +103,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  height: 42px; /* tüm HUD hapları aynı kalınlıkta — satır tam dolar */
+  padding: 0 12px;
   border-radius: 999px;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -145,18 +146,21 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Yaklaşan kredi taksiti: ikinci satır, sağa yaslı, kırmızı */
+/* Yaklaşan kredi taksiti: ikinci satır, sağa yaslı, kırmızı.
+   Yeri HER ZAMAN rezerve (boşken de) — para yazısı asla kaymaz. */
 .hud-money .due {
+  display: block;
+  height: 12px;
+  line-height: 12px;
   text-align: right;
   font-size: 9.5px;
   font-weight: 800;
-  line-height: 1.2;
   color: var(--danger);
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 6px #ff5e6c55;
   white-space: nowrap;
+  overflow: hidden;
 }
-.hud-money .due:empty { display: none; }
 
 /* Banka teklif butonları (Çek + Kapat alt alta) */
 .loan-btns { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
@@ -175,8 +179,8 @@ html, body {
 /* Ayarlar dişlisi (HUD) */
 .hud-gear {
   flex: none;
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
   border-radius: 999px;
