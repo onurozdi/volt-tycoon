@@ -1,6 +1,6 @@
 import {
-  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, LOCATIONS, NEWS_EVENTS, RESEARCH,
-  STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
+  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, LOCATIONS, NEWS_EVENTS, OVERSTAFF_GROWTH,
+  RESEARCH, STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
 } from './config';
 import type { EventKind, ResearchFx, VehicleDef } from './config';
 import type { GameState, LineState } from './state';
@@ -16,8 +16,22 @@ export function staffSpeed(n: number): number {
   return 1 + (STAFF_SMAX - 1) * (1 - Math.exp(-n / STAFF_TAU));
 }
 
-export function staffCost(base: number, owned: number): number {
-  return Math.ceil(base * Math.pow(STAFF_COST_GROWTH, owned));
+/**
+ * Personel maliyeti — iki rejim:
+ *  - aracın kendi tesisinin tavanına kadar: ×1,30 (normal kadro)
+ *  - üzeri ("uzman kadro", yeni tesislerin açtığı slotlar): ek ×1,75/kişi.
+ * Böylece eski araca dönüş orta oyunda kısa bir köprü olur ama hızla
+ * pahalanır; oyuncu pahalı yeni araçlara geri döner.
+ */
+export function staffCost(base: number, owned: number, homeCap: number): number {
+  const normal = Math.min(owned, homeCap);
+  const over = Math.max(0, owned - homeCap);
+  return Math.ceil(base * Math.pow(STAFF_COST_GROWTH, normal) * Math.pow(OVERSTAFF_GROWTH, over));
+}
+
+/** Aracın kendi tesisinin tavanı (uzman kadro eşiği) */
+export function homeCapFor(v: VehicleDef): number {
+  return LOCATIONS.find((l) => l.id === v.locationId)?.staffCap ?? 6;
 }
 
 /**

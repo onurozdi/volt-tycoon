@@ -12,8 +12,9 @@ import {
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
-  batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, hasAutoClaim, prodInterval,
-  researchCost, researchLevel, sellInterval, sellPrice, staffCapFor, staffCost, staffSpeed, stockCap,
+  batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, hasAutoClaim, homeCapFor,
+  prodInterval, researchCost, researchLevel, sellInterval, sellPrice, staffCapFor, staffCost,
+  staffSpeed, stockCap,
 } from '../core/formulas';
 import type { GameState } from '../core/state';
 import { resetGame, saveGame } from '../core/state';
@@ -400,14 +401,20 @@ function vehicleCard(id: string): HTMLElement {
     btnGemSell.style.visibility = sActive ? 'visible' : 'hidden';
     btnGemSell.classList.toggle('cant', S.gems < GEM_COST_INSTANT_PROD);
 
-    // Personel (tavan: açık en büyük tesisin tavanı; dolunca MAX)
+    // Personel (tavan: açık en büyük tesisin tavanı; dolunca MAX;
+    // kendi tesis tavanı üzeri "uzman kadro" altın fiyatla gösterilir)
     const sCap = staffCapFor(S);
+    const hCap = homeCapFor(v);
     const techMax = line.technicians >= sCap;
     const repMax = line.salesReps >= sCap;
-    const tc = staffCost(v.techBaseCost, line.technicians);
-    const rc = staffCost(v.repBaseCost, line.salesReps);
-    (btnTech.querySelector('.cost') as HTMLElement).textContent = techMax ? t('ui.max') : fmtMoney(tc);
-    (btnRep.querySelector('.cost') as HTMLElement).textContent = repMax ? t('ui.max') : fmtMoney(rc);
+    const tc = staffCost(v.techBaseCost, line.technicians, hCap);
+    const rc = staffCost(v.repBaseCost, line.salesReps, hCap);
+    const tCostEl = btnTech.querySelector('.cost') as HTMLElement;
+    const rCostEl = btnRep.querySelector('.cost') as HTMLElement;
+    tCostEl.textContent = techMax ? t('ui.max') : fmtMoney(tc);
+    rCostEl.textContent = repMax ? t('ui.max') : fmtMoney(rc);
+    tCostEl.classList.toggle('over', !techMax && line.technicians >= hCap);
+    rCostEl.classList.toggle('over', !repMax && line.salesReps >= hCap);
     btnTech.disabled = techMax;
     btnRep.disabled = repMax;
     btnTech.classList.toggle('cant', !techMax && S.money < tc);

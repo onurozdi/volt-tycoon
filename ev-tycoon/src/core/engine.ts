@@ -6,9 +6,9 @@ import {
 } from './config';
 import type { NewsEventDef } from './config';
 import {
-  batchSize, claimDuration, claimReward, hasAutoClaim, offlineCapSeconds, prodInterval,
-  researchCost, sellInterval, sellPrice, sellPriceNoBoost, staffCapFor, staffCost,
-  stockCap, vehicleDef,
+  batchSize, claimDuration, claimReward, hasAutoClaim, homeCapFor, offlineCapSeconds,
+  prodInterval, researchCost, sellInterval, sellPrice, sellPriceNoBoost, staffCapFor,
+  staffCost, stockCap, vehicleDef,
 } from './formulas';
 import type { GameState } from './state';
 
@@ -172,7 +172,7 @@ export function buyTechnician(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
   if (line.technicians >= staffCapFor(s)) return false; // tesis tavanı
-  const cost = staffCost(v.techBaseCost, line.technicians);
+  const cost = staffCost(v.techBaseCost, line.technicians, homeCapFor(v));
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
   line.spent += cost;
@@ -184,7 +184,7 @@ export function buySalesRep(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
   if (line.salesReps >= staffCapFor(s)) return false; // tesis tavanı
-  const cost = staffCost(v.repBaseCost, line.salesReps);
+  const cost = staffCost(v.repBaseCost, line.salesReps, homeCapFor(v));
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
   line.spent += cost;

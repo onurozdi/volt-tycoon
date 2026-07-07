@@ -116,6 +116,15 @@ Küçük mekânda az çalışan — parayla sınırsız coşturulamaz. Tavan **a
 | Gigafactory | 30 |
 
 Azalan getiri eğrisi (Smax=4, τ=8) sayesinde bu güç patlaması yaratmaz: 6 kişi ×2,58 hız, 30 kişi ×3,93 (asimptot 4). Tavana ulaşan buton "MAX" olur; sayaç `3/6` biçiminde gösterilir. Personel gerektiren başarım eşikleri her zaman erişilebilir kapasitenin altında tutulur.
+
+### Uzman kadro — "eski araca dönüş" köprü mekaniği
+
+Personel maliyeti iki rejimlidir:
+
+- Aracın **kendi tesisinin** tavanına kadar: normal artış (×1,30/kişi).
+- Üzerindeki slotlar (**uzman kadro** — yeni tesislerin açtığı ek kapasite): ek **×1,75/kişi**. Arayüzde altın fiyatla gösterilir.
+
+Amaç: Oyun ortasında fiyatlar yavaşlatınca eski araca dönüp birkaç uzman almak **kısa vadeli tatlı bir köprü** olsun (ilk 3-5 uzman dakikalarla ödenir, hattı %15-25 hızlandırır) ama ×1,75 dikliği + Smax asimptotu sayesinde **uzun erimli kâr motoruna dönüşmesin** — oyuncu doğal olarak pahalı yeni araçlara geri döner. Örnek (CityPod, fabrika döneminde): 13. teknisyen 4,7M (dakikalar), 20. teknisyen 233M (açıkça değmez).
 - Production Manager: oto-üretim + offline üretim.
 - Sales Manager: oto-satış + offline satış.
 

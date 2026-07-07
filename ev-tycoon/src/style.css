@@ -461,6 +461,9 @@ button {
   white-space: nowrap;
 }
 .btn-buy.cant .cost { color: var(--danger); }
+/* Uzman kadro (kendi tesis tavanı üzeri): premium/pahalı sinyali */
+.btn-buy .cost.over { color: var(--gold); }
+.btn-buy.cant .cost.over { color: var(--danger); }
 .btn-buy .who {
   display: flex;
   align-items: center;
