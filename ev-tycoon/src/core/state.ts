@@ -120,12 +120,16 @@ export function loadGame(): GameState | null {
       if (s.locations[l.id] === undefined) s.locations[l.id] = l.unlockCost === 0;
     }
     // Personel tavanı eklenmeden önceki kayıtlar tavanın üstünde olabilir;
-    // ciro/harcama alanları da eski kayıtlarda eksik olabilir
+    // ciro/harcama alanları da eski kayıtlarda eksik olabilir.
+    // Tavan: açık en büyük tesisin tavanı (tüm araçlara uygulanır)
+    let maxCap = 6;
+    for (const l of LOCATIONS) {
+      if (s.locations[l.id] && l.staffCap > maxCap) maxCap = l.staffCap;
+    }
     for (const v of VEHICLES) {
-      const cap = LOCATIONS.find((l) => l.id === v.locationId)?.staffCap ?? 6;
       const line = s.lines[v.id];
-      line.technicians = Math.min(line.technicians, cap);
-      line.salesReps = Math.min(line.salesReps, cap);
+      line.technicians = Math.min(line.technicians, maxCap);
+      line.salesReps = Math.min(line.salesReps, maxCap);
       if (typeof line.revenue !== 'number') line.revenue = 0;
       if (typeof line.spent !== 'number') line.spent = 0;
     }

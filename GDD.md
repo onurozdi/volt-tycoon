@@ -106,16 +106,16 @@ Personel bedelleri aynı oranlar (teknisyen ≈ fiyat×2,2, müdür ≈ fiyat×4
 
 ### Personel tavanı (mekâna göre)
 
-Küçük mekânda az çalışan — parayla sınırsız coşturulamaz. Tavan **araç başına, rol başına**dır ve her yeni mekânda artar:
+Küçük mekânda az çalışan — parayla sınırsız coşturulamaz. Tavan **araç başına, rol başına**dır ve **açık olan en büyük tesisin tavanı TÜM araçlara uygulanır** — yeni tesis açmak eski hatların kadrosunu da büyütür, böylece eski araçlar önemsizleşmez ve "sürümden kazanmaya" devam eder:
 
-| Mekân | Teknisyen tavanı | Satış Temsilcisi tavanı |
-|---|---|---|
-| Home Garage | 6 | 6 |
-| Workshop | 12 | 12 |
-| Factory | 20 | 20 |
-| Gigafactory | 30 | 30 |
+| Açık en büyük tesis | Tüm araçlarda tavan (rol başına) |
+|---|---|
+| Home Garage | 6 |
+| Workshop | 12 |
+| Factory | 20 |
+| Gigafactory | 30 |
 
-Tavana ulaşan buton "MAX" olur. Sayaç `3/6` biçiminde gösterilir. Not: personel gerektiren başarım eşikleri her zaman toplam kapasitenin altında tutulur (örn. Teknisyen Ordusu 40 < 54 kapasite).
+Azalan getiri eğrisi (Smax=4, τ=8) sayesinde bu güç patlaması yaratmaz: 6 kişi ×2,58 hız, 30 kişi ×3,93 (asimptot 4). Tavana ulaşan buton "MAX" olur; sayaç `3/6` biçiminde gösterilir. Personel gerektiren başarım eşikleri her zaman erişilebilir kapasitenin altında tutulur.
 - Production Manager: oto-üretim + offline üretim.
 - Sales Manager: oto-satış + offline satış.
 

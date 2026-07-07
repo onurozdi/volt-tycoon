@@ -20,9 +20,17 @@ export function staffCost(base: number, owned: number): number {
   return Math.ceil(base * Math.pow(STAFF_COST_GROWTH, owned));
 }
 
-/** Araç başına, rol başına personel tavanı (mekâna göre) */
-export function staffCapFor(v: VehicleDef): number {
-  return LOCATIONS.find((l) => l.id === v.locationId)?.staffCap ?? 6;
+/**
+ * Araç başına, rol başına personel tavanı. Açık olan EN BÜYÜK tesisin
+ * tavanı tüm araçlara uygulanır — yeni tesis açıldıkça eski araçların
+ * kadrosu da büyüyebilir, eski hatlar önemsizleşmez.
+ */
+export function staffCapFor(s: GameState): number {
+  let cap = 6;
+  for (const l of LOCATIONS) {
+    if (s.locations[l.id] && l.staffCap > cap) cap = l.staffCap;
+  }
+  return cap;
 }
 
 export function researchLevel(s: GameState, id: string): number {

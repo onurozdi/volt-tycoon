@@ -171,7 +171,7 @@ export function startSell(s: GameState, id: string): boolean {
 export function buyTechnician(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
-  if (line.technicians >= staffCapFor(v)) return false; // mekân tavanı
+  if (line.technicians >= staffCapFor(s)) return false; // tesis tavanı
   const cost = staffCost(v.techBaseCost, line.technicians);
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
@@ -183,7 +183,7 @@ export function buyTechnician(s: GameState, id: string): boolean {
 export function buySalesRep(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
-  if (line.salesReps >= staffCapFor(v)) return false; // mekân tavanı
+  if (line.salesReps >= staffCapFor(s)) return false; // tesis tavanı
   const cost = staffCost(v.repBaseCost, line.salesReps);
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;

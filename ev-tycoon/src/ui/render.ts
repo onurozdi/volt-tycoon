@@ -400,8 +400,8 @@ function vehicleCard(id: string): HTMLElement {
     btnGemSell.style.visibility = sActive ? 'visible' : 'hidden';
     btnGemSell.classList.toggle('cant', S.gems < GEM_COST_INSTANT_PROD);
 
-    // Personel (mekân tavanı: dolunca MAX)
-    const sCap = staffCapFor(v);
+    // Personel (tavan: açık en büyük tesisin tavanı; dolunca MAX)
+    const sCap = staffCapFor(S);
     const techMax = line.technicians >= sCap;
     const repMax = line.salesReps >= sCap;
     const tc = staffCost(v.techBaseCost, line.technicians);
