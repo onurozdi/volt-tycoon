@@ -159,14 +159,19 @@ Mucit'ten önce claim manuel tıklamayla toplanır (erken oyunun "uğrama" ritü
 | Workshop | Smart Logistics I–II | satış −15%/sv | 90/200 |
 | Workshop | Robotics I–II | üretim −10%/sv | 120/260 |
 | Workshop | Bulk Storage | stok +50% | 150 |
+| Workshop | **Garaj Modernizasyonu I–II** 🔧 | garaj araçları üretim+satış −15%/sv | 150/350 |
 | Factory | **R&D Laboratory I–II** 🧪 | claim süresi −20%/sv | 350/700 |
 | Factory | Brand Power I–II | fiyat +20%/sv | 400/800 |
 | Factory | Full Automation I–II | üretim −10%/sv | 500/1000 |
 | Factory | Giga Batch | döngü +1 araç | 900 |
+| Factory | **Atölye Modernizasyonu I–II** 🔧 | atölye araçları üretim+satış −15%/sv | 600/1200 |
 | Giga | **Quantum Analysis** 🧪 | claim RP ×2 | 2000 |
 | Giga | AI Core I–II | üretim −15%/sv | 2500/5000 |
 | Giga | Global Brand I–II | fiyat +25%/sv | 3000/6000 |
 | Giga | Hyperlogistics I–II | satış −20%/sv | 2800/5600 |
+| Giga | **Fabrika Modernizasyonu I–II** 🔧 | fabrika araçları üretim+satış −15%/sv | 3500/7000 |
+
+🔧 = Modernizasyon: her tesis, **bir önceki tesisin** araçlarını hızlandıran bir araştırma taşır. Eski tier'ın mutlak geliri güncel tier'ın ~1/5–1/10'u olduğundan bu cömert çarpan dengeyi bozmaz — eski hatlar "sürümden kazanmaya" devam eder ama lisans finanse eden motora dönüşmez (uzman kadro köprüsüyle aynı felsefe).
 
 🧪 = RP kazanım hızını artıran araştırma. Tam yatırımla claim: 5 → 21 RP (garaj+atölye) → 42 RP (kuantum), süre 240sn → 115sn.
 

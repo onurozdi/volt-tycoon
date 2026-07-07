@@ -72,6 +72,17 @@ function rAdd(s: GameState, fx: ResearchFx): number {
   return a;
 }
 
+/** Modernizasyon (retrofit) çarpanı: yalnızca hedef tesisin araçlarına */
+function retrofitMult(s: GameState, locationId: string): number {
+  let m = 1;
+  for (const r of RESEARCH) {
+    if (r.fx !== 'retrofit' || r.targetLocationId !== locationId) continue;
+    const lvl = researchLevel(s, r.id);
+    if (lvl > 0) m *= Math.pow(r.val, lvl);
+  }
+  return m;
+}
+
 /** Aktif haber olayının bu araç + etki türü için çarpanı (yoksa 1) */
 export function eventMult(s: GameState, kind: EventKind, vehicleId: string): number {
   const ev = s.activeEvent;
@@ -83,11 +94,13 @@ export function eventMult(s: GameState, kind: EventKind, vehicleId: string): num
 }
 
 export function prodInterval(s: GameState, v: VehicleDef, line: LineState): number {
-  return (v.baseProdTime * rMult(s, 'prodTime')) / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
+  return (v.baseProdTime * rMult(s, 'prodTime') * retrofitMult(s, v.locationId))
+    / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
 }
 
 export function sellInterval(s: GameState, v: VehicleDef, line: LineState): number {
-  return (v.baseSellTime * rMult(s, 'sellTime')) / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id);
+  return (v.baseSellTime * rMult(s, 'sellTime') * retrofitMult(s, v.locationId))
+    / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id);
 }
 
 export function sellPrice(s: GameState, v: VehicleDef): number {

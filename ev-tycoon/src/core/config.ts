@@ -286,7 +286,10 @@ export const CLAIM_REWARD = 5; // RP (baz — research ile artar)
 export type ResearchFx =
   | 'prodTime' | 'sellTime' | 'price' | 'cap'
   | 'claimTime' | 'claimAdd' | 'claimMult'
-  | 'batch' | 'offline' | 'autoclaim';
+  | 'batch' | 'offline' | 'autoclaim'
+  /** retrofit: yalnızca targetLocationId'deki araçların üretim VE satış
+      süresini çarpar — "bir önceki tesisi modernize et" araştırmaları */
+  | 'retrofit';
 
 export interface ResearchDef {
   id: string;
@@ -297,6 +300,8 @@ export interface ResearchDef {
   icon: string;
   fx: ResearchFx;
   val: number;
+  /** yalnızca fx='retrofit' için: etkilenen tesis */
+  targetLocationId?: string;
 }
 
 export const RESEARCH: ResearchDef[] = [
@@ -317,18 +322,21 @@ export const RESEARCH: ResearchDef[] = [
   { id: 'logistics', locationId: 'workshop', maxLevel: 2, costs: [90, 200], icon: 'cart', fx: 'sellTime', val: 0.85 },
   { id: 'robotics', locationId: 'workshop', maxLevel: 2, costs: [120, 260], icon: 'gear', fx: 'prodTime', val: 0.9 },
   { id: 'bulkstorage', locationId: 'workshop', maxLevel: 1, costs: [150], icon: 'box', fx: 'cap', val: 1.5 },
+  { id: 'garagekit', locationId: 'workshop', maxLevel: 2, costs: [150, 350], icon: 'wrench', fx: 'retrofit', val: 0.85, targetLocationId: 'garage' },
   // ---- Katman 3 — Factory ----
   { id: 'rndmanager', locationId: 'factory', maxLevel: 1, costs: [900], icon: 'tie', fx: 'claimMult', val: 1.5 },
   { id: 'rdlab', locationId: 'factory', maxLevel: 2, costs: [350, 700], icon: 'flask', fx: 'claimTime', val: 0.8 },
   { id: 'brandpower', locationId: 'factory', maxLevel: 2, costs: [400, 800], icon: 'megaphone', fx: 'price', val: 1.2 },
   { id: 'automation', locationId: 'factory', maxLevel: 2, costs: [500, 1000], icon: 'gear', fx: 'prodTime', val: 0.9 },
   { id: 'gigabatch', locationId: 'factory', maxLevel: 1, costs: [900], icon: 'stack', fx: 'batch', val: 1 },
+  { id: 'workshopkit', locationId: 'factory', maxLevel: 2, costs: [600, 1200], icon: 'wrench', fx: 'retrofit', val: 0.85, targetLocationId: 'workshop' },
   // ---- Katman 4 — Gigafactory ----
   { id: 'singularity', locationId: 'gigafactory', maxLevel: 1, costs: [4500], icon: 'tie', fx: 'claimMult', val: 2 },
   { id: 'quantumclaim', locationId: 'gigafactory', maxLevel: 1, costs: [2000], icon: 'bolt', fx: 'claimMult', val: 2 },
   { id: 'aicore', locationId: 'gigafactory', maxLevel: 2, costs: [2500, 5000], icon: 'gear', fx: 'prodTime', val: 0.85 },
   { id: 'globalbrand', locationId: 'gigafactory', maxLevel: 2, costs: [3000, 6000], icon: 'megaphone', fx: 'price', val: 1.25 },
   { id: 'hyperlogistics', locationId: 'gigafactory', maxLevel: 2, costs: [2800, 5600], icon: 'cart', fx: 'sellTime', val: 0.8 },
+  { id: 'factorykit', locationId: 'gigafactory', maxLevel: 2, costs: [3500, 7000], icon: 'wrench', fx: 'retrofit', val: 0.85, targetLocationId: 'factory' },
 ];
 
 // Offline tavanı (offline research seviyesine göre saat)
