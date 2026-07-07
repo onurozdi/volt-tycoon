@@ -94,8 +94,20 @@ function refresh(): void {
 
 let hudMoney: HTMLElement, hudGems: HTMLElement, hudBoost: HTMLElement, hudRate: HTMLElement, hudDue: HTMLElement;
 
-// Gelir hızı: son ~10 sn'nin gerçek kazancından ölçülür (dürüst gösterge)
-const incomeSamples: Array<{ t: number; earned: number }> = [];
+// Gelir hızı: son ~10 sn'nin gerçek kazancından ölçülür (dürüst gösterge).
+// lineRev: araç başına kümülatif ciro anlık görüntüsü (VEHICLES sırasıyla) —
+// istatistik listesindeki araç başı dakikalık getiri aynı pencereden hesaplanır.
+const incomeSamples: Array<{ t: number; earned: number; lineRev: number[] }> = [];
+
+/** Araç başına ölçülmüş gelir hızı ($/dk); pencere henüz kısaysa null */
+function lineIncomeRate(vehicleIndex: number): number | null {
+  if (incomeSamples.length < 2) return null;
+  const first = incomeSamples[0];
+  const last = incomeSamples[incomeSamples.length - 1];
+  const span = (last.t - first.t) / 1000;
+  if (span < 2) return null;
+  return ((last.lineRev[vehicleIndex] - first.lineRev[vehicleIndex]) / span) * 60;
+}
 
 function renderHUD(): void {
   const hud = $('#hud');
@@ -388,7 +400,7 @@ function vehicleCard(id: string): HTMLElement {
         : `${fmtTime(Math.max(0, pInt - line.prodElapsed))}`
       : `${pInt.toFixed(1)}s`;
     if (line.prodManager) {
-      btnProd.textContent = t('ui.auto');
+      btnProd.textContent = t('ui.autoProduce');
       btnProd.className = 'btn btn-auto';
       btnProd.disabled = true;
     } else {
@@ -406,7 +418,7 @@ function vehicleCard(id: string): HTMLElement {
     sellFill.style.width = `${sPct}%`;
     sellLabel.textContent = sActive ? fmtTime(Math.max(0, sInt - line.sellElapsed)) : `${sInt.toFixed(1)}s`;
     if (line.salesManager) {
-      btnSell.textContent = t('ui.auto');
+      btnSell.textContent = t('ui.autoSell');
       btnSell.className = 'btn btn-auto';
       btnSell.disabled = true;
     } else {
@@ -677,10 +689,11 @@ function renderStats(c: HTMLElement): void {
   </div>`);
   c.appendChild(list);
   for (const v of owned) {
+    const vIdx = VEHICLES.indexOf(v);
     const row = el(`<div class="plist-row" style="--accent:${v.accent}">
       <span class="pl-name">
         <span class="pl-icon" style="color:${v.accent}">${icon(v.icon)}</span>
-        <span class="pl-nm">${v.name}<small class="pl-sold"></small></span>
+        <span class="pl-nm">${v.name}<small class="pl-sold"></small><small class="pl-rate"></small></span>
       </span>
       <span class="pl-rev"></span>
       <span class="pl-spent"></span>
@@ -688,6 +701,7 @@ function renderStats(c: HTMLElement): void {
     </div>`);
     list.appendChild(row);
     const soldEl = row.querySelector('.pl-sold') as HTMLElement;
+    const rateEl = row.querySelector('.pl-rate') as HTMLElement;
     const revEl = row.querySelector('.pl-rev') as HTMLElement;
     const spentEl = row.querySelector('.pl-spent') as HTMLElement;
     const netEl = row.querySelector('.pl-net') as HTMLElement;
@@ -695,6 +709,9 @@ function renderStats(c: HTMLElement): void {
       const line = S.lines[v.id];
       const net = line.revenue - line.spent;
       soldEl.textContent = `${fmt(line.totalSold)} ${t('stats.soldUnit')}`;
+      // Araç başı getiri: para barıyla aynı ölçüm (son ~10 sn'nin gerçeği)
+      const rate = lineIncomeRate(vIdx);
+      rateEl.textContent = rate !== null && rate > 0 ? t('ui.perMin', { n: '+' + fmtMoney(rate) }) : '';
       revEl.textContent = fmtMoney(line.revenue);
       spentEl.textContent = fmtMoney(line.spent);
       netEl.textContent = (net >= 0 ? '+' : '−') + fmtMoney(Math.abs(net));
@@ -1192,7 +1209,11 @@ export function updateFrame(dt: number): void {
 
   // Gelir hızı göstergesi (para hapının sağ ucu)
   const now = performance.now();
-  incomeSamples.push({ t: now, earned: S.stats.totalEarned });
+  incomeSamples.push({
+    t: now,
+    earned: S.stats.totalEarned,
+    lineRev: VEHICLES.map((v) => S.lines[v.id].revenue),
+  });
   while (incomeSamples.length > 2 && now - incomeSamples[0].t > 10_000) incomeSamples.shift();
   const first = incomeSamples[0];
   const span = (now - first.t) / 1000;

@@ -566,6 +566,12 @@ button {
   color: var(--cyan);
   width: 100%;
   cursor: default;
+  /* "OTO ÜRET" gibi uzun etiketler 96px'e sığsın */
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  white-space: nowrap;
 }
 
 .btn-unlock {
@@ -864,6 +870,8 @@ button {
   white-space: nowrap;
 }
 .pl-nm small { display: block; font-size: 9px; color: var(--text-dim); font-weight: 600; }
+.pl-nm .pl-rate { color: #9db83a; font-variant-numeric: tabular-nums; }
+.pl-nm .pl-rate:empty { display: none; }
 
 /* İstatistik / başarım */
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
