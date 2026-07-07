@@ -51,7 +51,15 @@ export interface GameState {
   /** bir sonraki haber olayına kalan oyun-içi saniye */
   nextEventIn: number;
   achievements: string[];
-  stats: { totalEarned: number; totalProduced: number; totalSold: number };
+  stats: { totalEarned: number; totalProduced: number; totalSold: number; totalSpent: number };
+  /** toplam oynanmış süre (offline dahil), sn — grafik x ekseni */
+  playedSec: number;
+  /**
+   * Finansal zaman çizelgesi (adaptif örnekleme): en fazla ~120 örnek;
+   * dolunca her 2. nokta atılır ve örnekleme aralığı ikiye katlanır.
+   * Örnek: [oynanmışSn, kümülatifGelir, kümülatifGider]
+   */
+  chart: { int: number; d: Array<[number, number, number]> };
   settings: { lang: Lang; sound: boolean };
   /** öğretici adımı: 0 = hikâye bekliyor, 1..N = adımlar, 99 = bitti */
   tutStep: number;
@@ -99,7 +107,9 @@ export function newGame(lang: Lang): GameState {
     nextEventIn: 180, // ilk olay ~3. dakikada
 
     achievements: [],
-    stats: { totalEarned: 0, totalProduced: 0, totalSold: 0 },
+    stats: { totalEarned: 0, totalProduced: 0, totalSold: 0, totalSpent: 0 },
+    playedSec: 0,
+    chart: { int: 10, d: [[0, 0, 0]] },
     settings: { lang, sound: true },
     tutStep: 0,
     lastSeen: Date.now(),
@@ -155,6 +165,14 @@ export function loadGame(): GameState | null {
     // Banka alanları eski kayıtlarda yok
     if (!Array.isArray(s.loans)) s.loans = [];
     if (typeof s.debtTimer !== 'number') s.debtTimer = 0;
+    // Finansal grafik alanları eski kayıtlarda yok: mevcut toplamlardan tohumla
+    if (typeof s.stats.totalSpent !== 'number') {
+      s.stats.totalSpent = Object.values(s.lines).reduce((a, l) => a + (l.spent || 0), 0);
+    }
+    if (typeof s.playedSec !== 'number') s.playedSec = 0;
+    if (!s.chart || !Array.isArray(s.chart.d) || s.chart.d.length === 0) {
+      s.chart = { int: 10, d: [[s.playedSec, s.stats.totalEarned, s.stats.totalSpent]] };
+    }
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;
     if (s.activeEvent === undefined) s.activeEvent = null;

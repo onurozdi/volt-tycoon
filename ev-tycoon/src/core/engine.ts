@@ -62,6 +62,25 @@ function tickNewsEvents(s: GameState, dt: number): void {
   events.onNewsEvent?.(def);
 }
 
+/**
+ * Finansal grafik örnekleyicisi (adaptif): son örnekten bu yana `int`
+ * saniye geçtiyse yeni örnek ekler; 120 örneği aşınca her 2. nokta
+ * atılır ve aralık ikiye katlanır → x ekseni sınırsız büyür, bellek sabit.
+ */
+const CHART_MAX_POINTS = 120;
+function pushChartSample(s: GameState, force = false): void {
+  const d = s.chart.d;
+  const last = d[d.length - 1];
+  if (!force && s.playedSec - last[0] < s.chart.int) return;
+  d.push([s.playedSec, s.stats.totalEarned, s.stats.totalSpent]);
+  if (d.length > CHART_MAX_POINTS) {
+    const lastPt = d[d.length - 1];
+    s.chart.d = d.filter((_, i) => i % 2 === 0);
+    if (s.chart.d[s.chart.d.length - 1] !== lastPt) s.chart.d.push(lastPt);
+    s.chart.int *= 2;
+  }
+}
+
 /** Kredi taksitleri: dt kadar ilerlet; bakiye eksiye inebilir */
 function tickLoans(s: GameState, dt: number): void {
   for (const loan of s.loans) {
@@ -73,6 +92,7 @@ function tickLoans(s: GameState, dt: number): void {
     }
     while (loan.nextIn <= 0 && loan.remaining > 0) {
       s.money -= loan.installment;
+      s.stats.totalSpent += loan.installment;
       loan.remaining -= 1;
       loan.nextIn += def.intervalSec;
     }
@@ -103,6 +123,7 @@ function tickLoansOffline(s: GameState, T: number): void {
     while (elapsed >= loan.nextIn && loan.remaining > 0) {
       elapsed -= loan.nextIn;
       s.money -= loan.installment;
+      s.stats.totalSpent += loan.installment;
       loan.remaining -= 1;
       loan.nextIn = def.intervalSec;
     }
@@ -113,6 +134,8 @@ function tickLoansOffline(s: GameState, T: number): void {
 
 /** Ana simülasyon adımı. dt: gerçek saniye. */
 export function tick(s: GameState, dt: number): void {
+  s.playedSec += dt;
+  pushChartSample(s);
   tickNewsEvents(s, dt);
   tickLoans(s, dt);
 
@@ -228,6 +251,7 @@ export function buyTechnician(s: GameState, id: string): boolean {
   const cost = staffCost(v.techBaseCost, line.technicians, homeCapFor(v));
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
+  s.stats.totalSpent += cost;
   line.spent += cost;
   line.technicians += 1;
   return true;
@@ -240,6 +264,7 @@ export function buySalesRep(s: GameState, id: string): boolean {
   const cost = staffCost(v.repBaseCost, line.salesReps, homeCapFor(v));
   if (!line.unlocked || s.money < cost) return false;
   s.money -= cost;
+  s.stats.totalSpent += cost;
   line.spent += cost;
   line.salesReps += 1;
   return true;
@@ -250,6 +275,7 @@ export function buyProdManager(s: GameState, id: string): boolean {
   const v = vehicleDef(id);
   if (!line.unlocked || line.prodManager || s.money < v.prodManagerCost) return false;
   s.money -= v.prodManagerCost;
+  s.stats.totalSpent += v.prodManagerCost;
   line.spent += v.prodManagerCost;
   line.prodManager = true;
   line.producing = false;
@@ -261,6 +287,7 @@ export function buySalesManager(s: GameState, id: string): boolean {
   const v = vehicleDef(id);
   if (!line.unlocked || line.salesManager || s.money < v.salesManagerCost) return false;
   s.money -= v.salesManagerCost;
+  s.stats.totalSpent += v.salesManagerCost;
   line.spent += v.salesManagerCost;
   line.salesManager = true;
   line.selling = false;
@@ -307,6 +334,7 @@ export function payoffLoan(s: GameState, defId: string): boolean {
   const cost = repayCost(s, defId);
   if (cost === null || s.money < cost) return false;
   s.money -= cost;
+  s.stats.totalSpent += cost;
   s.loans = s.loans.filter((l) => l.defId !== defId);
   return true;
 }
@@ -316,6 +344,7 @@ export function unlockLocation(s: GameState, id: string): boolean {
   if (!def || s.locations[id]) return false;
   if (s.money < def.unlockCost || s.gems < def.unlockGems) return false;
   s.money -= def.unlockCost;
+  s.stats.totalSpent += def.unlockCost;
   s.gems -= def.unlockGems;
   s.locations[id] = true;
   checkAchievements(s);
@@ -327,6 +356,7 @@ export function unlockVehicle(s: GameState, id: string): boolean {
   const v = vehicleDef(id);
   if (line.unlocked || s.money < v.unlockCost || s.gems < v.unlockGems) return false;
   s.money -= v.unlockCost;
+  s.stats.totalSpent += v.unlockCost;
   s.gems -= v.unlockGems;
   line.spent += v.unlockCost;
   line.unlocked = true;
@@ -467,6 +497,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   const rawSec = (now - s.lastSeen) / 1000;
   if (rawSec < OFFLINE_MIN_SECONDS) return null;
   const T = Math.min(rawSec, offlineCapSeconds(s));
+  s.playedSec += T;
 
   // Claim offline da dolar; Mucit varsa dolan claim'ler otomatik toplanır
   const dur = claimDuration(s);
@@ -535,6 +566,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
     line.sellElapsed = 0;
   }
 
+  pushChartSample(s, true); // offline dönüşünde grafik noktası
   checkAchievements(s);
   if (produced === 0 && sold === 0 && !claimReady && rpGained === 0 && loanPaid === 0) return null;
   return { seconds: Math.floor(T), produced, sold, earned, claimReady, rp: rpGained, loanPaid };

@@ -24,6 +24,7 @@ import type { Lang } from '../i18n';
 import { showRewardedAd } from './ads';
 import { icon } from './art';
 import { setSoundEnabled, sfx } from './audio';
+import { createTimeline } from './timeline';
 
 export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 'settings';
 
@@ -627,6 +628,11 @@ function renderStats(c: HTMLElement): void {
     e2.textContent = fmt(S.stats.totalProduced);
     e3.textContent = fmt(S.stats.totalSold);
   });
+
+  // Finansal zaman çizelgesi (gelir/gider/kâr)
+  const tl = createTimeline(S);
+  c.appendChild(tl.el);
+  updaters.push(tl.update);
 
   const owned = VEHICLES.filter((v) => S.lines[v.id].unlocked);
 

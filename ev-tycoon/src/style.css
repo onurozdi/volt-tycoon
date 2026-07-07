@@ -768,6 +768,52 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+/* Finansal zaman çizelgesi */
+.tl-panel { padding: 12px 10px 8px; }
+.tl-panel .panel-name { margin: 0 4px 6px; }
+.tl-legend {
+  display: flex;
+  gap: 12px;
+  margin: 0 4px 8px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+.tl-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.tl-wrap { position: relative; touch-action: pan-y; }
+.tl-wrap svg { width: 100%; height: auto; display: block; }
+.tl-grid { stroke: #1a2650; stroke-width: 1; }
+.tl-zero { stroke: #3a4a7a; stroke-width: 1; stroke-dasharray: 3 3; }
+.tl-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.tl-cross { stroke: #8fa3d0; stroke-width: 1; stroke-dasharray: 2 3; }
+.tl-ylab { fill: var(--text-dim); font-size: 8px; text-anchor: end; font-weight: 600; }
+.tl-xlab { fill: var(--text-dim); font-size: 8px; font-weight: 600; }
+.tl-tip {
+  display: none;
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+  background: #0a1330f0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+}
+.tl-tip b { color: var(--text); margin-right: 6px; font-weight: 800; }
+.tl-tip span { margin-left: 6px; font-variant-numeric: tabular-nums; }
+
 /* İstatistik grafiği: ciro payı barları */
 .chart { display: flex; flex-direction: column; gap: 8px; }
 .chart-row { display: grid; grid-template-columns: 74px 1fr 64px; align-items: center; gap: 8px; }
