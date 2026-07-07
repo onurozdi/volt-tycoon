@@ -455,7 +455,9 @@ export const NEWS: NewsDef[] = [
 
 // ---- Haber olayları (popup + geçici oynanış etkisi) ----
 
-export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price';
+/** buyout: süresiz ANLIK olay — stoğu ≥%80 dolu bir aracın tüm stoğu
+    anında satılır (yatırımcı ziyareti). Yalnızca uygun araç varken çıkar. */
+export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout';
 
 export interface NewsEventDef {
   id: string;
@@ -475,6 +477,7 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'neighbor_cable', locationId: 'garage', vehicleId: null, kind: 'prodSpeed', mult: 1.2, durationSec: 120, positive: true },
   { id: 'kids_race', locationId: 'garage', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 90, positive: true },
   { id: 'garage_sale', locationId: 'garage', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 90, positive: true },
+  { id: 'investor_buyout', locationId: 'garage', vehicleId: null, kind: 'buyout', mult: 1, durationSec: 0, positive: true },
   { id: 'fuse_blown', locationId: 'garage', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
   { id: 'neighbor_complaint', locationId: 'garage', vehicleId: null, kind: 'sellSpeed', mult: 0.9, durationSec: 60, positive: false },
   { id: 'viral_zipvolt', locationId: 'garage', vehicleId: 'zipvolt', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
@@ -484,6 +487,7 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'mayor_visit', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 1.3, durationSec: 90, positive: true },
   { id: 'city_parking', locationId: 'workshop', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 120, positive: true },
   { id: 'battery_deal', locationId: 'workshop', vehicleId: null, kind: 'prodSpeed', mult: 1.3, durationSec: 90, positive: true },
+  { id: 'collector_buyout', locationId: 'workshop', vehicleId: null, kind: 'buyout', mult: 1, durationSec: 0, positive: true },
   { id: 'subsidy', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 120, positive: true },
   { id: 'grid_maintenance', locationId: 'workshop', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
   { id: 'market_dip', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 0.85, durationSec: 60, positive: false },

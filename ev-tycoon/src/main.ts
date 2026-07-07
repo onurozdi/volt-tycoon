@@ -31,9 +31,9 @@ setEngineEvents({
     sfx.achievement();
     toast(t('toast.achievement', { name: t('ach.' + id), gems }), 'gold');
   },
-  onNewsEvent: (def) => {
+  onNewsEvent: (def, extra) => {
     sfx.news();
-    showNewsEvent(def);
+    showNewsEvent(def, extra);
   },
   onBankrupt: () => {
     sfx.error();

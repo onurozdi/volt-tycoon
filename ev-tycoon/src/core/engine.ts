@@ -28,8 +28,14 @@ export interface EngineEvents {
   onSale?: (vehicleId: string, amount: number) => void;
   onProduce?: (vehicleId: string) => void;
   onAchievement?: (id: string, gems: number) => void;
-  onNewsEvent?: (def: NewsEventDef) => void;
+  onNewsEvent?: (def: NewsEventDef, extra?: BuyoutInfo) => void;
   onBankrupt?: () => void;
+}
+
+/** Anlık stok satın alım olayının popup'ta gösterilecek detayı */
+export interface BuyoutInfo {
+  vehicleName: string;
+  amount: number;
 }
 
 let events: EngineEvents = {};
@@ -54,12 +60,49 @@ function tickNewsEvents(s: GameState, dt: number): void {
     (e) =>
       e.positive === wantPositive &&
       s.locations[e.locationId] &&
-      (e.vehicleId === null || s.lines[e.vehicleId]?.unlocked),
+      (e.vehicleId === null || s.lines[e.vehicleId]?.unlocked) &&
+      // buyout yalnızca stoğu %80+ dolu bir araç varken havuza girer
+      (e.kind !== 'buyout' || buyoutTarget(s) !== null),
   );
   if (pool.length === 0) return;
   const def = pool[Math.floor(Math.random() * pool.length)];
+
+  if (def.kind === 'buyout') {
+    // Anlık olay: en dolu (değerce en büyük) aracın TÜM stoğu satılır;
+    // aktif etki/süre yok
+    const v = buyoutTarget(s)!;
+    const line = s.lines[v.id];
+    const n = line.stock;
+    const amount = n * sellPrice(s, v);
+    line.stock = 0;
+    line.totalSold += n;
+    line.revenue += amount;
+    s.stats.totalSold += n;
+    s.stats.totalEarned += amount;
+    s.money += amount;
+    checkAchievements(s);
+    events.onNewsEvent?.(def, { vehicleName: v.name, amount });
+    return;
+  }
+
   s.activeEvent = { id: def.id, until: Date.now() + def.durationSec * 1000 };
   events.onNewsEvent?.(def);
+}
+
+/** Stoğu kapasitesinin ≥%80'i dolu araçlardan stok değeri en yükseği */
+function buyoutTarget(s: GameState): (typeof VEHICLES)[number] | null {
+  let best: (typeof VEHICLES)[number] | null = null;
+  let bestValue = 0;
+  for (const v of VEHICLES) {
+    const line = s.lines[v.id];
+    if (!line.unlocked || line.stock < stockCap(s, v) * 0.8 || line.stock === 0) continue;
+    const value = line.stock * sellPrice(s, v);
+    if (value > bestValue) {
+      bestValue = value;
+      best = v;
+    }
+  }
+  return best;
 }
 
 /**

@@ -3,6 +3,7 @@ import {
   LOANS, LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
+import type { BuyoutInfo } from '../core/engine';
 import { setPaused } from '../core/clock';
 import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
@@ -1117,8 +1118,12 @@ function eventFxText(def: NewsEventDef): string {
   return `${fx} — ${scope}`;
 }
 
-export function showNewsEvent(def: NewsEventDef): void {
+export function showNewsEvent(def: NewsEventDef, extra?: BuyoutInfo): void {
   const good = def.mult >= 1;
+  const isBuyout = def.kind === 'buyout';
+  const title = t(`event.${def.id}.title`, extra ? { name: extra.vehicleName } : undefined);
+  const fxLine = isBuyout && extra ? `💰 +${fmtMoney(extra.amount)}` : eventFxText(def);
+  const durLine = isBuyout ? `⚡ ${t('ui.instant')}` : t('event.duration', { time: fmtTime(def.durationSec) });
   // Popup açıkken oyun tamamen durur: üretim/satış ilerlemez, etki
   // süresi işlemez, yeni popup birikmez. Kapatınca etki süresi baştan
   // başlar — oyuncu hiçbir saniyesini kaçırmaz.
@@ -1126,9 +1131,9 @@ export function showNewsEvent(def: NewsEventDef): void {
   const overlay = el(`<div class="modal-overlay">
     <div class="modal event-modal ${good ? 'good' : 'bad'}">
       <div class="event-badge">${good ? '📈' : '📉'} ${t('event.breaking')}</div>
-      <h2>${t(`event.${def.id}.title`)}</h2>
-      <p class="event-fx">${eventFxText(def)}</p>
-      <p class="event-dur">${t('event.duration', { time: fmtTime(def.durationSec) })}</p>
+      <h2>${title}</h2>
+      <p class="event-fx">${fxLine}</p>
+      <p class="event-dur">${durLine}</p>
       <div class="modal-btns">
         <button class="btn ${good ? 'btn-unlock' : 'btn-buy'} ev-ok">${t('event.ok')}</button>
       </div>
