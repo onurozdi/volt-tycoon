@@ -113,24 +113,45 @@ html, body {
 }
 
 .hud-stat .icon { width: 17px; height: 17px; }
-.hud-money { color: var(--lime); flex: 1; }
+/* Para hapı: iki katlı — üstte para + gelir hızı, altta (yalnızca kredi
+   varken) taksit sayacı. Dar ekranda hiçbir metin kırılmaz. */
+.hud-money {
+  color: var(--lime);
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1px;
+  padding: 5px 12px;
+}
 .hud-money .icon { color: var(--lime); filter: drop-shadow(0 0 5px #c8f43e88); }
+.hud-money-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
 .hud-money .rate {
   margin-left: auto;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text-dim);
   letter-spacing: 0.2px;
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-/* Yaklaşan kredi taksiti: ortada, kırmızı */
+/* Yaklaşan kredi taksiti: ikinci satır, sağa yaslı, kırmızı */
 .hud-money .due {
-  margin: 0 auto;
-  font-size: 10.5px;
+  text-align: right;
+  font-size: 9.5px;
   font-weight: 800;
+  line-height: 1.2;
   color: var(--danger);
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 6px #ff5e6c55;
+  white-space: nowrap;
 }
 .hud-money .due:empty { display: none; }
 

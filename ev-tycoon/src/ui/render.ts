@@ -102,7 +102,10 @@ function renderHUD(): void {
   hud.appendChild(el(`<div class="hud-brand">${icon('bolt')}<span>VOLT TYCOON</span>${icon('bolt')}</div>`));
   const row = el(`<div class="hud-stats"></div>`);
   hud.appendChild(row);
-  row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span><span class="due"></span><span class="rate"></span></div>`));
+  row.appendChild(el(`<div class="hud-stat hud-money">
+    <span class="hud-money-top">${icon('coin')}<span class="val"></span><span class="rate"></span></span>
+    <span class="due"></span>
+  </div>`));
   row.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));
   const gear = el(`<button class="hud-gear">${icon('settings')}</button>`);
@@ -1203,7 +1206,7 @@ export function updateFrame(dt: number): void {
   // Yaklaşan taksit sayacı (para hapının ortası, kırmızı)
   if (S.loans.length > 0) {
     const nearest = S.loans.reduce((a, b) => (a.nextIn < b.nextIn ? a : b));
-    hudDue.textContent = `−${fmtMoney(nearest.installment)} · ${fmtTime(nearest.nextIn)}`;
+    hudDue.textContent = `🏦 −${fmtMoney(nearest.installment)} · ${fmtTime(nearest.nextIn)}`;
   } else {
     hudDue.textContent = '';
   }
