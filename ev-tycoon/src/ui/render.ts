@@ -548,8 +548,9 @@ function renderResearch(c: HTMLElement): void {
     if (auto) {
       btnClaim.textContent = `${t('ui.auto')} +${claimReward(S)}`;
       btnClaim.disabled = true;
-      btnGem.style.visibility = 'hidden';
-      btnAdClaim.style.visibility = 'hidden';
+      // Hızlandırıcılar oto modda da kalır: sayacı doldurur, Mucit anında toplar
+      btnGem.style.visibility = 'visible';
+      btnAdClaim.style.visibility = 'visible';
     } else {
       btnClaim.textContent = `${t('ui.claim')} +${claimReward(S)}`;
       btnClaim.disabled = !ready;
