@@ -139,12 +139,12 @@ Her tesiste bir "Ar-Ge personası" araştırması vardır; ilki otomasyonu açar
 
 | Tesis | Persona | Etki | Maliyet (RP) |
 |---|---|---|---|
-| Garage | **Mucit** | Claim dolduğunda otomatik toplanır (offline dahil) | 200 |
-| Workshop | **Ar-Ge Asistanı** | Claim süresi ×0,8 | 300 |
+| Garage | **Mucit** | Claim dolduğunda otomatik toplanır (offline dahil) | 25 |
+| Workshop | **Ar-Ge Asistanı** | Claim süresi ×0,75 | 350 |
 | Factory | **R&D Manager** | Claim başına RP ×1,5 | 900 |
 | Giga | **Tekillik Çekirdeği** | Claim başına RP ×2 | 4.500 |
 
-Mucit'ten önce claim manuel tıklamayla toplanır (erken oyunun "uğrama" ritüeli); Mucit orta oyunda kazanılan bir konfor terfisidir.
+Mucit bilinçli olarak **ucuzdur** (~ilk 15-20 dakika, 5 claim): otomasyon erken bir konfordur, tıklama yalnızca açılışın tadımlığıdır. Tempo sonrasında süre/ödül araştırmalarıyla ayarlanır: RP/saat ≈ 75 (garaj) → ~560 (atölye) → ~1.300 (fabrika) → ~5.200 (giga); tier araştırma toplamları da paralel büyür (~660 → 1.930 → 7.350 → 42K RP).
 
 | Tier | Araştırma | Etki | Maliyet (RP) |
 |---|---|---|---|
@@ -153,7 +153,7 @@ Mucit'ten önce claim manuel tıklamayla toplanır (erken oyunun "uğrama" ritü
 | Garage | **Tinkering I–II** 🧪 | claim +3 RP/sv | 15/45 |
 | Garage | Warehouse I–II | stok +50%/sv | 20/60 |
 | Garage | Offline Logistics I–II | offline 8→12→24s | 25/70 |
-| Garage | Quick Claim 🧪 | claim süresi −25% | 40 |
+| Garage | Quick Claim 🧪 | claim süresi −25% | 30 |
 | Garage | Batch Production | döngü +1 araç | 120 |
 | Workshop | **Reverse Engineering I–II** 🧪 | claim +5 RP/sv | 80/180 |
 | Workshop | Smart Logistics I–II | satış −15%/sv | 90/200 |

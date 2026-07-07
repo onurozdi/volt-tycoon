@@ -307,17 +307,19 @@ export interface ResearchDef {
 export const RESEARCH: ResearchDef[] = [
   // ---- Katman 1 — Garage ----
   // Ar-Ge personeli merdiveni: Mucit otomatik claim'i açar, sonraki
-  // tesislerdeki personalar claim'i iyileştirir (süre/çarpan)
-  { id: 'inventor', locationId: 'garage', maxLevel: 1, costs: [200], icon: 'person', fx: 'autoclaim', val: 1 },
+  // tesislerdeki personalar claim'i iyileştirir (süre/çarpan).
+  // Mucit bilinçli olarak UCUZ (ilk 15-20 dk): otomasyon erken konfor,
+  // tempo sonrasında süre/ödül araştırmalarıyla ayarlanır.
+  { id: 'inventor', locationId: 'garage', maxLevel: 1, costs: [25], icon: 'person', fx: 'autoclaim', val: 1 },
   { id: 'assembly', locationId: 'garage', maxLevel: 3, costs: [10, 30, 80], icon: 'gear', fx: 'prodTime', val: 0.9 },
   { id: 'marketing', locationId: 'garage', maxLevel: 3, costs: [10, 30, 80], icon: 'megaphone', fx: 'price', val: 1.15 },
   { id: 'tinker', locationId: 'garage', maxLevel: 2, costs: [15, 45], icon: 'wrench', fx: 'claimAdd', val: 3 },
   { id: 'warehouse', locationId: 'garage', maxLevel: 2, costs: [20, 60], icon: 'box', fx: 'cap', val: 1.5 },
   { id: 'offline', locationId: 'garage', maxLevel: 2, costs: [25, 70], icon: 'moon', fx: 'offline', val: 0 },
-  { id: 'quickclaim', locationId: 'garage', maxLevel: 1, costs: [40], icon: 'bolt', fx: 'claimTime', val: 0.75 },
+  { id: 'quickclaim', locationId: 'garage', maxLevel: 1, costs: [30], icon: 'bolt', fx: 'claimTime', val: 0.75 },
   { id: 'batch', locationId: 'garage', maxLevel: 1, costs: [120], icon: 'stack', fx: 'batch', val: 1 },
   // ---- Katman 2 — Workshop ----
-  { id: 'rndassistant', locationId: 'workshop', maxLevel: 1, costs: [300], icon: 'person', fx: 'claimTime', val: 0.8 },
+  { id: 'rndassistant', locationId: 'workshop', maxLevel: 1, costs: [350], icon: 'person', fx: 'claimTime', val: 0.75 },
   { id: 'reverseeng', locationId: 'workshop', maxLevel: 2, costs: [80, 180], icon: 'flask', fx: 'claimAdd', val: 5 },
   { id: 'logistics', locationId: 'workshop', maxLevel: 2, costs: [90, 200], icon: 'cart', fx: 'sellTime', val: 0.85 },
   { id: 'robotics', locationId: 'workshop', maxLevel: 2, costs: [120, 260], icon: 'gear', fx: 'prodTime', val: 0.9 },
