@@ -74,15 +74,18 @@ function fmtRate(n: number): string {
 }
 
 // Satış uçan parası: yalnızca Home sekmesinde, o aracın satış barının
-// bittiği noktadan yükselir (sık satışta seyreltilir)
-let lastSaleFloat = 0;
+// bittiği noktadan yükselir. Seyreltme ARAÇ BAŞINA (küresel değil):
+// hızlı satan ZipVolt kendi içinde seyreltilir ama yavaş araçların
+// nadir satışları asla onun gölgesinde bastırılmaz.
+const lastSaleFloatByVehicle = new Map<string, number>();
 export function saleFloat(vehicleId: string, amount: number): void {
   if (currentTab !== 'home') return;
   const now = performance.now();
-  if (now - lastSaleFloat < 300) return;
+  const last = lastSaleFloatByVehicle.get(vehicleId) ?? 0;
+  if (now - last < 300) return;
   const bar = document.querySelector(`.vcard[data-vid="${vehicleId}"] .sell-row .bar`);
   if (!bar) return;
-  lastSaleFloat = now;
+  lastSaleFloatByVehicle.set(vehicleId, now);
   const r = bar.getBoundingClientRect();
   floatMoney(r.right - 6, r.top + r.height / 2, `+${fmtMoney(amount)}`);
 }
