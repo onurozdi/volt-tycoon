@@ -518,11 +518,17 @@ export interface LoanDef {
   intervalSec: number;
 }
 
+// Her tesiste 2 seçenek: temkinli küçük kredi + daha büyük/yüksek faizli
+// büyüme kredisi (ikisi aynı anda çekilebilir; HUD toplam yükü gösterir)
 export const LOANS: LoanDef[] = [
   { id: 'loan_garage', locationId: 'garage', principal: 600, rate: 0.3, installments: 12, intervalSec: 90 },
+  { id: 'loan_garage2', locationId: 'garage', principal: 2500, rate: 0.35, installments: 16, intervalSec: 120 },
   { id: 'loan_workshop', locationId: 'workshop', principal: 60_000, rate: 0.35, installments: 12, intervalSec: 120 },
+  { id: 'loan_workshop2', locationId: 'workshop', principal: 250_000, rate: 0.4, installments: 16, intervalSec: 180 },
   { id: 'loan_factory', locationId: 'factory', principal: 4_000_000, rate: 0.4, installments: 16, intervalSec: 180 },
+  { id: 'loan_factory2', locationId: 'factory', principal: 20_000_000, rate: 0.45, installments: 20, intervalSec: 240 },
   { id: 'loan_giga', locationId: 'gigafactory', principal: 400_000_000, rate: 0.5, installments: 20, intervalSec: 240 },
+  { id: 'loan_giga2', locationId: 'gigafactory', principal: 2_000_000_000, rate: 0.55, installments: 24, intervalSec: 300 },
 ];
 
 /** bakiye eksideyken (yalnızca AKTİF oyunda) iflasa kalan süre */
