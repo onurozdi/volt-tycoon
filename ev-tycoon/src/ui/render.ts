@@ -644,25 +644,31 @@ function renderStats(c: HTMLElement): void {
     }
   });
 
-  // Araç başına kârlılık kartları
+  // Araç başına kârlılık listesi (kompakt satırlar)
+  const list = el(`<div class="panel plist">
+    <div class="plist-row plist-head">
+      <span></span>
+      <span>${t('stats.revenue')}</span>
+      <span>${t('stats.spent')}</span>
+      <span>${t('stats.net')}</span>
+    </div>
+  </div>`);
+  c.appendChild(list);
   for (const v of owned) {
-    const p = el(`<div class="panel profit-card" style="--accent:${v.accent}">
-      <div class="panel-row" style="margin-bottom:8px">
-        <div class="panel-icon" style="color:${v.accent}">${icon(v.icon)}</div>
-        <div style="flex:1"><div class="panel-name">${v.name}</div></div>
-        <div class="panel-side"><span class="pc-sold"></span></div>
-      </div>
-      <div class="profit-grid">
-        <div><span>${t('stats.revenue')}</span><b class="pc-rev"></b></div>
-        <div><span>${t('stats.spent')}</span><b class="pc-spent"></b></div>
-        <div><span>${t('stats.net')}</span><b class="pc-net"></b></div>
-      </div>
+    const row = el(`<div class="plist-row" style="--accent:${v.accent}">
+      <span class="pl-name">
+        <span class="pl-icon" style="color:${v.accent}">${icon(v.icon)}</span>
+        <span class="pl-nm">${v.name}<small class="pl-sold"></small></span>
+      </span>
+      <span class="pl-rev"></span>
+      <span class="pl-spent"></span>
+      <span class="pl-net"></span>
     </div>`);
-    c.appendChild(p);
-    const soldEl = p.querySelector('.pc-sold') as HTMLElement;
-    const revEl = p.querySelector('.pc-rev') as HTMLElement;
-    const spentEl = p.querySelector('.pc-spent') as HTMLElement;
-    const netEl = p.querySelector('.pc-net') as HTMLElement;
+    list.appendChild(row);
+    const soldEl = row.querySelector('.pl-sold') as HTMLElement;
+    const revEl = row.querySelector('.pl-rev') as HTMLElement;
+    const spentEl = row.querySelector('.pl-spent') as HTMLElement;
+    const netEl = row.querySelector('.pl-net') as HTMLElement;
     updaters.push(() => {
       const line = S.lines[v.id];
       const net = line.revenue - line.spent;

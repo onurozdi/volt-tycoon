@@ -698,21 +698,48 @@ button {
 .chart-fill { height: 100%; width: 0%; border-radius: 5px; transition: width 0.4s ease; box-shadow: 0 0 8px currentColor; }
 .chart-val { font-size: 11px; font-weight: 800; color: var(--lime); text-align: right; font-variant-numeric: tabular-nums; }
 
-/* Araç kârlılık kartı */
-.profit-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--accent, var(--cyan));
+/* Araç kârlılık listesi (kompakt satırlar) */
+.plist { padding: 8px 10px; }
+.plist-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) 1fr 1fr 1fr;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 4px;
+  border-bottom: 1px solid #18244d;
 }
-.profit-card { position: relative; overflow: hidden; }
-.pc-sold { font-size: 11px; color: var(--text-dim); font-weight: 700; }
-.profit-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.profit-grid > div { background: #0a1330; border: 1px solid var(--line); border-radius: 10px; padding: 8px 6px; text-align: center; }
-.profit-grid span { display: block; font-size: 9.5px; color: var(--text-dim); letter-spacing: 0.4px; margin-bottom: 3px; }
-.profit-grid b { font-size: 12.5px; color: var(--lime); font-variant-numeric: tabular-nums; }
-.profit-grid b.neg { color: var(--danger); }
+.plist-row:last-child { border-bottom: none; }
+.plist-head {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  padding: 3px 4px 6px;
+}
+.plist-head span:not(:first-child),
+.plist-row > span:not(.pl-name) {
+  text-align: right;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.pl-rev { color: var(--lime); }
+.pl-spent { color: var(--text-dim); }
+.pl-net { color: var(--lime); }
+.pl-net.neg { color: var(--danger); }
+.pl-name { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.pl-icon { width: 22px; height: 22px; flex: none; display: inline-grid; place-items: center; }
+.pl-icon .icon { width: 22px; height: 22px; filter: drop-shadow(0 0 4px currentColor); }
+.pl-nm {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.15;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pl-nm small { display: block; font-size: 9px; color: var(--text-dim); font-weight: 600; }
 
 /* İstatistik / başarım */
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
