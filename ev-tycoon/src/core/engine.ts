@@ -32,10 +32,11 @@ export interface EngineEvents {
   onBankrupt?: () => void;
 }
 
-/** Anlık stok satın alım olayının popup'ta gösterilecek detayı */
+/** Anlık olayların (buyout/gift) popup'ta gösterilecek detayı */
 export interface BuyoutInfo {
-  vehicleName: string;
-  amount: number;
+  vehicleName?: string;
+  amount?: number;
+  gems?: number;
 }
 
 let events: EngineEvents = {};
@@ -82,6 +83,14 @@ function tickNewsEvents(s: GameState, dt: number): void {
     s.money += amount;
     checkAchievements(s);
     events.onNewsEvent?.(def, { vehicleName: v.name, amount });
+    return;
+  }
+
+  if (def.kind === 'gift') {
+    // Anlık olay: gizemli ziyaretçi 1-4 gem bırakır; etki süresi yok
+    const gems = 1 + Math.floor(Math.random() * 4);
+    s.gems += gems;
+    events.onNewsEvent?.(def, { gems });
     return;
   }
 

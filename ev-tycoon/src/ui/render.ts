@@ -1120,10 +1120,15 @@ function eventFxText(def: NewsEventDef): string {
 
 export function showNewsEvent(def: NewsEventDef, extra?: BuyoutInfo): void {
   const good = def.mult >= 1;
-  const isBuyout = def.kind === 'buyout';
-  const title = t(`event.${def.id}.title`, extra ? { name: extra.vehicleName } : undefined);
-  const fxLine = isBuyout && extra ? `💰 +${fmtMoney(extra.amount)}` : eventFxText(def);
-  const durLine = isBuyout ? `⚡ ${t('ui.instant')}` : t('event.duration', { time: fmtTime(def.durationSec) });
+  const isInstant = def.kind === 'buyout' || def.kind === 'gift';
+  const title = t(`event.${def.id}.title`, extra?.vehicleName ? { name: extra.vehicleName } : undefined);
+  const fxLine =
+    def.kind === 'buyout' && extra?.amount !== undefined
+      ? `💰 +${fmtMoney(extra.amount)}`
+      : def.kind === 'gift' && extra?.gems !== undefined
+        ? `💎 +${extra.gems}`
+        : eventFxText(def);
+  const durLine = isInstant ? `⚡ ${t('ui.instant')}` : t('event.duration', { time: fmtTime(def.durationSec) });
   // Popup açıkken oyun tamamen durur: üretim/satış ilerlemez, etki
   // süresi işlemez, yeni popup birikmez. Kapatınca etki süresi baştan
   // başlar — oyuncu hiçbir saniyesini kaçırmaz.

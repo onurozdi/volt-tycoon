@@ -456,8 +456,9 @@ export const NEWS: NewsDef[] = [
 // ---- Haber olayları (popup + geçici oynanış etkisi) ----
 
 /** buyout: süresiz ANLIK olay — stoğu ≥%80 dolu bir aracın tüm stoğu
-    anında satılır (yatırımcı ziyareti). Yalnızca uygun araç varken çıkar. */
-export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout';
+    anında satılır (yatırımcı ziyareti). Yalnızca uygun araç varken çıkar.
+    gift: süresiz ANLIK olay — gizemli ziyaretçi 1-4 gem bırakır. */
+export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout' | 'gift';
 
 export interface NewsEventDef {
   id: string;
@@ -478,6 +479,9 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'kids_race', locationId: 'garage', vehicleId: null, kind: 'sellSpeed', mult: 1.4, durationSec: 90, positive: true },
   { id: 'garage_sale', locationId: 'garage', vehicleId: null, kind: 'price', mult: 1.25, durationSec: 90, positive: true },
   { id: 'investor_buyout', locationId: 'garage', vehicleId: null, kind: 'buyout', mult: 1, durationSec: 0, positive: true },
+  { id: 'stranger_gems', locationId: 'garage', vehicleId: null, kind: 'gift', mult: 1, durationSec: 0, positive: true },
+  { id: 'lucky_cat', locationId: 'garage', vehicleId: null, kind: 'gift', mult: 1, durationSec: 0, positive: true },
+  { id: 'midnight_note', locationId: 'garage', vehicleId: null, kind: 'gift', mult: 1, durationSec: 0, positive: true },
   { id: 'fuse_blown', locationId: 'garage', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
   { id: 'neighbor_complaint', locationId: 'garage', vehicleId: null, kind: 'sellSpeed', mult: 0.9, durationSec: 60, positive: false },
   { id: 'viral_zipvolt', locationId: 'garage', vehicleId: 'zipvolt', kind: 'price', mult: 1.5, durationSec: 90, positive: true },
