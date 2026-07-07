@@ -9,7 +9,7 @@ import {
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
   unlockVehicle, unlockLocation, adFillClaim, adRewardBoost, adRewardGems,
   canTakeLoan, doubleOfflineEarnings, gemInstantSell, hasAnyManager, payoffLoan,
-  takeLoan, timeWarp,
+  repayCost, takeLoan, timeWarp,
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
@@ -91,7 +91,7 @@ function refresh(): void {
 
 // ---------- HUD ----------
 
-let hudMoney: HTMLElement, hudGems: HTMLElement, hudBoost: HTMLElement, hudRate: HTMLElement;
+let hudMoney: HTMLElement, hudGems: HTMLElement, hudBoost: HTMLElement, hudRate: HTMLElement, hudDue: HTMLElement;
 
 // Gelir hızı: son ~10 sn'nin gerçek kazancından ölçülür (dürüst gösterge)
 const incomeSamples: Array<{ t: number; earned: number }> = [];
@@ -102,7 +102,7 @@ function renderHUD(): void {
   hud.appendChild(el(`<div class="hud-brand">${icon('bolt')}<span>VOLT TYCOON</span>${icon('bolt')}</div>`));
   const row = el(`<div class="hud-stats"></div>`);
   hud.appendChild(row);
-  row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span><span class="rate"></span></div>`));
+  row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span><span class="due"></span><span class="rate"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));
   const gear = el(`<button class="hud-gear">${icon('settings')}</button>`);
@@ -114,6 +114,7 @@ function renderHUD(): void {
   });
   row.appendChild(gear);
   hudMoney = row.querySelector('.hud-money .val') as HTMLElement;
+  hudDue = row.querySelector('.hud-money .due') as HTMLElement;
   hudRate = row.querySelector('.hud-money .rate') as HTMLElement;
   hudGems = row.querySelector('.hud-gems .val') as HTMLElement;
   hudBoost = row.querySelector('.hud-boost') as HTMLElement;
@@ -125,10 +126,10 @@ function renderHUD(): void {
 const TABS: Array<{ id: Tab; icn: string }> = [
   { id: 'home', icn: 'home' },
   { id: 'research', icn: 'flask' },
+  { id: 'bank', icn: 'bank' },
   { id: 'stats', icn: 'chart' },
   { id: 'ach', icn: 'trophy' },
   { id: 'market', icn: 'cart' },
-  { id: 'bank', icn: 'bank' },
 ];
 
 function renderTabbar(): void {
@@ -850,22 +851,44 @@ function renderBank(c: HTMLElement): void {
         <div class="panel-icon" style="color:var(--gold)">${icon('bank')}</div>
         <div style="flex:1">
           <div class="panel-name">${t(`loan.${def.id}.name`)}</div>
-          <div class="panel-desc">${fmtMoney(def.principal)} — ${t('bank.interest', { p: Math.round(def.rate * 100) })} · ${t('bank.plan', { n: def.installments, amt: fmtMoney(inst), time: fmtTime(def.intervalSec) })}</div>
+          <div class="panel-desc">${fmtMoney(def.principal)} — ${t('bank.interest', { p: Math.round(def.rate * 100) })} · ${t('bank.plan', { n: def.installments, amt: fmtMoney(inst), time: fmtTime(def.intervalSec) })} · ${t('bank.fee', { p: 8 })}</div>
         </div>
-        <div class="panel-side"><button class="btn btn-ad take-loan">${t('bank.take')}</button></div>
+        <div class="panel-side loan-btns">
+          <button class="btn btn-ad take-loan">${t('bank.take')}</button>
+          <button class="btn btn-buy repay-loan"><span class="cost"></span></button>
+        </div>
       </div>
     </div>`);
     c.appendChild(offer);
     const btn = offer.querySelector('.take-loan') as HTMLButtonElement;
+    const repayBtn = offer.querySelector('.repay-loan') as HTMLButtonElement;
+    const repayCostEl = repayBtn.querySelector('.cost') as HTMLElement;
     btn.addEventListener('click', () => {
       if (takeLoan(S, def.id)) {
         sfx.buy();
         toast(`🏦 +${fmtMoney(def.principal)}`, 'gold');
-        refresh();
+      }
+    });
+    repayBtn.addEventListener('click', () => {
+      if (payoffLoan(S, def.id)) {
+        sfx.achievement();
+        toast(t('bank.paidoff'), 'gold');
+      } else {
+        toast(t('toast.notEnoughMoney'), 'err');
+        sfx.error();
       }
     });
     updaters.push(() => {
       btn.disabled = !canTakeLoan(S, def.id);
+      const cost = repayCost(S, def.id);
+      if (cost === null) {
+        repayBtn.disabled = true;
+        repayCostEl.textContent = t('bank.payoff');
+      } else {
+        repayBtn.disabled = false;
+        repayCostEl.textContent = `${t('bank.payoff')} ${fmtMoney(cost)}`;
+        repayBtn.classList.toggle('cant', S.money < cost);
+      }
     });
   }
   c.appendChild(el(`<div class="screen-sub" style="margin-top:10px">${t('bank.more')}</div>`));
@@ -884,22 +907,9 @@ function renderBank(c: HTMLElement): void {
             <div class="panel-name">${t(`loan.${loan.defId}.name`)}</div>
             <div class="panel-desc ln-info"></div>
           </div>
-          <div class="panel-side">
-            <button class="btn btn-buy ln-payoff"><span class="cost"></span></button>
-          </div>
         </div>
       </div>`);
       activeBox.appendChild(item);
-      (item.querySelector('.ln-payoff') as HTMLButtonElement).addEventListener('click', () => {
-        if (payoffLoan(S, loan.defId)) {
-          sfx.achievement();
-          toast(t('bank.paidoff'), 'gold');
-          refresh();
-        } else {
-          toast(t('toast.notEnoughMoney'), 'err');
-          sfx.error();
-        }
-      });
     }
   };
   updaters.push(() => {
@@ -912,8 +922,6 @@ function renderBank(c: HTMLElement): void {
       if (!card) continue;
       (card.querySelector('.ln-info') as HTMLElement).textContent =
         `${t('bank.remaining', { n: loan.remaining, amt: fmtMoney(loan.installment) })} · ${t('bank.next', { time: fmtTime(loan.nextIn) })}`;
-      (card.querySelector('.ln-payoff .cost') as HTMLElement).textContent =
-        `${t('bank.payoff')} ${fmtMoney(loan.remaining * loan.installment)}`;
     }
   });
 }
@@ -1191,6 +1199,14 @@ export function updateFrame(dt: number): void {
   }
 
   updateEventBar();
+
+  // Yaklaşan taksit sayacı (para hapının ortası, kırmızı)
+  if (S.loans.length > 0) {
+    const nearest = S.loans.reduce((a, b) => (a.nextIn < b.nextIn ? a : b));
+    hudDue.textContent = `−${fmtMoney(nearest.installment)} · ${fmtTime(nearest.nextIn)}`;
+  } else {
+    hudDue.textContent = '';
+  }
 
   // Borç/iflas uyarı bandı + para kırmızı
   const debtBar = $('#debtbar');

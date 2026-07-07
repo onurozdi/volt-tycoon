@@ -123,6 +123,21 @@ html, body {
   letter-spacing: 0.2px;
   font-variant-numeric: tabular-nums;
 }
+/* Yaklaşan kredi taksiti: ortada, kırmızı */
+.hud-money .due {
+  margin: 0 auto;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px #ff5e6c55;
+}
+.hud-money .due:empty { display: none; }
+
+/* Banka teklif butonları (Çek + Kapat alt alta) */
+.loan-btns { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+.loan-btns .btn { font-size: 11px; padding: 7px 10px; justify-content: center; }
+.loan-btns .repay-loan .cost { font-size: 10.5px; }
 /* Gem kimliği: butonlarla aynı premium mor */
 .hud-gems { color: #c9b6ff; background: #191040cc; border-color: #6b4ddb99; }
 .hud-gems .icon { color: #c9b6ff; filter: drop-shadow(0 0 5px #a98aff); }

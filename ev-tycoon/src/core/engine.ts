@@ -2,7 +2,7 @@ import {
   ACHIEVEMENTS, AD_REWARD_GEMS, BANKRUPTCY_GRACE, BOOST_HOURS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  LOANS, LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
+  LOAN_REPAY_FEE, LOANS, LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
 } from './config';
 import type { NewsEventDef } from './config';
 import {
@@ -290,12 +290,22 @@ export function takeLoan(s: GameState, defId: string): boolean {
   return true;
 }
 
-/** Erken kapatma: kalan taksitlerin toplamı tek seferde ödenir */
-export function payoffLoan(s: GameState, defId: string): boolean {
+/**
+ * Erken kapatma bedeli: kalan anapara + dosya masrafı.
+ * Kalan taksit toplamından (faizli) ucuzdur → erken kapatmak avantajlı;
+ * ama masraf yüzünden çek-kapat döngüsü zarar ettirir.
+ */
+export function repayCost(s: GameState, defId: string): number | null {
   const loan = s.loans.find((l) => l.defId === defId);
-  if (!loan) return false;
-  const cost = loan.remaining * loan.installment;
-  if (s.money < cost) return false;
+  const def = LOANS.find((l) => l.id === defId);
+  if (!loan || !def) return null;
+  const remainingPrincipal = def.principal * (loan.remaining / def.installments);
+  return Math.ceil(remainingPrincipal + def.principal * LOAN_REPAY_FEE);
+}
+
+export function payoffLoan(s: GameState, defId: string): boolean {
+  const cost = repayCost(s, defId);
+  if (cost === null || s.money < cost) return false;
   s.money -= cost;
   s.loans = s.loans.filter((l) => l.defId !== defId);
   return true;

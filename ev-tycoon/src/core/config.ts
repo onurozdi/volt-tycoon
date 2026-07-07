@@ -528,6 +528,14 @@ export const LOANS: LoanDef[] = [
 /** bakiye eksideyken (yalnızca AKTİF oyunda) iflasa kalan süre */
 export const BANKRUPTCY_GRACE = 300; // sn
 
+/**
+ * Erken kapatma "dosya masrafı" (ana paranın oranı).
+ * Kapatma bedeli = kalan anapara + fee×anapara → taksitleri beklemekten
+ * (faiz dahil) avantajlıdır ama çek-kapat döngüsü her seferinde
+ * fee kadar zarar ettirir.
+ */
+export const LOAN_REPAY_FEE = 0.08;
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye
