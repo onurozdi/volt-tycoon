@@ -1,6 +1,6 @@
 import {
-  ACHIEVEMENTS, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
+  ACHIEVEMENTS, BANKRUPTCY_GRACE, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
+  LOANS, LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
 import { setPaused } from '../core/clock';
@@ -8,7 +8,8 @@ import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
   unlockVehicle, unlockLocation, adFillClaim, adRewardBoost, adRewardGems,
-  doubleOfflineEarnings, gemInstantSell, hasAnyManager, timeWarp,
+  canTakeLoan, doubleOfflineEarnings, gemInstantSell, hasAnyManager, payoffLoan,
+  takeLoan, timeWarp,
 } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
@@ -24,7 +25,7 @@ import { showRewardedAd } from './ads';
 import { icon } from './art';
 import { setSoundEnabled, sfx } from './audio';
 
-export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'settings';
+export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 'settings';
 
 let S: GameState;
 let currentTab: Tab = 'home';
@@ -104,6 +105,14 @@ function renderHUD(): void {
   row.appendChild(el(`<div class="hud-stat hud-money">${icon('coin')}<span class="val"></span><span class="rate"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));
+  const gear = el(`<button class="hud-gear">${icon('settings')}</button>`);
+  gear.addEventListener('click', () => {
+    sfx.click();
+    currentTab = 'settings';
+    renderTabbar();
+    renderTab('settings');
+  });
+  row.appendChild(gear);
   hudMoney = row.querySelector('.hud-money .val') as HTMLElement;
   hudRate = row.querySelector('.hud-money .rate') as HTMLElement;
   hudGems = row.querySelector('.hud-gems .val') as HTMLElement;
@@ -112,13 +121,14 @@ function renderHUD(): void {
 
 // ---------- Alt navigasyon ----------
 
+// Ayarlar alt bardan üst HUD'a taşındı (dişli) — Banka'ya yer açıldı
 const TABS: Array<{ id: Tab; icn: string }> = [
   { id: 'home', icn: 'home' },
   { id: 'research', icn: 'flask' },
   { id: 'stats', icn: 'chart' },
   { id: 'ach', icn: 'trophy' },
   { id: 'market', icn: 'cart' },
-  { id: 'settings', icn: 'settings' },
+  { id: 'bank', icn: 'bank' },
 ];
 
 function renderTabbar(): void {
@@ -152,6 +162,7 @@ function renderTab(tab: Tab): void {
   else if (tab === 'stats') renderStats(c);
   else if (tab === 'ach') renderAchievements(c);
   else if (tab === 'market') renderMarket(c);
+  else if (tab === 'bank') renderBank(c);
   else renderSettings(c);
 }
 
@@ -817,6 +828,116 @@ function renderMarket(c: HTMLElement): void {
   );
 }
 
+// ---------- BANK ----------
+
+function renderBank(c: HTMLElement): void {
+  c.appendChild(el(`<div class="screen-title">${t('bank.title')}</div>`));
+  c.appendChild(el(`<div class="screen-sub">${t('bank.sub')}</div>`));
+
+  // Aktif krediler
+  const activeBox = el(`<div class="bank-active"></div>`);
+  c.appendChild(activeBox);
+
+  // Teklifler (yalnızca açık tesislerin kredileri; kademeli açılım gibi
+  // sıradaki tesisin teklifi görünmez)
+  c.appendChild(el(`<div class="loc-header">${icon('bank')}<span>${t('bank.offers')}</span></div>`));
+  for (const def of LOANS) {
+    if (!S.locations[def.locationId]) continue;
+    const total = def.principal * (1 + def.rate);
+    const inst = Math.ceil(total / def.installments);
+    const offer = el(`<div class="panel">
+      <div class="panel-row">
+        <div class="panel-icon" style="color:var(--gold)">${icon('bank')}</div>
+        <div style="flex:1">
+          <div class="panel-name">${t(`loan.${def.id}.name`)}</div>
+          <div class="panel-desc">${fmtMoney(def.principal)} — ${t('bank.interest', { p: Math.round(def.rate * 100) })} · ${t('bank.plan', { n: def.installments, amt: fmtMoney(inst), time: fmtTime(def.intervalSec) })}</div>
+        </div>
+        <div class="panel-side"><button class="btn btn-ad take-loan">${t('bank.take')}</button></div>
+      </div>
+    </div>`);
+    c.appendChild(offer);
+    const btn = offer.querySelector('.take-loan') as HTMLButtonElement;
+    btn.addEventListener('click', () => {
+      if (takeLoan(S, def.id)) {
+        sfx.buy();
+        toast(`🏦 +${fmtMoney(def.principal)}`, 'gold');
+        refresh();
+      }
+    });
+    updaters.push(() => {
+      btn.disabled = !canTakeLoan(S, def.id);
+    });
+  }
+  c.appendChild(el(`<div class="screen-sub" style="margin-top:10px">${t('bank.more')}</div>`));
+
+  // Aktif kredi kartları (yapı değişince yeniden çiz)
+  let lastCount = -1;
+  const rebuildActive = (): void => {
+    activeBox.innerHTML = '';
+    if (S.loans.length === 0) return;
+    activeBox.appendChild(el(`<div class="loc-header">${icon('coin')}<span>${t('bank.active')}</span></div>`));
+    for (const loan of S.loans) {
+      const item = el(`<div class="panel loan-card" data-loan="${loan.defId}">
+        <div class="panel-row">
+          <div class="panel-icon" style="color:var(--danger)">${icon('bank')}</div>
+          <div style="flex:1">
+            <div class="panel-name">${t(`loan.${loan.defId}.name`)}</div>
+            <div class="panel-desc ln-info"></div>
+          </div>
+          <div class="panel-side">
+            <button class="btn btn-buy ln-payoff"><span class="cost"></span></button>
+          </div>
+        </div>
+      </div>`);
+      activeBox.appendChild(item);
+      (item.querySelector('.ln-payoff') as HTMLButtonElement).addEventListener('click', () => {
+        if (payoffLoan(S, loan.defId)) {
+          sfx.achievement();
+          toast(t('bank.paidoff'), 'gold');
+          refresh();
+        } else {
+          toast(t('toast.notEnoughMoney'), 'err');
+          sfx.error();
+        }
+      });
+    }
+  };
+  updaters.push(() => {
+    if (S.loans.length !== lastCount) {
+      lastCount = S.loans.length;
+      rebuildActive();
+    }
+    for (const loan of S.loans) {
+      const card = activeBox.querySelector(`.loan-card[data-loan="${loan.defId}"]`);
+      if (!card) continue;
+      (card.querySelector('.ln-info') as HTMLElement).textContent =
+        `${t('bank.remaining', { n: loan.remaining, amt: fmtMoney(loan.installment) })} · ${t('bank.next', { time: fmtTime(loan.nextIn) })}`;
+      (card.querySelector('.ln-payoff .cost') as HTMLElement).textContent =
+        `${t('bank.payoff')} ${fmtMoney(loan.remaining * loan.installment)}`;
+    }
+  });
+}
+
+/** İflas ekranı — tek çıkış: sıfırdan başlamak */
+export function showBankruptcy(): void {
+  setPaused(true);
+  const overlay = el(`<div class="modal-overlay">
+    <div class="modal bankrupt-modal">
+      <div class="tut-emoji">📉💸</div>
+      <h2>${t('bank.bankrupt.title')}</h2>
+      <p>${t('bank.bankrupt.body')}</p>
+      <div class="modal-btns">
+        <button class="btn btn-danger bk-restart">${t('bank.restart')}</button>
+      </div>
+    </div>
+  </div>`);
+  document.body.appendChild(overlay);
+  (overlay.querySelector('.bk-restart') as HTMLButtonElement).addEventListener('click', () => {
+    resetGame();
+    location.reload();
+  });
+}
+
 // ---------- SETTINGS ----------
 
 function renderSettings(c: HTMLElement): void {
@@ -1017,6 +1138,7 @@ export function showWelcomeBack(report: OfflineReport): void {
       </div>
       ${report.claimReady ? `<p>🧪 ${t('wb.claimReady')}</p>` : ''}
       ${report.rp > 0 ? `<p>🤖 +${fmt(report.rp)} ${t('research.points')}</p>` : ''}
+      ${report.loanPaid > 0 ? `<p>🏦 −${fmtMoney(report.loanPaid)}</p>` : ''}
       <div class="modal-btns">
         <button class="btn btn-buy wb-collect">${t('ui.collect')}</button>
         ${report.earned > 0 ? `<button class="btn btn-ad wb-double">${icon('play')}${t('ui.double')}</button>` : ''}
@@ -1069,6 +1191,16 @@ export function updateFrame(dt: number): void {
   }
 
   updateEventBar();
+
+  // Borç/iflas uyarı bandı + para kırmızı
+  const debtBar = $('#debtbar');
+  const inDebt = S.money < 0;
+  (hudMoney.parentElement as HTMLElement).classList.toggle('debt', inDebt);
+  debtBar.classList.toggle('on', inDebt);
+  if (inDebt) {
+    debtBar.innerHTML = `<span>⚠️ ${t('bank.debtWarn', { time: fmtTime(Math.max(0, BANKRUPTCY_GRACE - S.debtTimer)) })}</span>`;
+  }
+
   for (const u of updaters) u();
 
   newsTimer += dt;

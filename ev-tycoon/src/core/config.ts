@@ -504,6 +504,30 @@ export const EVENT_GAP_MIN = 240; // sn — iki olay arası en az
 export const EVENT_GAP_MAX = 420; // sn — en çok
 export const EVENT_POSITIVE_CHANCE = 0.75;
 
+// ---- Banka / Kredi (GDD: taksit + iflas modeli) ----
+
+export interface LoanDef {
+  id: string;
+  /** bu tesis açık olmalı — tesis açıldıkça yeni kredi teklifi belirir */
+  locationId: string;
+  principal: number;
+  /** toplam faiz oranı (0.3 = %30); geri ödeme = anapara × (1+faiz) */
+  rate: number;
+  installments: number;
+  /** taksit aralığı (sn; offline'da da işler, tavana kadar) */
+  intervalSec: number;
+}
+
+export const LOANS: LoanDef[] = [
+  { id: 'loan_garage', locationId: 'garage', principal: 600, rate: 0.3, installments: 12, intervalSec: 90 },
+  { id: 'loan_workshop', locationId: 'workshop', principal: 60_000, rate: 0.35, installments: 12, intervalSec: 120 },
+  { id: 'loan_factory', locationId: 'factory', principal: 4_000_000, rate: 0.4, installments: 16, intervalSec: 180 },
+  { id: 'loan_giga', locationId: 'gigafactory', principal: 400_000_000, rate: 0.5, installments: 20, intervalSec: 240 },
+];
+
+/** bakiye eksideyken (yalnızca AKTİF oyunda) iflasa kalan süre */
+export const BANKRUPTCY_GRACE = 300; // sn
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye

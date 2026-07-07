@@ -180,6 +180,13 @@ export const ART: Record<string, string> = {
     <circle cx="38" cy="43" r="1.4" fill="currentColor" stroke="none"/>
   `),
   home: S(`<path d="M10 30L32 10l22 20"/><path d="M16 28v24h32V28"/><path d="M27 52V38h10v14"/>`),
+  bank: S(`
+    <path d="M8 24L32 10l24 14"/>
+    <path d="M10 24h44v6H10z" opacity="0.8"/>
+    <path d="M15 30v16M25 30v16M39 30v16M49 30v16"/>
+    <path d="M8 50h48M6 54h52"/>
+    <path d="M29 18h6" opacity="0.7"/>
+  `),
   cart: S(`
     <path d="M8 12h8l7 28h26l7-20H20"/>
     <circle cx="27" cy="50" r="4.5"/>

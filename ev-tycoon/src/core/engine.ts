@@ -1,8 +1,8 @@
 import {
-  ACHIEVEMENTS, AD_REWARD_GEMS, BOOST_HOURS,
+  ACHIEVEMENTS, AD_REWARD_GEMS, BANKRUPTCY_GRACE, BOOST_HOURS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
+  LOANS, LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
 } from './config';
 import type { NewsEventDef } from './config';
 import {
@@ -20,6 +20,8 @@ export interface OfflineReport {
   claimReady: boolean;
   /** Ar-Ge Müdürü'nün offline topladığı RP */
   rp: number;
+  /** offline'da kesilen kredi taksitleri toplamı */
+  loanPaid: number;
 }
 
 export interface EngineEvents {
@@ -27,6 +29,7 @@ export interface EngineEvents {
   onProduce?: (vehicleId: string) => void;
   onAchievement?: (id: string, gems: number) => void;
   onNewsEvent?: (def: NewsEventDef) => void;
+  onBankrupt?: () => void;
 }
 
 let events: EngineEvents = {};
@@ -59,9 +62,59 @@ function tickNewsEvents(s: GameState, dt: number): void {
   events.onNewsEvent?.(def);
 }
 
+/** Kredi taksitleri: dt kadar ilerlet; bakiye eksiye inebilir */
+function tickLoans(s: GameState, dt: number): void {
+  for (const loan of s.loans) {
+    loan.nextIn -= dt;
+    const def = LOANS.find((l) => l.id === loan.defId);
+    if (!def) {
+      loan.remaining = 0;
+      continue;
+    }
+    while (loan.nextIn <= 0 && loan.remaining > 0) {
+      s.money -= loan.installment;
+      loan.remaining -= 1;
+      loan.nextIn += def.intervalSec;
+    }
+  }
+  s.loans = s.loans.filter((l) => l.remaining > 0);
+
+  // İflas sayacı yalnızca AKTİF oyunda işler (offline'da asla)
+  if (s.money < 0) {
+    const before = s.debtTimer;
+    s.debtTimer += dt;
+    if (before < BANKRUPTCY_GRACE && s.debtTimer >= BANKRUPTCY_GRACE) {
+      events.onBankrupt?.();
+    }
+  } else {
+    s.debtTimer = 0;
+  }
+}
+
+/** Offline kredi kesintisi: taksitler işler ama iflas sayacı İLERLEMEZ */
+function tickLoansOffline(s: GameState, T: number): void {
+  for (const loan of s.loans) {
+    const def = LOANS.find((l) => l.id === loan.defId);
+    if (!def) {
+      loan.remaining = 0;
+      continue;
+    }
+    let elapsed = T;
+    while (elapsed >= loan.nextIn && loan.remaining > 0) {
+      elapsed -= loan.nextIn;
+      s.money -= loan.installment;
+      loan.remaining -= 1;
+      loan.nextIn = def.intervalSec;
+    }
+    if (loan.remaining > 0) loan.nextIn -= elapsed;
+  }
+  s.loans = s.loans.filter((l) => l.remaining > 0);
+}
+
 /** Ana simülasyon adımı. dt: gerçek saniye. */
 export function tick(s: GameState, dt: number): void {
   tickNewsEvents(s, dt);
+  tickLoans(s, dt);
 
   // Claim dolumu (Ar-Ge Müdürü varsa dolduğunda otomatik toplanır)
   if (hasAutoClaim(s)) {
@@ -214,6 +267,40 @@ export function buySalesManager(s: GameState, id: string): boolean {
   return true;
 }
 
+// ---------- Banka ----------
+
+/** Aynı tekliften aktif kredi varken tekrar çekilemez */
+export function canTakeLoan(s: GameState, defId: string): boolean {
+  const def = LOANS.find((l) => l.id === defId);
+  if (!def || !s.locations[def.locationId]) return false;
+  return !s.loans.some((l) => l.defId === defId);
+}
+
+export function takeLoan(s: GameState, defId: string): boolean {
+  if (!canTakeLoan(s, defId)) return false;
+  const def = LOANS.find((l) => l.id === defId)!;
+  const total = def.principal * (1 + def.rate);
+  s.money += def.principal;
+  s.loans.push({
+    defId,
+    remaining: def.installments,
+    nextIn: def.intervalSec,
+    installment: Math.ceil(total / def.installments),
+  });
+  return true;
+}
+
+/** Erken kapatma: kalan taksitlerin toplamı tek seferde ödenir */
+export function payoffLoan(s: GameState, defId: string): boolean {
+  const loan = s.loans.find((l) => l.defId === defId);
+  if (!loan) return false;
+  const cost = loan.remaining * loan.installment;
+  if (s.money < cost) return false;
+  s.money -= cost;
+  s.loans = s.loans.filter((l) => l.defId !== defId);
+  return true;
+}
+
 export function unlockLocation(s: GameState, id: string): boolean {
   const def = LOCATIONS.find((l) => l.id === id);
   if (!def || s.locations[id]) return false;
@@ -357,7 +444,7 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
   s.money += earned;
   s.stats.totalEarned += earned;
   checkAchievements(s);
-  return { seconds, produced, sold, earned, claimReady: false, rp: 0 };
+  return { seconds, produced, sold, earned, claimReady: false, rp: 0, loanPaid: 0 };
 }
 
 // ---------- Offline progress ----------
@@ -423,6 +510,12 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
 
   s.money += earned;
   s.stats.totalEarned += earned;
+
+  // Kredi taksitleri offline'da da kesilir (iflas sayacı İŞLEMEZ)
+  const moneyBeforeLoans = s.money;
+  tickLoansOffline(s, T);
+  const loanPaid = Math.max(0, moneyBeforeLoans - s.money);
+
   // Manuel yarım kalmış işlemler offline'da ilerlemez; bayrakları temizle
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
@@ -433,8 +526,8 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   }
 
   checkAchievements(s);
-  if (produced === 0 && sold === 0 && !claimReady && rpGained === 0) return null;
-  return { seconds: Math.floor(T), produced, sold, earned, claimReady, rp: rpGained };
+  if (produced === 0 && sold === 0 && !claimReady && rpGained === 0 && loanPaid === 0) return null;
+  return { seconds: Math.floor(T), produced, sold, earned, claimReady, rp: rpGained, loanPaid };
 }
 
 /** Welcome-back ekranında reklamla ×2: raporun kazancı kadar tekrar ekler */

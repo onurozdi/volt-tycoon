@@ -133,6 +133,48 @@ html, body {
 }
 .hud-boost.on { display: flex; }
 
+/* Ayarlar dişlisi (HUD) */
+.hud-gear {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.hud-gear .icon { width: 18px; height: 18px; }
+.hud-gear:active { transform: scale(0.94); }
+
+/* Borç durumu */
+.hud-money.debt { color: var(--danger); border-color: #ff5e6c88; }
+.hud-money.debt .icon { color: var(--danger); filter: drop-shadow(0 0 5px #ff5e6c88); }
+
+#debtbar {
+  z-index: 4;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 14px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #fff0f0;
+  background: linear-gradient(90deg, #b93a45, #e64f5c);
+  box-shadow: 0 0 12px #ff5e6c66;
+  animation: debt-pulse 1s ease-in-out infinite;
+}
+#debtbar.on { display: flex; }
+@keyframes debt-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.25); }
+}
+
+.bankrupt-modal { border-color: var(--danger); box-shadow: 0 0 20px #ff5e6c66; }
+.bankrupt-modal h2 { color: var(--danger); text-shadow: 0 0 10px #ff5e6c66; }
+
 /* ============ Aktif haber olayı şeridi ============ */
 
 #eventbar {

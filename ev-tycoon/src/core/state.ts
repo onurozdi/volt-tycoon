@@ -21,11 +21,25 @@ export interface LineState {
   spent: number;
 }
 
+export interface ActiveLoan {
+  defId: string;
+  /** kalan taksit sayısı */
+  remaining: number;
+  /** sonraki taksite kalan saniye */
+  nextIn: number;
+  /** taksit tutarı */
+  installment: number;
+}
+
 export interface GameState {
   version: number;
   money: number;
   gems: number;
   rp: number; // research points
+  /** aktif krediler */
+  loans: ActiveLoan[];
+  /** bakiye eksideyken aktif oyunda geçen süre (iflas sayacı, sn) */
+  debtTimer: number;
   lines: Record<string, LineState>;
   /** mekân kilitleri: id -> açık mı */
   locations: Record<string, boolean>;
@@ -74,6 +88,8 @@ export function newGame(lang: Lang): GameState {
     money: 0,
     gems: STARTING_GEMS,
     rp: 0,
+    loans: [],
+    debtTimer: 0,
     lines,
     locations,
     research: {},
@@ -136,6 +152,9 @@ export function loadGame(): GameState | null {
     if (!LANGS.includes(s.settings.lang)) s.settings.lang = 'en';
     // Öğretici bu alandan önceki kayıtlarda yok: mevcut oyuncuyu rahatsız etme
     if (typeof s.tutStep !== 'number') s.tutStep = 99;
+    // Banka alanları eski kayıtlarda yok
+    if (!Array.isArray(s.loans)) s.loans = [];
+    if (typeof s.debtTimer !== 'number') s.debtTimer = 0;
     // Eski kayıtlar için haber olayı alanları
     if (typeof s.nextEventIn !== 'number') s.nextEventIn = 180;
     if (s.activeEvent === undefined) s.activeEvent = null;

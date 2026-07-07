@@ -5,7 +5,7 @@ import { computeOffline, setEngineEvents, tick } from './core/engine';
 import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
-import { initUI, persist, saleFloat, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { initUI, persist, saleFloat, showBankruptcy, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
 import { initTutorial } from './ui/tutorial';
 
 const state = loadGame() ?? newGame(detectLang());
@@ -34,6 +34,10 @@ setEngineEvents({
   onNewsEvent: (def) => {
     sfx.news();
     showNewsEvent(def);
+  },
+  onBankrupt: () => {
+    sfx.error();
+    showBankruptcy();
   },
 });
 
