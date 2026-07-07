@@ -116,8 +116,8 @@ function renderHUD(): void {
   const row = el(`<div class="hud-stats"></div>`);
   hud.appendChild(row);
   row.appendChild(el(`<div class="hud-stat hud-money">
-    <span class="hud-money-top">${icon('coin')}<span class="val"></span><span class="rate"></span></span>
-    <span class="due"></span>
+    <span class="hud-money-main">${icon('coin')}<span class="val"></span></span>
+    <span class="hud-money-side"><span class="rate"></span><span class="due"></span></span>
   </div>`));
   row.appendChild(el(`<div class="hud-stat hud-boost">⚡×2 <span class="val"></span></div>`));
   row.appendChild(el(`<div class="hud-stat hud-gems">${icon('gem')}<span class="val"></span></div>`));

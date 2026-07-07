@@ -114,52 +114,49 @@ html, body {
 }
 
 .hud-stat .icon { width: 17px; height: 17px; }
-/* Para hapı: iki katlı — üstte para + gelir hızı, altta (yalnızca kredi
-   varken) taksit sayacı. Yükseklik SABİT: kredi olsun olmasın hap aynı
-   kalınlıkta, içerik dikeyde ortalı (sola yaslı). */
+/* Para hapı: solda tam yükseklikte dikeyde ortalı para değeri; sağda
+   gelir hızı + taksit sayacından oluşan küçük sütun. Yükseklik sabit,
+   para yazısı hiçbir durumda kımıldamaz. */
 .hud-money {
   color: var(--lime);
   flex: 1;
   min-width: 0;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 1px;
-  height: 42px;
-  padding: 0 12px;
+  justify-content: space-between;
 }
 .hud-money .icon { color: var(--lime); filter: drop-shadow(0 0 5px #c8f43e88); }
-.hud-money-top {
+.hud-money-main {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
   white-space: nowrap;
 }
+.hud-money-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  flex: none;
+}
 .hud-money .rate {
-  margin-left: auto;
   font-size: 10px;
   font-weight: 700;
   color: var(--text-dim);
   letter-spacing: 0.2px;
   font-variant-numeric: tabular-nums;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-/* Yaklaşan kredi taksiti: ikinci satır, sağa yaslı, kırmızı.
-   Yeri HER ZAMAN rezerve (boşken de) — para yazısı asla kaymaz. */
 .hud-money .due {
   display: block;
   height: 12px;
   line-height: 12px;
-  text-align: right;
   font-size: 9.5px;
   font-weight: 800;
   color: var(--danger);
   font-variant-numeric: tabular-nums;
   text-shadow: 0 0 6px #ff5e6c55;
   white-space: nowrap;
-  overflow: hidden;
 }
 
 /* Banka teklif butonları (Çek + Kapat alt alta) */
