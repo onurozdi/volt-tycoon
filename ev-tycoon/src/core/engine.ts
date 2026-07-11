@@ -2,7 +2,7 @@ import {
   ACHIEVEMENTS, AD_REWARD_GEMS, BANKRUPTCY_GRACE, BOOST_HOURS,
   CONTRACT_DECAY_FLOOR, CONTRACT_DELAY_RATIO, CONTRACT_DURATION, CONTRACT_FAIL_PENALTY,
   CONTRACT_GAP_MAX, CONTRACT_GAP_MIN, CONTRACT_GEM_BONUS, CONTRACT_GEM_CHANCE, CONTRACT_ISSUERS,
-  CONTRACT_PRICE_MAX, CONTRACT_PRICE_MIN, CONTRACT_REP_CAP, CONTRACT_REP_GAP_FACTOR,
+  CONTRACT_PRICE_MAX, CONTRACT_PRICE_MIN, CONTRACT_REP_CAP, CONTRACT_REP_GAP_FACTOR, CONTRACT_REP_MIN,
   CONTRACT_REP_PRICE_BONUS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
@@ -218,7 +218,7 @@ export function issuerRep(s: GameState, issuerId: string): number {
 }
 
 function bumpRep(s: GameState, issuerId: string, delta: number): void {
-  s.contractRep[issuerId] = Math.max(0, Math.min(CONTRACT_REP_CAP, issuerRep(s, issuerId) + delta));
+  s.contractRep[issuerId] = Math.max(CONTRACT_REP_MIN, Math.min(CONTRACT_REP_CAP, issuerRep(s, issuerId) + delta));
 }
 
 /** Teklif üret: veren (itibar ağırlıklı), araç (verenin tesisinden),

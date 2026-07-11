@@ -604,6 +604,9 @@ export const CONTRACT_PRICE_MIN = 0.85;
 export const CONTRACT_PRICE_MAX = 1.25;
 export const CONTRACT_REP_PRICE_BONUS = 0.02;
 export const CONTRACT_REP_CAP = 10;
+/** İtibar tabanı: eksiye düşebilir — eksi itibar teklifleri seyreltir,
+    fiyat bandını aşağı çeker ve seçilme olasılığını düşürür */
+export const CONTRACT_REP_MIN = -5;
 /** Gecikme penceresi = sürenin bu oranı; ödül bu pencere boyunca %100→%50 erir */
 export const CONTRACT_DELAY_RATIO = 0.5;
 export const CONTRACT_DECAY_FLOOR = 0.5;

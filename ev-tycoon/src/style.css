@@ -397,7 +397,9 @@ html, body {
 .rep-row:last-child { border-bottom: none; }
 .rep-row .rep-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rep-row .rep-stars { flex: none; color: var(--gold); font-size: 11px; letter-spacing: 1px; text-shadow: 0 0 6px #ffd35e55; }
+.rep-row .rep-stars.neg { color: var(--danger); text-shadow: 0 0 6px #ff5e6c55; }
 .rep-row .rep-bonus { flex: none; min-width: 38px; text-align: right; font-weight: 800; color: var(--lime); font-variant-numeric: tabular-nums; }
+.rep-row .rep-bonus.neg { color: var(--danger); }
 
 /* Şirket adı popup'ı */
 .company-modal .company-input {
@@ -467,7 +469,8 @@ html, body {
 .ct-row.late:not(.ready) .ct-r { color: var(--danger); }
 
 /* Teklif popup ekleri */
-.ct-modal h2 small.ct-stars { color: var(--gold); font-size: 12px; margin-left: 6px; letter-spacing: 2px; }
+.ct-modal h2 .ct-stars { color: var(--gold); font-size: 12px; margin-left: 6px; letter-spacing: 2px; }
+.ct-modal h2 .ct-stars.neg { color: var(--danger); text-shadow: 0 0 6px #ff5e6c55; }
 .ct-wants { font-size: 13px; color: var(--text); margin-top: 2px; }
 .ct-gems { color: #c9b6ff; text-shadow: 0 0 8px #a98aff66; }
 .ct-vs { font-size: 11px; font-weight: 800; }

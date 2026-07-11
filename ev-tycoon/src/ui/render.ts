@@ -830,8 +830,17 @@ function renderStats(c: HTMLElement): void {
     updaters.push(() => {
       for (const r of repRows) {
         const rep = issuerRep(S, r.id);
-        r.stars.textContent = '★'.repeat(rep) + '☆'.repeat(CONTRACT_REP_CAP - rep);
-        r.bonus.textContent = rep > 0 ? `+%${Math.round(rep * CONTRACT_REP_PRICE_BONUS * 100)}` : '—';
+        const neg = rep < 0;
+        r.stars.classList.toggle('neg', neg);
+        r.bonus.classList.toggle('neg', neg);
+        if (neg) {
+          // Eksi itibar: kırmızı uyarı yıldızları (kara liste hissi)
+          r.stars.textContent = '⚠ ' + '★'.repeat(-rep);
+          r.bonus.textContent = `−%${Math.round(-rep * CONTRACT_REP_PRICE_BONUS * 100)}`;
+        } else {
+          r.stars.textContent = '★'.repeat(rep) + '☆'.repeat(CONTRACT_REP_CAP - rep);
+          r.bonus.textContent = rep > 0 ? `+%${Math.round(rep * CONTRACT_REP_PRICE_BONUS * 100)}` : '—';
+        }
       }
     });
   }
@@ -1080,14 +1089,18 @@ function vehicleName(id: string): string {
 export function showContractOffer(o: ContractOffer): void {
   setPaused(true);
   const rep = issuerRep(S, o.issuerId);
-  const stars = rep > 0 ? ' ' + '★'.repeat(Math.min(5, Math.ceil(rep / 2))) : '';
+  const stars = rep > 0
+    ? ` <span class="ct-stars">${'★'.repeat(Math.min(5, Math.ceil(rep / 2)))}</span>`
+    : rep < 0
+      ? ` <span class="ct-stars neg">⚠ ${'★'.repeat(Math.min(5, -rep))}</span>`
+      : '';
   const pct = Math.round((o.vsMarket - 1) * 100);
   const pctTxt = pct >= 0 ? `+%${pct}` : `−%${Math.abs(pct)}`;
   const total = o.qty * o.unitPrice;
   const overlay = el(`<div class="modal-overlay">
     <div class="modal event-modal good ct-modal">
       <div class="event-badge">📜 ${t('ct.offer')}</div>
-      <h2>${t('issuer.' + o.issuerId)}<small class="ct-stars">${stars}</small></h2>
+      <h2>${t('issuer.' + o.issuerId)}<small>${stars}</small></h2>
       <p class="ct-wants">${t('ct.wants', { qty: o.qty, vehicle: vehicleName(o.vehicleId) })}</p>
       <p class="event-fx">${fmtMoney(o.unitPrice)} × ${o.qty} = ${fmtMoney(total)}
         <span class="ct-vs ${pct >= 0 ? 'up' : 'down'}">(${t('ct.vsMarket', { pct: pctTxt })})</span></p>
