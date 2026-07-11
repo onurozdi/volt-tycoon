@@ -1,0 +1,27 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Adaptif ikon ÖN katmanı: yalnız halka + şimşek, şeffaf zemin.
+       İçerik güvenli bölgede (%66 merkez) kalacak şekilde küçültüldü. -->
+  <defs>
+    <linearGradient id="bolt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3ef0c8"/>
+      <stop offset="55%" stop-color="#7ee87a"/>
+      <stop offset="100%" stop-color="#c8f43e"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffd35e"/>
+      <stop offset="100%" stop-color="#d99a12"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="16" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g transform="translate(512 512) scale(0.62) translate(-512 -512)">
+    <circle cx="512" cy="512" r="330" fill="none" stroke="#0a2438" stroke-width="58"/>
+    <path d="M 615 197 A 330 330 0 1 1 409 197" fill="none" stroke="url(#ring)" stroke-width="58" stroke-linecap="round"/>
+    <g filter="url(#glow)">
+      <path d="M566 200 L360 560 h130 L458 824 L676 452 h-134 Z" fill="url(#bolt)"/>
+    </g>
+    <path d="M566 200 L360 560 h130 L458 824 L676 452 h-134 Z" fill="none" stroke="#eaffef" stroke-width="10" stroke-linejoin="round" opacity="0.55"/>
+  </g>
+</svg>

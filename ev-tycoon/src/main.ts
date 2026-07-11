@@ -67,6 +67,17 @@ async function boot(): Promise<void> {
   else initTutorial(state);
   if (report) showWelcomeBack(report);
 
+  // Açılış animasyonu: oyun hazır — en az ~1.4sn gösterim, dokununca atlanır
+  const bootEl = document.getElementById('boot');
+  if (bootEl) {
+    const closeBoot = (): void => {
+      bootEl.classList.add('out');
+      setTimeout(() => bootEl.remove(), 450);
+    };
+    setTimeout(closeBoot, Math.max(0, 1400 - performance.now()));
+    bootEl.addEventListener('pointerdown', closeBoot, { once: true });
+  }
+
   // Ana döngü: sabit zamanlayıcı (arka planda rAF durduğu için ona bağlanmıyoruz)
   let last = performance.now();
   let saveAcc = 0;

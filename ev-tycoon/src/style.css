@@ -341,6 +341,49 @@ html, body {
 }
 
 /* Sözleşme kartları (Home üstü, sabit) */
+/* ============ Açılış animasyonu (sallanan kablo + fiş) ============ */
+
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 90% at 50% 30%, #101d42 0%, #0a1128 55%, #060b1d 100%);
+  transition: opacity 0.4s ease;
+}
+#boot.out { opacity: 0; pointer-events: none; }
+#boot .boot-swing {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 130px;
+  height: 300px;
+  margin-left: -65px;
+  transform-origin: 50% 0;
+  animation: boot-swing 1.5s ease-in-out infinite alternate;
+}
+@keyframes boot-swing { from { transform: rotate(-13deg); } to { transform: rotate(13deg); } }
+#boot .boot-led { animation: scn-blink 1s ease-in-out infinite; }
+#boot .boot-title {
+  margin-top: 230px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: var(--cyan);
+  text-shadow: 0 0 18px #3ef0c888, 0 0 4px #3ef0c8;
+  animation: boot-flicker 2.4s linear infinite;
+}
+#boot .boot-sub { margin-top: 10px; font-size: 10px; letter-spacing: 4px; color: var(--text-dim); font-weight: 700; }
+@keyframes boot-flicker {
+  0%, 7%, 9%, 100% { opacity: 1; }
+  8% { opacity: 0.4; }
+  42%, 44% { opacity: 1; }
+  43% { opacity: 0.55; }
+}
+
 /* ============ Görsel tesis sahnesi (panorama) ============ */
 
 .scene {
