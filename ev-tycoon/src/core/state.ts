@@ -1,4 +1,5 @@
 import { LOCATIONS, SAVE_KEY, SAVE_VERSION, STARTING_GEMS, VEHICLES } from './config';
+import { clearNative, mirrorToNative } from './storage';
 import { LANGS } from '../i18n';
 import type { Lang } from '../i18n';
 
@@ -125,7 +126,9 @@ export function saveGame(s: GameState): void {
   if (wiped) return;
   s.lastSeen = Date.now();
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+    const json = JSON.stringify(s);
+    localStorage.setItem(SAVE_KEY, json);
+    mirrorToNative(json); // Android'de kalıcı yedek (WebView localStorage silinebilir)
   } catch {
     // depolama dolu/engelli — sessizce geç
   }
@@ -191,4 +194,5 @@ export function loadGame(): GameState | null {
 export function resetGame(): void {
   wiped = true;
   localStorage.removeItem(SAVE_KEY);
+  clearNative();
 }

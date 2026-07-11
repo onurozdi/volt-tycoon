@@ -7,93 +7,103 @@ import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
 import { initUI, persist, saleFloat, showBankruptcy, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
 import { initTutorial } from './ui/tutorial';
+import { hydrateFromNative } from './core/storage';
 
-const state = loadGame() ?? newGame(detectLang());
-setLang(state.settings.lang);
+// Tüm başlangıç async fonksiyonda: Android'de Preferences yedeği oyun
+// yüklenmeden ÖNCE okunmalı (web'de anında geçer). Top-level await yerine
+// sarmalayıcı kullanıyoruz — eski WebView hedefleriyle de uyumlu.
+async function boot(): Promise<void> {
+  await hydrateFromNative();
 
-// Geliştirme kolaylığı: konsoldan durum incelemek için
-(window as unknown as { __state: unknown }).__state = state;
+  const state = loadGame() ?? newGame(detectLang());
+  setLang(state.settings.lang);
 
-// Motor olayları → görsel/işitsel geri bildirim.
-// Otomatik (manager'lı) üretim/satışta ses çalınmaz; sesler yalnızca
-// oyuncunun kendi başlattığı işlemlerde gelir — aksi halde hızlanan
-// üretim sürekli bip sesine dönüşüyor.
-setEngineEvents({
-  onSale: (id, amount) => {
-    if (!state.lines[id]?.salesManager) sfx.sale();
-    // uçan para: yalnızca Home sekmesinde, o aracın satış barının ucundan
-    saleFloat(id, amount);
-  },
-  onProduce: (id) => {
-    if (!state.lines[id]?.prodManager) sfx.produce();
-  },
-  onAchievement: (id, gems) => {
-    sfx.achievement();
-    toast(t('toast.achievement', { name: t('ach.' + id), gems }), 'gold');
-  },
-  onNewsEvent: (def, extra) => {
-    sfx.news();
-    showNewsEvent(def, extra);
-  },
-  onBankrupt: () => {
-    sfx.error();
-    showBankruptcy();
-  },
-});
+  // Geliştirme kolaylığı: konsoldan durum incelemek için
+  (window as unknown as { __state: unknown }).__state = state;
 
-// Offline ilerleme (açılışta)
-const report = computeOffline(state, Date.now());
+  // Motor olayları → görsel/işitsel geri bildirim.
+  // Otomatik (manager'lı) üretim/satışta ses çalınmaz; sesler yalnızca
+  // oyuncunun kendi başlattığı işlemlerde gelir — aksi halde hızlanan
+  // üretim sürekli bip sesine dönüşüyor.
+  setEngineEvents({
+    onSale: (id, amount) => {
+      if (!state.lines[id]?.salesManager) sfx.sale();
+      // uçan para: yalnızca Home sekmesinde, o aracın satış barının ucundan
+      saleFloat(id, amount);
+    },
+    onProduce: (id) => {
+      if (!state.lines[id]?.prodManager) sfx.produce();
+    },
+    onAchievement: (id, gems) => {
+      sfx.achievement();
+      toast(t('toast.achievement', { name: t('ach.' + id), gems }), 'gold');
+    },
+    onNewsEvent: (def, extra) => {
+      sfx.news();
+      showNewsEvent(def, extra);
+    },
+    onBankrupt: () => {
+      sfx.error();
+      showBankruptcy();
+    },
+  });
 
-initUI(state);
-initTutorial(state);
-if (report) showWelcomeBack(report);
+  // Offline ilerleme (açılışta)
+  const report = computeOffline(state, Date.now());
 
-// Ana döngü: sabit zamanlayıcı (arka planda rAF durduğu için ona bağlanmıyoruz)
-let last = performance.now();
-let saveAcc = 0;
+  initUI(state);
+  initTutorial(state);
+  if (report) showWelcomeBack(report);
 
-function step(): void {
-  const now = performance.now();
-  let dt = (now - last) / 1000;
-  last = now;
-  // Haber popup'ı açıkken oyun duraklatılır — üretim/satış/etki ilerlemez
-  if (isPaused()) {
-    updateFrame(0);
-    return;
-  }
-  // Sekme arka planda uzun kalırsa dev dt gelmesin (offline hesabı ayrı ele alınır)
-  if (dt > 1) dt = 1;
-  if (dt > 0) {
-    tick(state, dt);
-    updateFrame(dt);
-    saveAcc += dt;
-    if (saveAcc >= AUTOSAVE_INTERVAL) {
-      saveAcc = 0;
-      persist();
+  // Ana döngü: sabit zamanlayıcı (arka planda rAF durduğu için ona bağlanmıyoruz)
+  let last = performance.now();
+  let saveAcc = 0;
+
+  function step(): void {
+    const now = performance.now();
+    let dt = (now - last) / 1000;
+    last = now;
+    // Haber popup'ı açıkken oyun duraklatılır — üretim/satış/etki ilerlemez
+    if (isPaused()) {
+      updateFrame(0);
+      return;
+    }
+    // Sekme arka planda uzun kalırsa dev dt gelmesin (offline hesabı ayrı ele alınır)
+    if (dt > 1) dt = 1;
+    if (dt > 0) {
+      tick(state, dt);
+      updateFrame(dt);
+      saveAcc += dt;
+      if (saveAcc >= AUTOSAVE_INTERVAL) {
+        saveAcc = 0;
+        persist();
+      }
     }
   }
+  setInterval(step, 100);
+
+  // Görünürlük değişimlerinde kaydet; geri dönüşte offline hesapla
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      saveGame(state);
+    } else {
+      const rep = computeOffline(state, Date.now());
+      state.lastSeen = Date.now();
+      last = performance.now();
+      if (rep) showWelcomeBack(rep);
+    }
+  });
+
+  window.addEventListener('beforeunload', () => saveGame(state));
+
+  // Başka bir sekmede kayıt sıfırlanırsa bu sekme eski durumu geri yazmasın:
+  // kaydı devre dışı bırak ve baştan başla
+  window.addEventListener('storage', (e) => {
+    if (e.key === SAVE_KEY && e.newValue === null) {
+      resetGame();
+      location.reload();
+    }
+  });
 }
-setInterval(step, 100);
 
-// Görünürlük değişimlerinde kaydet; geri dönüşte offline hesapla
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    saveGame(state);
-  } else {
-    const rep = computeOffline(state, Date.now());
-    state.lastSeen = Date.now();
-    last = performance.now();
-    if (rep) showWelcomeBack(rep);
-  }
-});
-
-window.addEventListener('beforeunload', () => saveGame(state));
-
-// Başka bir sekmede kayıt sıfırlanırsa bu sekme eski durumu geri yazmasın:
-// kaydı devre dışı bırak ve baştan başla
-window.addEventListener('storage', (e) => {
-  if (e.key === SAVE_KEY && e.newValue === null) {
-    resetGame();
-    location.reload();
-  }
-});
+void boot();

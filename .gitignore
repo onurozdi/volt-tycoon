@@ -2,5 +2,13 @@ node_modules/
 dist/
 *.log
 .DS_Store
-ev-tycoon/android/
-ev-tycoon/ios/
+# Native projeler COMMIT edilir (CI/Codemagic için) — yalnızca build çıktıları hariç
+ev-tycoon/android/.gradle/
+ev-tycoon/android/app/build/
+ev-tycoon/android/build/
+ev-tycoon/android/local.properties
+ev-tycoon/ios/App/Pods/
+# İmza anahtarları ASLA depoya girmez
+*.keystore
+*.jks
+keystore.properties
