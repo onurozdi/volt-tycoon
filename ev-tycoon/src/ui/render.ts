@@ -13,8 +13,8 @@ import {
   unlockVehicle, unlockLocation, acceptContract, adFillClaim, adRewardBoost, adRewardGems,
   buyMaterial, buySupplyManager, canTakeLoan, contractDecay, deliverContract,
   doubleOfflineEarnings, gemInstantSell,
-  hasAnyManager, issuerRep, matCap, matPrice, payoffLoan, repayCost, takeLoan,
-  timeWarp, toggleSellPause,
+  hasAnyManager, issuerRep, matCap, matDrainPerMin, matPrice, payoffLoan,
+  repayCost, takeLoan, timeWarp, toggleSellPause,
 } from '../core/engine';
 import type { ContractOffer } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
@@ -259,7 +259,7 @@ function renderHome(c: HTMLElement): void {
   c.appendChild(matStrip);
   const matCells: Array<{ box: HTMLElement; id: string }> = [];
   for (const m of MATERIALS) {
-    const cell = el(`<span class="mat-cell" style="color:${m.accent}">${icon(m.icon)}<b></b></span>`);
+    const cell = el(`<span class="mat-cell" style="color:${m.accent}">${icon(m.icon)}<b></b><small></small></span>`);
     matStrip.appendChild(cell);
     matCells.push({ box: cell, id: m.id });
   }
@@ -277,6 +277,10 @@ function renderHome(c: HTMLElement): void {
     for (const mc of matCells) {
       const have = S.materials[mc.id] ?? 0;
       (mc.box.querySelector('b') as HTMLElement).textContent = fmt(have);
+      // Anlık üretim talebine göre azalma hızı
+      const drain = matDrainPerMin(S, mc.id);
+      (mc.box.querySelector('small') as HTMLElement).textContent =
+        drain > 0 ? `−${drain >= 10 ? fmt(Math.round(drain)) : Math.round(drain * 10) / 10}/${t('ui.minShort')}` : '';
       mc.box.classList.toggle('low', have < cap * 0.05);
     }
   });
@@ -967,7 +971,9 @@ function renderMarket(c: HTMLElement): void {
         const cap = matCap(S);
         const have = S.materials[m.id] ?? 0;
         fillEl.style.width = `${Math.min(100, (have / cap) * 100)}%`;
-        stockLbl.textContent = `${fmt(have)} / ${fmt(cap)}`;
+        const drain = matDrainPerMin(S, m.id);
+        stockLbl.textContent = `${fmt(have)} / ${fmt(cap)}` +
+          (drain > 0 ? ` · −${drain >= 10 ? fmt(Math.round(drain)) : Math.round(drain * 10) / 10}/${t('ui.minShort')}` : '');
         const chunk = Math.max(1, Math.ceil(cap * 0.1));
         b10.textContent = `+${fmt(chunk)} · ${fmtMoney(chunk * p)}`;
         b10.disabled = have >= cap || S.money < p;

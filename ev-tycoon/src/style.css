@@ -535,6 +535,7 @@ html, body {
 .mat-cell { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .mat-cell .icon svg { width: 16px; height: 16px; }
 .mat-cell b { color: var(--text); }
+.mat-cell small { font-size: 9.5px; font-weight: 700; color: var(--text-dim); }
 .mat-cell.low b { color: var(--danger); }
 .mat-cell.low { animation: debt-pulse 1.4s ease-in-out infinite; }
 

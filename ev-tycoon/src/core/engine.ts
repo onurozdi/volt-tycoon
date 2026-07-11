@@ -425,6 +425,21 @@ function autoSupply(s: GameState, vehicleId: string, units: number): void {
   }
 }
 
+/** Anlık üretime bağlı hammadde tüketim hızı (adet/dk) —
+    aktif üreten (veya üretmeye çalışan) tüm hatların talebi */
+export function matDrainPerMin(s: GameState, matId: string): number {
+  let perSec = 0;
+  for (const v of VEHICLES) {
+    const line = s.lines[v.id];
+    if (!line.unlocked) continue;
+    const per = RECIPES[v.id]?.[matId];
+    if (!per) continue;
+    if (!(line.producing || line.prodManager) || line.stock >= stockCap(s, v)) continue;
+    perSec += (per * batchSize(s)) / prodInterval(s, v, line);
+  }
+  return perSec * 60;
+}
+
 /** Fiyat dalgası: geniş bantta yavaş rasgele yürüyüş */
 function tickMatDrift(s: GameState, dt: number): void {
   s.nextMatDrift -= dt;
