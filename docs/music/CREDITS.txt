@@ -1,0 +1,9 @@
+Volt Tycoon — arkaplan müzikleri
+Kaynak: Pixabay (pixabay.com/music) — Pixabay Content License
+Ticari kullanım serbest, isim belirtme zorunlu değil.
+
+track1.mp3 = ikoliks_aj-background-music-320427.mp3
+track2.mp3 = mickeyscat-moment-of-peace-mickeyscat-554494.mp3
+track3.mp3 = grand_project-wonders-of-the-earth-550792.mp3
+
+(Orijinal dosya adları, ileride kaynağı bulmak için saklandı.)
