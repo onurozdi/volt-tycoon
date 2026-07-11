@@ -367,7 +367,7 @@ html, body {
   stroke-width: 11;
   opacity: 0;
   filter: drop-shadow(0 0 7px currentColor);
-  animation: boot-tube 1.35s ease-out forwards;
+  animation: boot-tube 1.7s ease-out forwards;
 }
 /* Dağınık yanma sırası (komşu tüpler ardışık DEĞİL) */
 #boot .boot-on > *:nth-child(1) { animation-delay: 0.30s; }
