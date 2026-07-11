@@ -357,23 +357,43 @@ html, body {
 }
 #boot.out { opacity: 0; pointer-events: none; }
 
-/* Şimşek: her kenar ayrı "floresan tüp" — dağınık sırayla pıtırdayıp yanar */
-#boot .boot-bolt { width: 200px; height: auto; }
-#boot .boot-bolt path { stroke-width: 30; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-#boot .boot-off path { stroke: #13264e; }
-#boot .boot-on path {
-  stroke: url(#bbolt);
+/* Logo: her tüp (harf çizgisi / şimşek kenarı) ayrı floresan lamba.
+   Sönük cam altta hep görünür; tüpler dağınık gecikmelerle pıtırdayıp yanar. */
+#boot .boot-logo { width: 340px; height: auto; }
+#boot .boot-logo path, #boot .boot-logo circle { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+#boot .boot-off path, #boot .boot-off circle { stroke: #13264e; stroke-width: 11; }
+#boot .boot-on path, #boot .boot-on circle {
+  stroke: currentColor;
+  stroke-width: 11;
   opacity: 0;
-  filter: drop-shadow(0 0 9px #7ee87a99);
-  animation: boot-tube 1.5s ease-out forwards;
+  filter: drop-shadow(0 0 7px currentColor);
+  animation: boot-tube 1.35s ease-out forwards;
 }
-/* Kenarlar komşu sırayla DEĞİL, dağınık gecikmelerle yanar */
-#boot .b1 { animation-delay: 0.05s; }
-#boot .b2 { animation-delay: 0.62s; }
-#boot .b3 { animation-delay: 0.24s; }
-#boot .b4 { animation-delay: 0.86s; }
-#boot .b5 { animation-delay: 0.41s; }
-#boot .b6 { animation-delay: 1.05s; }
+/* Dağınık yanma sırası (komşu tüpler ardışık DEĞİL) */
+#boot .boot-on > *:nth-child(1) { animation-delay: 0.30s; }
+#boot .boot-on > *:nth-child(2) { animation-delay: 1.15s; }
+#boot .boot-on > *:nth-child(3) { animation-delay: 0.70s; }
+#boot .boot-on > *:nth-child(4) { animation-delay: 1.50s; }
+#boot .boot-on > *:nth-child(5) { animation-delay: 0.20s; }
+#boot .boot-on > *:nth-child(6) { animation-delay: 0.95s; }
+#boot .boot-on > *:nth-child(7) { animation-delay: 1.80s; }
+#boot .boot-on > *:nth-child(8) { animation-delay: 0.10s; }
+#boot .boot-on > *:nth-child(9) { animation-delay: 0.90s; }
+#boot .boot-on > *:nth-child(10) { animation-delay: 1.60s; }
+#boot .boot-on > *:nth-child(11) { animation-delay: 0.50s; }
+#boot .boot-on > *:nth-child(12) { animation-delay: 2.05s; }
+#boot .boot-on > *:nth-child(13) { animation-delay: 1.30s; }
+#boot .boot-on > *:nth-child(14) { animation-delay: 0.60s; }
+#boot .boot-on > *:nth-child(15) { animation-delay: 1.40s; }
+#boot .boot-on > *:nth-child(16) { animation-delay: 2.15s; }
+#boot .boot-on > *:nth-child(17) { animation-delay: 0.40s; }
+#boot .boot-on > *:nth-child(18) { animation-delay: 1.70s; }
+#boot .boot-on > *:nth-child(19) { animation-delay: 1.00s; }
+#boot .boot-on > *:nth-child(20) { animation-delay: 1.55s; }
+#boot .boot-on > *:nth-child(21) { animation-delay: 0.45s; }
+#boot .boot-on > *:nth-child(22) { animation-delay: 1.25s; }
+#boot .boot-on > *:nth-child(23) { animation-delay: 2.30s; }
+#boot .boot-on > *:nth-child(24) { animation-delay: 0.80s; }
 @keyframes boot-tube {
   0% { opacity: 0; }
   10% { opacity: 0.85; }
@@ -386,50 +406,14 @@ html, body {
   100% { opacity: 1; }
 }
 
-/* İki satır neon tüp yazı */
-#boot .boot-words { text-align: center; position: relative; }
-#boot .boot-w1 {
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: 14px;
-  margin-right: -14px;
-  color: #b5fdea;
-  text-shadow: 0 0 6px #3ef0c8, 0 0 20px #3ef0c8aa, 0 0 38px #3ef0c855;
-  animation: boot-word 1.2s ease-out 0.35s both;
+/* N'nin dibinden sarkan fiş — kendi ekseninde yavaşça sallanır */
+#boot .boot-plug {
+  transform-box: view-box;
+  transform-origin: 535px 300px;
+  animation: boot-swing 1.9s ease-in-out infinite alternate;
 }
-#boot .boot-w2 {
-  display: inline-block;
-  position: relative;
-  font-size: 46px;
-  font-weight: 900;
-  letter-spacing: 8px;
-  margin-right: -8px;
-  color: #ffeebc;
-  text-shadow: 0 0 6px #ffd35e, 0 0 22px #ffd35eaa, 0 0 40px #ffd35e55;
-  animation: boot-word 1.2s ease-out 0.75s both;
-}
-@keyframes boot-word {
-  0% { opacity: 0; }
-  12% { opacity: 0.8; }
-  16% { opacity: 0.1; }
-  30% { opacity: 0.9; }
-  36% { opacity: 0.2; }
-  50% { opacity: 1; }
-  100% { opacity: 1; }
-}
-
-/* TYCOON'un N'sinden sarkan, sallanan fiş */
-#boot .boot-cable {
-  position: absolute;
-  right: -20px;
-  top: 60%;
-  width: 52px;
-  height: 158px;
-  transform-origin: 50% 0;
-  animation: boot-swing 1.6s ease-in-out infinite alternate;
-}
-@keyframes boot-swing { from { transform: rotate(-11deg); } to { transform: rotate(11deg); } }
-#boot .boot-led { animation: scn-blink 1s ease-in-out infinite; }
+@keyframes boot-swing { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+#boot .boot-led { animation: scn-blink 1.1s ease-in-out infinite; }
 
 #boot .boot-sub {
   position: absolute;
@@ -445,11 +429,7 @@ html, body {
 
 /* Tablette ortalanmış ve daha büyük */
 @media (min-width: 640px) {
-  #boot { gap: 42px; }
-  #boot .boot-bolt { width: 280px; }
-  #boot .boot-w1 { font-size: 44px; letter-spacing: 20px; margin-right: -20px; }
-  #boot .boot-w2 { font-size: 66px; letter-spacing: 12px; margin-right: -12px; }
-  #boot .boot-cable { right: -26px; width: 62px; height: 190px; }
+  #boot .boot-logo { width: 500px; }
 }
 
 /* ============ Görsel tesis sahnesi (panorama) ============ */

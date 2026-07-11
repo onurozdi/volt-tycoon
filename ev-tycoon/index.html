@@ -8,43 +8,62 @@
     <title>Volt Tycoon</title>
   </head>
   <body>
-    <!-- Açılış: şimşeğin her kenarı ayrı floresan lamba gibi dağınık sırayla
-         pıtırdayarak yanar; TYCOON'un N'sinden sallanan fiş sarkar -->
+    <!-- Açılış: logonun HER tüpü (harf çizgileri + şimşek kenarları) ayrı
+         floresan lamba gibi dağınık sırayla pıtırdayarak yanar;
+         fiş, N'nin dibinden kısa kabloyla sarkıp sallanır -->
     <div id="boot">
-      <svg class="boot-bolt" viewBox="320 160 400 710" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="bbolt" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#3ef0c8"/>
-            <stop offset="55%" stop-color="#7ee87a"/>
-            <stop offset="100%" stop-color="#c8f43e"/>
-          </linearGradient>
-        </defs>
+      <svg class="boot-logo" viewBox="20 0 580 420" xmlns="http://www.w3.org/2000/svg">
         <g class="boot-off">
-          <path d="M566 200 L360 560"/><path d="M360 560 L490 560"/>
-          <path d="M490 560 L458 824"/><path d="M458 824 L676 452"/>
-          <path d="M676 452 L542 452"/><path d="M542 452 L566 200"/>
+          <path d="M60 40 L85 140"/><path d="M110 40 L85 140"/>
+          <circle cx="165" cy="90" r="48"/>
+          <path d="M235 40 V140"/><path d="M235 140 H285"/>
+          <path d="M305 40 H380"/><path d="M342 45 V140"/>
+          <path d="M499 10 L450 96"/><path d="M450 96 H481"/>
+          <path d="M481 96 L474 160"/><path d="M474 160 L526 71"/>
+          <path d="M526 71 H494"/><path d="M494 71 L499 10"/>
+          <path d="M20 185 H95"/><path d="M57 190 V300"/>
+          <path d="M110 185 L140 242"/><path d="M170 185 L140 242"/><path d="M140 242 V300"/>
+          <path d="M262 202 A55 55 0 1 0 262 282"/>
+          <circle cx="305" cy="242" r="57"/>
+          <circle cx="388" cy="242" r="57"/>
+          <path d="M465 300 V185"/><path d="M465 185 L535 300"/><path d="M535 300 V185"/>
         </g>
         <g class="boot-on">
-          <path class="bseg b1" d="M566 200 L360 560"/>
-          <path class="bseg b2" d="M360 560 L490 560"/>
-          <path class="bseg b3" d="M490 560 L458 824"/>
-          <path class="bseg b4" d="M458 824 L676 452"/>
-          <path class="bseg b5" d="M676 452 L542 452"/>
-          <path class="bseg b6" d="M542 452 L566 200"/>
+          <path style="color:#35b6ff" d="M60 40 L85 140"/>
+          <path style="color:#35b6ff" d="M110 40 L85 140"/>
+          <circle style="color:#35e0ff" cx="165" cy="90" r="48"/>
+          <path style="color:#2f9fe8" d="M235 40 V140"/>
+          <path style="color:#2f9fe8" d="M235 140 H285"/>
+          <path style="color:#45c8ff" d="M305 40 H380"/>
+          <path style="color:#45c8ff" d="M342 45 V140"/>
+          <path style="color:#ffd35e" d="M499 10 L450 96"/>
+          <path style="color:#ffc63c" d="M450 96 H481"/>
+          <path style="color:#ffd35e" d="M481 96 L474 160"/>
+          <path style="color:#ffc63c" d="M474 160 L526 71"/>
+          <path style="color:#ffd35e" d="M526 71 H494"/>
+          <path style="color:#ffc63c" d="M494 71 L499 10"/>
+          <path style="color:#35d0ff" d="M20 185 H95"/>
+          <path style="color:#35d0ff" d="M57 190 V300"/>
+          <path style="color:#2f9fe8" d="M110 185 L140 242"/>
+          <path style="color:#2f9fe8" d="M170 185 L140 242"/>
+          <path style="color:#2f9fe8" d="M140 242 V300"/>
+          <path style="color:#1f6fd0" d="M262 202 A55 55 0 1 0 262 282"/>
+          <circle style="color:#35e0ff" cx="305" cy="242" r="57"/>
+          <circle style="color:#35b6ff" cx="388" cy="242" r="57"/>
+          <path style="color:#45c8ff" d="M465 300 V185"/>
+          <path style="color:#45c8ff" d="M465 185 L535 300"/>
+          <path style="color:#45c8ff" d="M535 300 V185"/>
+        </g>
+        <g class="boot-plug">
+          <path d="M535 300 C537 322 531 344 535 360" stroke="#22406e" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <g transform="translate(535 360)">
+            <rect x="-11" y="0" width="22" height="26" rx="5" fill="#0e1c3e" stroke="#35e0ff" stroke-width="2.2"/>
+            <circle cx="0" cy="10" r="3" fill="#35e0ff" class="boot-led"/>
+            <rect x="-7.5" y="26" width="5" height="11" rx="2" fill="#ffd35e"/>
+            <rect x="2.5" y="26" width="5" height="11" rx="2" fill="#ffd35e"/>
+          </g>
         </g>
       </svg>
-      <div class="boot-words">
-        <div class="boot-w1">VOLT</div>
-        <div class="boot-w2">TYCOON<svg class="boot-cable" viewBox="-28 0 56 170" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 0 C 2 38 -3 78 0 116" stroke="#22406e" stroke-width="4" fill="none" stroke-linecap="round"/>
-          <g transform="translate(0 116)">
-            <rect x="-10" y="0" width="20" height="26" rx="5" fill="#0e1c3e" stroke="#35e0ff" stroke-width="2"/>
-            <circle cx="0" cy="10" r="3" fill="#35e0ff" class="boot-led"/>
-            <rect x="-6.5" y="26" width="4.5" height="11" rx="2" fill="#ffd35e"/>
-            <rect x="2" y="26" width="4.5" height="11" rx="2" fill="#ffd35e"/>
-          </g>
-        </svg></div>
-      </div>
       <div class="boot-sub">POCKETFORGE GAMES</div>
     </div>
     <div id="app">

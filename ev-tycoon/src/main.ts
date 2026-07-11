@@ -74,8 +74,8 @@ async function boot(): Promise<void> {
       bootEl.classList.add('out');
       setTimeout(() => bootEl.remove(), 450);
     };
-    // Floresan yanış dizisi ~2.2sn'de tamamlanır — bitmesine izin ver
-    setTimeout(closeBoot, Math.max(0, 2500 - performance.now()));
+    // Floresan yanış dizisi ~3.7sn'de tamamlanır — bitmesine izin ver
+    setTimeout(closeBoot, Math.max(0, 4200 - performance.now()));
     bootEl.addEventListener('pointerdown', closeBoot, { once: true });
   }
 
