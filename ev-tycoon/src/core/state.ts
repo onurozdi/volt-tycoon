@@ -65,6 +65,9 @@ export interface GameState {
   materials: Record<string, number>;
   /** hammadde fiyat çarpanları (dalgalı piyasa): id -> 0.55..1.75 */
   matMult: Record<string, number>;
+  /** depodaki hammaddenin ağırlıklı ortalama alış maliyeti (birim başına $) —
+      üretim tüketince araç gideri (line.spent) bu değerden yazılır */
+  matAvgCost: Record<string, number>;
   /** bir sonraki fiyat dalgalanma adımına kalan sn */
   nextMatDrift: number;
   /** Tedarik Müdürü: depo azalınca +%10 primle otomatik alım */
@@ -136,6 +139,7 @@ export function newGame(lang: Lang): GameState {
     nextContractIn: 240, // ilk teklif ~4. dakikada
     materials: { steel: 60, aluminum: 0, chip: 0, lithium: 0 },
     matMult: { steel: 1, aluminum: 1, chip: 1, lithium: 1 },
+    matAvgCost: { steel: 2, aluminum: 6, chip: 20, lithium: 50 },
     nextMatDrift: 20,
     supplyManager: false,
     debtTimer: 0,
@@ -229,6 +233,7 @@ export function loadGame(): GameState | null {
     // mevcut hatlar anında durmasın (oyuncu sistemi tanıyana kadar yeter)
     if (!s.materials) s.materials = { steel: 500, aluminum: 200, chip: 60, lithium: 20 };
     if (!s.matMult) s.matMult = { steel: 1, aluminum: 1, chip: 1, lithium: 1 };
+    if (!s.matAvgCost) s.matAvgCost = { steel: 2, aluminum: 6, chip: 20, lithium: 50 };
     if (typeof s.nextMatDrift !== 'number') s.nextMatDrift = 20;
     if (typeof s.supplyManager !== 'boolean') s.supplyManager = false;
     for (const v of VEHICLES) {

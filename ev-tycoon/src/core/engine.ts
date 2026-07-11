@@ -361,6 +361,14 @@ export function matCap(s: GameState): number {
   return cap;
 }
 
+/** Depo ortalama alış maliyetini güncelle (ağırlıklı ortalama) —
+    araç gideri tüketim anında bu değerden yazılır */
+function updateAvgCost(s: GameState, matId: string, addUnits: number, unitPrice: number): void {
+  const have = s.materials[matId] ?? 0;
+  const avg = s.matAvgCost[matId] ?? unitPrice;
+  s.matAvgCost[matId] = (have * avg + addUnits * unitPrice) / (have + addUnits);
+}
+
 /** Hammadde satın al; alınan adet döner (para/kapasiteye göre kırpılır) */
 export function buyMaterial(s: GameState, matId: string, units: number): number {
   if (s.money < 0) return 0; // eksi bakiyede satın alma yok (banka kuralı)
@@ -371,6 +379,7 @@ export function buyMaterial(s: GameState, matId: string, units: number): number 
   const cost = n * price;
   s.money -= cost;
   s.stats.totalSpent += cost;
+  updateAvgCost(s, matId, n, price);
   s.materials[matId] = (s.materials[matId] ?? 0) + n;
   return n;
 }
@@ -394,13 +403,19 @@ function unitsCraftable(s: GameState, vehicleId: string, want: number): number {
   return n;
 }
 
-/** Üretilen birimlerin hammaddesini depodan düş */
+/** Üretilen birimlerin hammaddesini depodan düş; maliyeti (ortalama alış
+    fiyatından) o aracın giderine yaz — araç başı kâr/zarar dürüst kalır */
 function consumeMaterials(s: GameState, vehicleId: string, units: number): void {
   const recipe = RECIPES[vehicleId];
   if (!recipe || units <= 0) return;
+  let cost = 0;
   for (const [mat, per] of Object.entries(recipe)) {
-    s.materials[mat] = Math.max(0, (s.materials[mat] ?? 0) - per * units);
+    const used = per * units;
+    s.materials[mat] = Math.max(0, (s.materials[mat] ?? 0) - used);
+    cost += used * (s.matAvgCost[mat] ?? 0);
   }
+  const line = s.lines[vehicleId];
+  if (line) line.spent += cost;
 }
 
 /** Tedarik Müdürü: TAM ZAMANINDA alım — üretim başlarken yalnızca o
@@ -420,6 +435,7 @@ function autoSupply(s: GameState, vehicleId: string, units: number): void {
     const cost = n * price;
     s.money -= cost;
     s.stats.totalSpent += cost;
+    updateAvgCost(s, mat, n, price);
     s.materials[mat] = have + n;
   }
 }
@@ -810,14 +826,23 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
     const lineProduced = Math.floor(Math.max(0, Math.min(rawProduced, lineSold + cap - line.stock)));
     if (recipe && lineProduced > 0) {
       if (s.supplyManager) {
+        // depodan kullanılan ortalama maliyetten, satın alınan primli fiyattan
+        // araç giderine yazılır (araç başı kâr/zarar dürüst kalır)
+        let lineMat = 0;
         for (const [mat, per] of Object.entries(recipe)) {
           const need = per * lineProduced;
           const have = s.materials[mat] ?? 0;
           const fromDepot = Math.min(have, need);
           s.materials[mat] = have - fromDepot;
+          lineMat += fromDepot * (s.matAvgCost[mat] ?? 0);
           const bought = need - fromDepot;
-          if (bought > 0) matCost += bought * Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+          if (bought > 0) {
+            const c = bought * Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+            matCost += c;
+            lineMat += c;
+          }
         }
+        line.spent += lineMat;
       } else {
         consumeMaterials(s, v.id, lineProduced);
       }
@@ -902,14 +927,23 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
     // Hammadde tüketimi: önce depo, müdür varsa kalan +%10 primle alınır
     if (recipe && lineProduced > 0) {
       if (s.supplyManager) {
+        // depodan kullanılan ortalama maliyetten, satın alınan primli fiyattan
+        // araç giderine yazılır (araç başı kâr/zarar dürüst kalır)
+        let lineMat = 0;
         for (const [mat, per] of Object.entries(recipe)) {
           const need = per * lineProduced;
           const have = s.materials[mat] ?? 0;
           const fromDepot = Math.min(have, need);
           s.materials[mat] = have - fromDepot;
+          lineMat += fromDepot * (s.matAvgCost[mat] ?? 0);
           const bought = need - fromDepot;
-          if (bought > 0) matCost += bought * Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+          if (bought > 0) {
+            const c = bought * Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+            matCost += c;
+            lineMat += c;
+          }
         }
+        line.spent += lineMat;
       } else {
         consumeMaterials(s, v.id, lineProduced);
       }
