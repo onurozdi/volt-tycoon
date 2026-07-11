@@ -410,8 +410,9 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: 'allVehicles', gems: 10, check: (s) => Object.values(s.lines).every((l) => l.unlocked) },
 ];
 
-// Haber havuzu — mekân katmanına bağlı (GDD 9: mekân büyüdükçe ciddileşir).
-// locationId: o mekân açık olmalı. vehicleId: o araç açık olmalı.
+// Haber havuzu — FAZ sistemi (GDD 9): kayan bant her zaman açık olan
+// EN BÜYÜK tesisin düzleminden beslenir; alt fazların haberleri havuzdan
+// çıkar. locationId: fazı belirler. vehicleId: o araç açık olmalı.
 export interface NewsDef {
   key: string;
   locationId: string;
@@ -426,6 +427,8 @@ export const NEWS: NewsDef[] = [
   { key: 'news.g4', locationId: 'garage', vehicleId: null },
   { key: 'news.g5', locationId: 'garage', vehicleId: null },
   { key: 'news.g6', locationId: 'garage', vehicleId: null },
+  { key: 'news.g7', locationId: 'garage', vehicleId: null },
+  { key: 'news.g8', locationId: 'garage', vehicleId: null },
   { key: 'news.zipvolt1', locationId: 'garage', vehicleId: 'zipvolt' },
   { key: 'news.zipvolt2', locationId: 'garage', vehicleId: 'zipvolt' },
   { key: 'news.voltrider1', locationId: 'garage', vehicleId: 'voltrider' },
@@ -438,6 +441,10 @@ export const NEWS: NewsDef[] = [
   { key: 'news.w3', locationId: 'workshop', vehicleId: null },
   { key: 'news.w4', locationId: 'workshop', vehicleId: null },
   { key: 'news.w5', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w6', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w7', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w8', locationId: 'workshop', vehicleId: null },
+  { key: 'news.w9', locationId: 'workshop', vehicleId: null },
   { key: 'news.trihauler1', locationId: 'workshop', vehicleId: 'trihauler' },
   { key: 'news.fairwaygo1', locationId: 'workshop', vehicleId: 'fairwaygo' },
   { key: 'news.citypod1', locationId: 'workshop', vehicleId: 'citypod' },
@@ -446,11 +453,27 @@ export const NEWS: NewsDef[] = [
   { key: 'news.f2', locationId: 'factory', vehicleId: null },
   { key: 'news.f3', locationId: 'factory', vehicleId: null },
   { key: 'news.f4', locationId: 'factory', vehicleId: null },
+  { key: 'news.f5', locationId: 'factory', vehicleId: null },
+  { key: 'news.f6', locationId: 'factory', vehicleId: null },
+  { key: 'news.f7', locationId: 'factory', vehicleId: null },
+  { key: 'news.f8', locationId: 'factory', vehicleId: null },
+  { key: 'news.f9', locationId: 'factory', vehicleId: null },
+  { key: 'news.volterra1', locationId: 'factory', vehicleId: 'volterra' },
+  { key: 'news.terravolt1', locationId: 'factory', vehicleId: 'terravolt' },
+  { key: 'news.haulen1', locationId: 'factory', vehicleId: 'haulen' },
   // Katman 4 — Gigafactory: kurumsal parodi (telifsiz)
   { key: 'news.x1', locationId: 'gigafactory', vehicleId: null },
   { key: 'news.x2', locationId: 'gigafactory', vehicleId: null },
   { key: 'news.x3', locationId: 'gigafactory', vehicleId: null },
   { key: 'news.x4', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x5', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x6', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x7', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x8', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.x9', locationId: 'gigafactory', vehicleId: null },
+  { key: 'news.voltvan1', locationId: 'gigafactory', vehicleId: 'voltvan' },
+  { key: 'news.colossus1', locationId: 'gigafactory', vehicleId: 'colossus' },
+  { key: 'news.transitron1', locationId: 'gigafactory', vehicleId: 'transitron' },
 ];
 
 // ---- Haber olayları (popup + geçici oynanış etkisi) ----

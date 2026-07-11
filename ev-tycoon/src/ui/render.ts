@@ -1102,8 +1102,12 @@ function renderSettings(c: HTMLElement): void {
 
 export function rotateNews(immediate = false): void {
   const box = $('#ticker');
+  // FAZ sistemi: bant, açık olan EN BÜYÜK tesisin düzleminden beslenir —
+  // gigafactory döneminde artık mahalle haberi dönmez
+  let tier = LOCATIONS[0].id;
+  for (const l of LOCATIONS) if (S.locations[l.id]) tier = l.id;
   const pool = NEWS.filter(
-    (n) => S.locations[n.locationId] && (n.vehicleId === null || S.lines[n.vehicleId]?.unlocked),
+    (n) => n.locationId === tier && (n.vehicleId === null || S.lines[n.vehicleId]?.unlocked),
   );
   const pick = pool[Math.floor(Math.random() * pool.length)];
   box.innerHTML = `<span class="tk-badge">EV NEWS</span><span class="tk-wrap"><span class="tk-text">${t(pick.key)}</span></span>`;

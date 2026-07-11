@@ -214,7 +214,7 @@ Her haber ve haber olayı bir **mekân katmanına** bağlıdır; yalnızca o mek
 | 3 | Factory (ileride) | Sektörel, görece ciddi — tedarik zinciri, ihracat, borsa | "Çeyrek raporu beklentileri aştı." |
 | 4–5 | Global (ileride) | Kurumsal parodi — Tesla/Musk *benzeri* ama telifsiz parodi isimler | "Rakip CEO 'Peron Tusk' roketle işe gitti." |
 
-Alt katman haberleri havuzdan çıkmaz (mahalle esprisi hep tatlı kalır) ama üst katmanlar açıldıkça havuz ciddileşen içerikle genişler. Gerçek kişi/marka adı KULLANILMAZ — mağaza güvenliği için parodi adlar.
+**Faz kuralı (kayan bant):** Bant her zaman açık olan **en büyük tesisin düzleminden** beslenir — gigafactory döneminde artık mahalle haberi dönmez; şirket büyüdükçe dünyası da büyür. Her fazın havuzu ~10-12 haberdir (jenerik + o fazın araçlarına özel). Popup olayları ise katman-BİRİKİMLİ kalır (garaj hediyeleri hep gelebilir — mekanik çeşitlilik için bilinçli fark). Gerçek kişi/marka adı KULLANILMAZ — mağaza güvenliği için parodi adlar.
 
 **b) Haber olayları (popup):** Seyrek aralıklarla (4–7 dakikada bir, rastgele) ekrana "SON DAKİKA" popup'ı çıkar ve **geçici bir oynanış etkisi** uygular. Kurallar:
 
