@@ -976,8 +976,11 @@ function renderMarket(c: HTMLElement): void {
         const have = S.materials[m.id] ?? 0;
         fillEl.style.width = `${Math.min(100, (have / cap) * 100)}%`;
         const drain = matDrainPerMin(S, m.id);
-        stockLbl.textContent = `${fmt(have)} / ${fmt(cap)}` +
-          (drain > 0 ? ` · −${drain >= 10 ? fmt(Math.round(drain)) : Math.round(drain * 10) / 10}/${t('ui.minShort')}` : '');
+        const drainTxt = drain > 0 ? ` · −${drain >= 10 ? fmt(Math.round(drain)) : Math.round(drain * 10) / 10}/${t('ui.minShort')}` : '';
+        // Dar ekranda kapasiteyi gösterme — doluluk zaten barın kendisinde
+        stockLbl.textContent = window.innerWidth <= 400
+          ? `${fmt(have)}${drainTxt}`
+          : `${fmt(have)} / ${fmt(cap)}${drainTxt}`;
         const chunk = Math.max(1, Math.ceil(cap * 0.1));
         b10.textContent = `+${fmt(chunk)} · ${fmtMoney(chunk * p)}`;
         b10.disabled = have >= cap || S.money < p;

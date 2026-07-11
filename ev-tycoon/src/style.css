@@ -569,11 +569,12 @@ html, body {
 .mat-row .mat-price { text-align: right; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .mat-row .mat-price.up { color: var(--danger); }
 .mat-row .mat-price.down { color: var(--lime); }
-.mat-row .mat-ctrl { display: flex; align-items: center; gap: 8px; }
+/* Sabit kolonlar: bar | parti düğmesi | doldur — tüm barlar aynı hizada biter */
+.mat-row .mat-ctrl { display: grid; grid-template-columns: 1fr 126px 84px; align-items: center; gap: 6px; }
+.mat-row .mat-btns { display: contents; }
 .mat-row .mat-stockbar {
   position: relative;
-  flex: 1 1 60px;
-  min-width: 54px;
+  min-width: 0;
   height: 26px;
   background: #0a1430;
   border: 1px solid var(--line);
@@ -582,8 +583,19 @@ html, body {
 }
 .mat-row .mat-stockbar .fill { position: absolute; inset: 0; width: 0; opacity: 0.35; transition: width 0.3s ease; }
 .mat-row .mat-stockbar b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums; padding: 0 6px; overflow: hidden; white-space: nowrap; }
-.mat-row .mat-btns { display: flex; gap: 6px; flex: none; }
-.mat-row .mat-btns .btn { padding: 6px 11px; font-size: 11px; white-space: nowrap; overflow: visible; width: auto; }
+.mat-row .mat-btns .btn {
+  width: 100%;
+  padding: 6px 4px;
+  font-size: 10.5px;
+  white-space: nowrap;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 400px) {
+  .mat-row .mat-ctrl { grid-template-columns: 1fr 112px 74px; }
+  .mat-row .mat-btns .btn { font-size: 10px; }
+}
 /* Parti alım düğmesi: koyu ama açıkça düğme — cyan çerçeve + parıltı */
 .btn.btn-supply {
   background: linear-gradient(180deg, #123152, #0c2038);
