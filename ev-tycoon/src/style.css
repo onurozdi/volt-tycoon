@@ -539,12 +539,17 @@ html, body {
 .mat-cell.low b { color: var(--danger); }
 .mat-cell.low { animation: debt-pulse 1.4s ease-in-out infinite; }
 
-/* Araç kartındaki reçete satırı */
+/* Araç kartındaki reçete satırı — düğmeden ayrık, hafif zeminli bilgi şeridi */
 .recipe {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 10px;
-  margin: -2px 0 6px;
+  margin: 5px 0 9px;
+  padding: 3px 9px;
+  background: #0a143088;
+  border: 1px solid #1a2a5588;
+  border-radius: 9px;
   font-size: 10.5px;
   font-weight: 700;
   color: var(--text-dim);
