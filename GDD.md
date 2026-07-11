@@ -287,13 +287,12 @@ Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme 
 
 Tasarım amacı: oto-satış konforuna karşı "biriktir ve topluca sat" kararı; kötü teklifleri reddetmeyi öğrenmek de oyunun parçası.
 
-## 9e. İzometrik Tesis Arkaplanı + Şirket Adı
+## 9e. Görsel Tesis Sahnesi (Panorama) + Şirket Adı
 
-Home içeriğinin **arkasında**, Egg Inc. esintili **izometrik low-poly** tesis görseli durur (Neon Tech paleti: koyu yüzeyler — üst açık/sol orta/sağ koyu iso ışıklandırması — + tesise özgü neon kontur). Her zaman **en büyük açık tesis** çizilir: garaj (cyan) → atölye testere çatı (lime) → fabrika bacaları (altın) → gigafactory çift katlı dev platform + yanıp sönen ikaz (mor).
+Home'un en tepesinde **sabit 96px yükseklikte SVG panorama** (Neon Tech: koyu gövde + tesise özgü neon kontur). Açılan tesisle soldan sağa büyür: garaj (cyan) → atölye testere çatı (lime) → fabrika bacaları (altın) → gigafactory + yanıp sönen ikaz ışığı (mor). Sıradaki kilitli tesis **soluk kesikli siluet + "?"** olarak görünür (merak unsuru); tesis büyüdükçe gökyüzünde yıldız artar. Yükseklik sabit: sayfa düzeni asla oynamaz.
 
-- **Okunabilirlik önce gelir:** görsel soluk tutulur (%55 opaklık + kenar/alt vinyet), kartlar ~%90 opak — hiçbir rakam arkaplanla karışmaz.
-- **Parallax:** Home kaydırıldıkça arkaplan 0,25× hızla kayar (derinlik hissi). Diğer sekmelerde arkaplan yumuşakça kaybolur.
-- **Şirket adı:** ilk açılışta popup sorar ("Her efsane bir adla başlar…", 18 karakter), Ayarlar'dan değiştirilebilir; tesisin üstünde **neon altın tabela** olarak yazar. Boş bırakılırsa "Volt Motors".
+- **Şirket adı:** ilk açılışta popup sorar ("Her efsane bir adla başlar…", 18 karakter), Ayarlar'dan değiştirilebilir; panoramanın **sol üstünde neon altın tabela** olarak yazar. Boş bırakılırsa "Volt Motors".
+- Not: Egg Inc. tarzı "içeriğin arkasında izometrik tesis + yarı saydam kartlar" denendi ve **geri alındı** — kart yoğun arayüzde içerik görseli kapatıyor, okunabilirlik/etki dengesi tutmuyor (11.07.2026).
 
 **Kilometre taşı detayları** — kazanılan başarımlar sahneye kalıcı minik objeler ekler (oyuncunun hikâyesi birikir):
 

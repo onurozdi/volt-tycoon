@@ -26,7 +26,7 @@ import type { Lang } from '../i18n';
 import { showRewardedAd } from './ads';
 import { icon } from './art';
 import { initMusic, setMusicEnabled, setSoundEnabled, sfx } from './audio';
-import { isoSVG, isoSignature } from './isobg';
+import { sceneSVG, sceneSignature } from './scene';
 import { createTimeline } from './timeline';
 
 export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 'settings';
@@ -42,25 +42,10 @@ export function initUI(state: GameState): void {
   S = state;
   setSoundEnabled(S.settings.sound);
   initMusic(S.settings.music);
-  ensureIsoBg();
   renderHUD();
   renderTabbar();
   renderTab(currentTab);
   rotateNews(true);
-}
-
-/** İzometrik arkaplan katmanı: içeriğin arkasında durur, kaydırmayla
-    yavaş parallax yapar (0.25×). Yalnızca Home'da görünür (renderTab). */
-function ensureIsoBg(): void {
-  if (document.getElementById('isobg')) return;
-  const bg = el(`<div id="isobg"><div class="iso-wrap"><div class="iso-art"></div></div></div>`);
-  const app = document.getElementById('app') as HTMLElement;
-  app.insertBefore(bg, app.firstChild);
-  const wrap = bg.querySelector('.iso-wrap') as HTMLElement;
-  const content = $('#content');
-  content.addEventListener('scroll', () => {
-    wrap.style.transform = `translateY(${-content.scrollTop * 0.25}px)`;
-  }, { passive: true });
 }
 
 /** Şirket adı popup'ı — ilk açılışta ve Ayarlar'dan düzenlemede kullanılır */
@@ -82,8 +67,6 @@ export function showCompanyPrompt(done?: () => void): void {
   inp.value = S.companyName;
   const confirm = (): void => {
     S.companyName = inp.value.trim().slice(0, 18) || t('company.ph');
-    const co = document.querySelector('.hud-co');
-    if (co) co.textContent = S.companyName;
     persist();
     overlay.remove();
     setPaused(false);
@@ -169,10 +152,7 @@ function lineIncomeRate(vehicleIndex: number): number | null {
 function renderHUD(): void {
   const hud = $('#hud');
   hud.innerHTML = '';
-  // Üst bar oyuncunun şirketini taşır (kişiselleştirme); ad yoksa oyun adı
-  const brand = el(`<div class="hud-brand">${icon('bolt')}<span class="hud-co"></span>${icon('bolt')}</div>`);
-  (brand.querySelector('.hud-co') as HTMLElement).textContent = S.companyName || 'VOLT TYCOON';
-  hud.appendChild(brand);
+  hud.appendChild(el(`<div class="hud-brand">${icon('bolt')}<span>VOLT TYCOON</span>${icon('bolt')}</div>`));
   const row = el(`<div class="hud-stats"></div>`);
   hud.appendChild(row);
   row.appendChild(el(`<div class="hud-stat hud-money">
@@ -234,8 +214,6 @@ function renderTab(tab: Tab): void {
   const c = $('#content');
   c.innerHTML = '';
   c.scrollTop = 0;
-  // İzometrik arkaplan yalnızca Home'da görünür
-  document.getElementById('isobg')?.classList.toggle('on', tab === 'home');
   if (tab === 'home') renderHome(c);
   else if (tab === 'research') renderResearch(c);
   else if (tab === 'stats') renderStats(c);
@@ -248,16 +226,19 @@ function renderTab(tab: Tab): void {
 // ---------- HOME ----------
 
 function renderHome(c: HTMLElement): void {
-  // İzometrik arkaplan: güncel tesis + kilometre taşı detayları + şirket tabelası
-  let lastIso = '';
+  // Görsel tesis sahnesi — açılan tesisle büyüyen panorama (sabit yükseklik);
+  // sol üstte oyuncunun şirket adı neon tabela olarak yazar
+  const scene = el(`<div class="scene"><div class="scene-art"></div><div class="scene-sign"></div></div>`);
+  c.appendChild(scene);
+  const scnArt = scene.querySelector('.scene-art') as HTMLElement;
+  const scnSign = scene.querySelector('.scene-sign') as HTMLElement;
+  let lastScn = '';
   updaters.push(() => {
-    const k = isoSignature(S);
-    if (k !== lastIso) {
-      lastIso = k;
-      const art = document.querySelector('#isobg .iso-art');
-      if (art) art.innerHTML = isoSVG(S);
-      const co = document.querySelector('.hud-co');
-      if (co) co.textContent = S.companyName || 'VOLT TYCOON';
+    const k = sceneSignature(S) + ':' + S.companyName;
+    if (k !== lastScn) {
+      lastScn = k;
+      scnArt.innerHTML = sceneSVG(S);
+      scnSign.textContent = S.companyName;
     }
   });
 
