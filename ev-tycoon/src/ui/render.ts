@@ -521,10 +521,14 @@ function vehicleCard(id: string): HTMLElement {
     capEl.textContent = `/ ${cap}`;
     stockBox.classList.toggle('full', line.stock >= cap);
 
-    // Hız sayaçları: dakikada kaç araç üretilir/satılır
+    // Hız sayaçları: dakikada kaç araç üretilir/satılır.
+    // Parti üretimi varsa ×N rozeti göster — bar döngüsü N araç birden
+    // üretir; satış barı tek tek sattığı için daha sık döner (bug değil)
     const pIntNow = prodInterval(S, v, line);
     const sIntNow = sellInterval(S, v, line);
-    prodRate.textContent = t('ui.perMin', { n: fmtRate((60 / pIntNow) * batchSize(S)) });
+    const batch = batchSize(S);
+    prodRate.textContent =
+      (batch > 1 ? `×${batch} · ` : '') + t('ui.perMin', { n: fmtRate((60 / pIntNow) * batch) });
     sellRate.textContent = t('ui.perMin', { n: fmtRate(60 / sIntNow) });
 
     // Üretim
