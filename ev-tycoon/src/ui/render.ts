@@ -53,7 +53,7 @@ export function initUI(state: GameState): void {
     yavaş parallax yapar (0.25×). Yalnızca Home'da görünür (renderTab). */
 function ensureIsoBg(): void {
   if (document.getElementById('isobg')) return;
-  const bg = el(`<div id="isobg"><div class="iso-wrap"><div class="iso-sign"></div><div class="iso-art"></div></div></div>`);
+  const bg = el(`<div id="isobg"><div class="iso-wrap"><div class="iso-art"></div></div></div>`);
   const app = document.getElementById('app') as HTMLElement;
   app.insertBefore(bg, app.firstChild);
   const wrap = bg.querySelector('.iso-wrap') as HTMLElement;
@@ -82,6 +82,8 @@ export function showCompanyPrompt(done?: () => void): void {
   inp.value = S.companyName;
   const confirm = (): void => {
     S.companyName = inp.value.trim().slice(0, 18) || t('company.ph');
+    const co = document.querySelector('.hud-co');
+    if (co) co.textContent = S.companyName;
     persist();
     overlay.remove();
     setPaused(false);
@@ -167,7 +169,10 @@ function lineIncomeRate(vehicleIndex: number): number | null {
 function renderHUD(): void {
   const hud = $('#hud');
   hud.innerHTML = '';
-  hud.appendChild(el(`<div class="hud-brand">${icon('bolt')}<span>VOLT TYCOON</span>${icon('bolt')}</div>`));
+  // Üst bar oyuncunun şirketini taşır (kişiselleştirme); ad yoksa oyun adı
+  const brand = el(`<div class="hud-brand">${icon('bolt')}<span class="hud-co"></span>${icon('bolt')}</div>`);
+  (brand.querySelector('.hud-co') as HTMLElement).textContent = S.companyName || 'VOLT TYCOON';
+  hud.appendChild(brand);
   const row = el(`<div class="hud-stats"></div>`);
   hud.appendChild(row);
   row.appendChild(el(`<div class="hud-stat hud-money">
@@ -250,9 +255,9 @@ function renderHome(c: HTMLElement): void {
     if (k !== lastIso) {
       lastIso = k;
       const art = document.querySelector('#isobg .iso-art');
-      const sign = document.querySelector('#isobg .iso-sign');
       if (art) art.innerHTML = isoSVG(S);
-      if (sign) sign.textContent = S.companyName || 'VOLT TYCOON';
+      const co = document.querySelector('.hud-co');
+      if (co) co.textContent = S.companyName || 'VOLT TYCOON';
     }
   });
 

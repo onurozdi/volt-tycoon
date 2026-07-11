@@ -4,7 +4,7 @@
   --bg-0: #060b1d;
   --bg-1: #0a1128;
   --bg-2: #0f1a3d;
-  --panel: #101b3ce6;
+  --panel: #101b3cd9;
   --panel-solid: #111c3e;
   --line: #223061;
   --text: #dfe9ff;
@@ -357,34 +357,21 @@ html, body {
   position: absolute;
   left: 0;
   right: 0;
-  top: 96px;
+  top: 84px;
+  margin: 0 auto;
+  /* Geniş ekranda (tablet) bina devleşmesin — makul boyda ortalanır */
+  width: min(100%, 520px);
   will-change: transform;
 }
-#isobg .iso-art svg { display: block; width: 100%; height: auto; opacity: 0.55; }
-/* Vinyet: kenarlar ve alt karartılır ki kartlar okunur kalsın */
+#isobg .iso-art svg { display: block; width: 100%; height: auto; opacity: 0.85; }
+/* Hafif vinyet: yalnızca kenarlar ve alt yumuşar, görsel görünür kalır */
 #isobg::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 85% at 50% 32%, transparent 28%, #060b1daa 68%, #060b1df0 100%),
-    linear-gradient(180deg, #0a112800 55%, #0a1128d8 92%);
-}
-/* Şirket tabelası — arkaplanın parçası, neon altın */
-.iso-sign {
-  text-align: center;
-  font-size: 19px;
-  font-weight: 900;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--gold);
-  text-shadow: 0 0 16px #ffd35e99, 0 0 4px #ffd35e;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0 16px;
-  margin-bottom: 2px;
-  opacity: 0.9;
+    radial-gradient(130% 95% at 50% 34%, transparent 46%, #060b1d66 78%, #060b1dbb 100%),
+    linear-gradient(180deg, #0a112800 66%, #0a1128a8 96%);
 }
 
 /* Şirket adı popup'ı */
