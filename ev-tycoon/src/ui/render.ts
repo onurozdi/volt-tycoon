@@ -940,13 +940,17 @@ function renderMarket(c: HTMLElement): void {
     const rowsBox = sp.querySelector('.mat-rows') as HTMLElement;
     for (const m of MATERIALS) {
       const row = el(`<div class="mat-row">
-        <span class="mat-name" style="color:${m.accent}">${icon(m.icon)}${t('mat.' + m.id)}</span>
-        <span class="mat-price"></span>
-        <span class="mat-stockbar"><span class="fill" style="background:${m.accent}"></span><b></b></span>
-        <span class="mat-btns">
-          <button class="btn btn-buy m-b10"></button>
-          <button class="btn btn-unlock m-max">${t('mat.fill')}</button>
-        </span>
+        <div class="mat-top">
+          <span class="mat-name" style="color:${m.accent}">${icon(m.icon)}${t('mat.' + m.id)}</span>
+          <span class="mat-price"></span>
+        </div>
+        <div class="mat-ctrl">
+          <span class="mat-stockbar"><span class="fill" style="background:${m.accent}"></span><b></b></span>
+          <span class="mat-btns">
+            <button class="btn btn-supply m-b10"></button>
+            <button class="btn btn-unlock m-max">${t('mat.fill')}</button>
+          </span>
+        </div>
       </div>`);
       rowsBox.appendChild(row);
       const priceLbl = row.querySelector('.mat-price') as HTMLElement;
