@@ -83,7 +83,7 @@ export interface GameState {
    * Örnek: [oynanmışSn, kümülatifGelir, kümülatifGider]
    */
   chart: { int: number; d: Array<[number, number, number]> };
-  settings: { lang: Lang; sound: boolean };
+  settings: { lang: Lang; sound: boolean; music: boolean };
   /** öğretici adımı: 0 = hikâye bekliyor, 1..N = adımlar, 99 = bitti */
   tutStep: number;
   lastSeen: number; // epoch ms
@@ -137,7 +137,7 @@ export function newGame(lang: Lang): GameState {
     stats: { totalEarned: 0, totalProduced: 0, totalSold: 0, totalSpent: 0 },
     playedSec: 0,
     chart: { int: 10, d: [[0, 0, 0]] },
-    settings: { lang, sound: true },
+    settings: { lang, sound: true, music: true },
     tutStep: 0,
     lastSeen: Date.now(),
     createdAt: Date.now(),
@@ -166,6 +166,11 @@ export function loadGame(): GameState | null {
     if (!raw) return null;
     const s = JSON.parse(raw) as GameState;
     if (typeof s.version !== 'number' || !s.lines) return null;
+    // Bozuk veya araç listesinde olmayan hat kayıtlarını at — aşağıda
+    // gerçek araçlar tazeden oluşturulur (bozuk kayıt tüm oyunu kilitlemesin)
+    for (const k of Object.keys(s.lines)) {
+      if (!s.lines[k] || !VEHICLES.some((v) => v.id === k)) delete s.lines[k];
+    }
     // İleride eklenen araçlar/mekânlar eski kayıtlarda eksik olabilir
     for (const v of VEHICLES) {
       if (!s.lines[v.id]) s.lines[v.id] = newLine(v.unlockCost === 0);
@@ -189,6 +194,8 @@ export function loadGame(): GameState | null {
       if (typeof line.spent !== 'number') line.spent = 0;
     }
     if (!LANGS.includes(s.settings.lang)) s.settings.lang = 'en';
+    // Müzik ayarı eski kayıtlarda yok: sesi kapatan oyuncuya müzik de açılmasın
+    if (typeof s.settings.music !== 'boolean') s.settings.music = s.settings.sound;
     // Öğretici bu alandan önceki kayıtlarda yok: mevcut oyuncuyu rahatsız etme
     if (typeof s.tutStep !== 'number') s.tutStep = 99;
     // Banka alanları eski kayıtlarda yok

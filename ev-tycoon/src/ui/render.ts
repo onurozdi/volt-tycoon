@@ -25,7 +25,7 @@ import { getLang, LANGS, setLang, t } from '../i18n';
 import type { Lang } from '../i18n';
 import { showRewardedAd } from './ads';
 import { icon } from './art';
-import { setSoundEnabled, sfx } from './audio';
+import { initMusic, setMusicEnabled, setSoundEnabled, sfx } from './audio';
 import { createTimeline } from './timeline';
 
 export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 'settings';
@@ -40,6 +40,7 @@ const $ = (sel: string): HTMLElement => document.querySelector(sel) as HTMLEleme
 export function initUI(state: GameState): void {
   S = state;
   setSoundEnabled(S.settings.sound);
+  initMusic(S.settings.music);
   renderHUD();
   renderTabbar();
   renderTab(currentTab);
@@ -1129,6 +1130,31 @@ function renderSettings(c: HTMLElement): void {
     renderTabbar();
     renderTab('settings');
     rotateNews(true);
+  });
+
+  // Müzik
+  const musRow = el(`<div class="panel settings-row">
+    <span>${t('settings.music')}</span>
+    <span class="seg">
+      <button class="btn mus-on">${t('settings.on')}</button>
+      <button class="btn mus-off">${t('settings.off')}</button>
+    </span>
+  </div>`);
+  c.appendChild(musRow);
+  const mOn = musRow.querySelector('.mus-on') as HTMLButtonElement;
+  const mOff = musRow.querySelector('.mus-off') as HTMLButtonElement;
+  mOn.addEventListener('click', () => {
+    S.settings.music = true;
+    setMusicEnabled(true);
+    sfx.click();
+  });
+  mOff.addEventListener('click', () => {
+    S.settings.music = false;
+    setMusicEnabled(false);
+  });
+  updaters.push(() => {
+    mOn.classList.toggle('on', S.settings.music);
+    mOff.classList.toggle('on', !S.settings.music);
   });
 
   // Ses

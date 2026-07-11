@@ -223,6 +223,7 @@ const en: Dict = {
   // Settings
   'settings.title': 'SETTINGS',
   'settings.language': 'Language',
+  'settings.music': 'Music',
   'settings.sound': 'Sound effects',
   'settings.on': 'ON',
   'settings.off': 'OFF',
@@ -621,6 +622,7 @@ const tr: Dict = {
 
   'settings.title': 'AYARLAR',
   'settings.language': 'Dil',
+  'settings.music': 'Müzik',
   'settings.sound': 'Ses efektleri',
   'settings.on': 'AÇIK',
   'settings.off': 'KAPALI',
@@ -1006,6 +1008,7 @@ const es: Dict = {
 
   'settings.title': 'AJUSTES',
   'settings.language': 'Idioma',
+  'settings.music': 'Música',
   'settings.sound': 'Efectos de sonido',
   'settings.on': 'SÍ',
   'settings.off': 'NO',
@@ -1391,6 +1394,7 @@ const pt: Dict = {
 
   'settings.title': 'AJUSTES',
   'settings.language': 'Idioma',
+  'settings.music': 'Música',
   'settings.sound': 'Efeitos sonoros',
   'settings.on': 'SIM',
   'settings.off': 'NÃO',
@@ -1776,6 +1780,7 @@ const de: Dict = {
 
   'settings.title': 'OPTIONEN',
   'settings.language': 'Sprache',
+  'settings.music': 'Musik',
   'settings.sound': 'Soundeffekte',
   'settings.on': 'AN',
   'settings.off': 'AUS',
@@ -2161,6 +2166,7 @@ const fr: Dict = {
 
   'settings.title': 'RÉGLAGES',
   'settings.language': 'Langue',
+  'settings.music': 'Musique',
   'settings.sound': 'Effets sonores',
   'settings.on': 'OUI',
   'settings.off': 'NON',
