@@ -539,23 +539,19 @@ html, body {
 .mat-cell.low b { color: var(--danger); }
 .mat-cell.low { animation: debt-pulse 1.4s ease-in-out infinite; }
 
-/* Araç kartındaki reçete satırı — düğmeden ayrık, hafif zeminli bilgi şeridi */
-.recipe {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin: 5px 0 9px;
-  padding: 3px 9px;
-  background: #0a143088;
-  border: 1px solid #1a2a5588;
-  border-radius: 9px;
-  font-size: 10.5px;
+/* Araç reçetesi — başlığın sağında, stok altında dikey mini liste
+   (kart yüksekliğini bozmaz, tüm kartlar aynı boyda kalır) */
+.vcard-side .recipe {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 9px;
+  justify-items: end;
+  font-size: 10px;
   font-weight: 700;
   color: var(--text-dim);
 }
-.recipe .rc { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
-.recipe .rc .icon svg { width: 13px; height: 13px; }
+.recipe .rc { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.recipe .rc .icon svg { width: 12px; height: 12px; }
 .recipe.short .rc { color: var(--danger) !important; }
 .recipe.short { animation: debt-pulse 1.4s ease-in-out infinite; }
 
@@ -748,7 +744,8 @@ html, body {
   box-shadow: 0 0 10px var(--accent, var(--cyan));
 }
 
-.vcard-head { display: flex; gap: 12px; align-items: center; }
+/* Sabit yükseklik: reçete listesi 1-2 satır da olsa tüm kartlar eşit kalır */
+.vcard-head { display: flex; gap: 12px; align-items: center; min-height: 88px; }
 
 .vcard-icon {
   width: 62px; height: 62px;
@@ -766,8 +763,14 @@ html, body {
 .vcard-class { font-size: 11px; color: var(--text-dim); letter-spacing: 0.4px; }
 .vcard-price { margin-top: 3px; font-size: 13px; color: var(--lime); font-weight: 700; }
 
-.vcard-stock {
+.vcard-side {
   margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.vcard-stock {
   text-align: right;
   font-size: 12px;
   color: var(--text-dim);

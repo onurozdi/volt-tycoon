@@ -362,14 +362,16 @@ function vehicleCard(id: string): HTMLElement {
         <div class="vcard-class">${t(v.classKey)}</div>
         <div class="vcard-price"></div>
       </div>
-      <div class="vcard-stock">${t('ui.stock')}<b></b><span class="cap"></span></div>
+      <div class="vcard-side">
+        <div class="vcard-stock">${t('ui.stock')}<b></b><span class="cap"></span></div>
+        <div class="recipe"></div>
+      </div>
     </div>
     <div class="line-row prod-row">
       <button class="btn btn-produce"></button>
       <div class="bar"><div class="bar-fill prodfill"></div><div class="bar-label prodlabel"></div><span class="bar-rate prodrate"></span></div>
       <button class="btn btn-gem gem-prod">${icon('gem')}${GEM_COST_INSTANT_PROD}</button>
     </div>
-    <div class="recipe"></div>
     <div class="line-row sell-row">
       <button class="btn btn-sell"></button>
       <div class="bar"><div class="bar-fill sellbar"></div><div class="bar-label selllabel"></div><span class="bar-rate sellrate"></span></div>
