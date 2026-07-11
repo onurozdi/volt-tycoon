@@ -61,6 +61,14 @@ export interface GameState {
   contractRep: Record<string, number>;
   /** bir sonraki sözleşme teklifine kalan oyun-içi saniye */
   nextContractIn: number;
+  /** hammadde deposu: id -> adet */
+  materials: Record<string, number>;
+  /** hammadde fiyat çarpanları (dalgalı piyasa): id -> 0.55..1.75 */
+  matMult: Record<string, number>;
+  /** bir sonraki fiyat dalgalanma adımına kalan sn */
+  nextMatDrift: number;
+  /** Tedarik Müdürü: depo azalınca +%10 primle otomatik alım */
+  supplyManager: boolean;
   /** bakiye eksideyken aktif oyunda geçen süre (iflas sayacı, sn) */
   debtTimer: number;
   lines: Record<string, LineState>;
@@ -126,6 +134,10 @@ export function newGame(lang: Lang): GameState {
     contracts: [],
     contractRep: {},
     nextContractIn: 240, // ilk teklif ~4. dakikada
+    materials: { steel: 60, aluminum: 0, chip: 0, lithium: 0 },
+    matMult: { steel: 1, aluminum: 1, chip: 1, lithium: 1 },
+    nextMatDrift: 20,
+    supplyManager: false,
     debtTimer: 0,
     lines,
     locations,
@@ -213,6 +225,12 @@ export function loadGame(): GameState | null {
     for (const c of s.contracts) {
       if (typeof c.gemBonus !== 'number') c.gemBonus = 0;
     }
+    // Hammadde alanları eski kayıtlarda yok: başlangıç paketi ver ki
+    // mevcut hatlar anında durmasın (oyuncu sistemi tanıyana kadar yeter)
+    if (!s.materials) s.materials = { steel: 500, aluminum: 200, chip: 60, lithium: 20 };
+    if (!s.matMult) s.matMult = { steel: 1, aluminum: 1, chip: 1, lithium: 1 };
+    if (typeof s.nextMatDrift !== 'number') s.nextMatDrift = 20;
+    if (typeof s.supplyManager !== 'boolean') s.supplyManager = false;
     for (const v of VEHICLES) {
       if (typeof s.lines[v.id].sellPaused !== 'boolean') s.lines[v.id].sellPaused = false;
     }

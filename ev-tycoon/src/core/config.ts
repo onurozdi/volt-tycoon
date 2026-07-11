@@ -629,6 +629,57 @@ export const CONTRACT_DURATION: Record<string, [number, number]> = {
   gigafactory: [3600, 7200],
 };
 
+// ---------- Hammaddeler ----------
+// Üretim hammadde tüketir (ZipVolt hariç — hurda parçalardan üretilir,
+// motor her zaman yeniden başlatılabilir). Reçete maliyeti satış fiyatının
+// ~%20'si olacak şekilde ayarlıdır; kâr marjı korunur.
+
+export interface MaterialDef {
+  id: string;
+  basePrice: number;
+  icon: string;
+  accent: string;
+}
+
+export const MATERIALS: MaterialDef[] = [
+  { id: 'steel', basePrice: 2, icon: 'steel', accent: '#9fb7d8' },
+  { id: 'aluminum', basePrice: 6, icon: 'alu', accent: '#7fd8ff' },
+  { id: 'chip', basePrice: 20, icon: 'chip', accent: '#c8f43e' },
+  { id: 'lithium', basePrice: 50, icon: 'lithium', accent: '#c9b6ff' },
+];
+
+/** Araç başına hammadde reçetesi (birim başına adet). ZipVolt yok. */
+export const RECIPES: Record<string, Record<string, number>> = {
+  voltrider: { steel: 9 },
+  econoev: { steel: 40, aluminum: 20, chip: 1 },
+  trihauler: { steel: 120, aluminum: 40, chip: 8 },
+  fairwaygo: { steel: 300, aluminum: 150, chip: 60, lithium: 6 },
+  citypod: { steel: 1500, aluminum: 800, chip: 300, lithium: 80 },
+  volterra: { steel: 6000, aluminum: 3000, chip: 1500, lithium: 600 },
+  terravolt: { steel: 25_000, aluminum: 12_000, chip: 6000, lithium: 3000 },
+  haulen: { steel: 100_000, aluminum: 50_000, chip: 25_000, lithium: 16_000 },
+  voltvan: { steel: 400_000, aluminum: 250_000, chip: 120_000, lithium: 70_000 },
+  colossus: { steel: 1_800_000, aluminum: 1_000_000, chip: 600_000, lithium: 300_000 },
+  transitron: { steel: 8_000_000, aluminum: 4_500_000, chip: 2_500_000, lithium: 1_400_000 },
+};
+
+/** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre */
+export const MAT_CAPS: Record<string, number> = {
+  garage: 800,
+  workshop: 20_000,
+  factory: 2_000_000,
+  gigafactory: 200_000_000,
+};
+
+/** Fiyat dalgalanması: her adımda ±%6'ya kadar rasgele yürüyüş, geniş bant */
+export const MAT_DRIFT_SEC = 20;
+export const MAT_DRIFT_STEP = 0.12;
+export const MAT_MULT_MIN = 0.55;
+export const MAT_MULT_MAX = 1.75;
+/** Tedarik Müdürü: depo azalınca +%10 primle otomatik alım */
+export const SUPPLY_MANAGER_COST = 40_000;
+export const SUPPLY_PREMIUM = 1.1;
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye

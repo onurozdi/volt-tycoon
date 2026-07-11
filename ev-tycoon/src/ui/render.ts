@@ -1,7 +1,8 @@
 import {
   ACHIEVEMENTS, BANKRUPTCY_GRACE, CONTRACT_REP_CAP, CONTRACT_REP_PRICE_BONUS, GEM_COST_BOOST,
   GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  LOANS, LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
+  LOANS, LOCATIONS, MATERIALS, NEWS, NEWS_EVENTS, RECIPES, RESEARCH,
+  SUPPLY_MANAGER_COST, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
 import type { BuyoutInfo } from '../core/engine';
@@ -10,8 +11,10 @@ import {
   activeIssuers, buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
   unlockVehicle, unlockLocation, acceptContract, adFillClaim, adRewardBoost, adRewardGems,
-  canTakeLoan, contractDecay, deliverContract, doubleOfflineEarnings, gemInstantSell,
-  hasAnyManager, issuerRep, payoffLoan, repayCost, takeLoan, timeWarp, toggleSellPause,
+  buyMaterial, buySupplyManager, canTakeLoan, contractDecay, deliverContract,
+  doubleOfflineEarnings, gemInstantSell,
+  hasAnyManager, issuerRep, matCap, matPrice, payoffLoan, repayCost, takeLoan,
+  timeWarp, toggleSellPause,
 } from '../core/engine';
 import type { ContractOffer } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
@@ -251,6 +254,33 @@ function renderHome(c: HTMLElement): void {
     }
   });
 
+  // Hammadde deposu şeridi — reçeteli ilk araç açılınca görünür; Market'e götürür
+  const matStrip = el(`<div class="mat-strip"></div>`);
+  c.appendChild(matStrip);
+  const matCells: Array<{ box: HTMLElement; id: string }> = [];
+  for (const m of MATERIALS) {
+    const cell = el(`<span class="mat-cell" style="color:${m.accent}">${icon(m.icon)}<b></b></span>`);
+    matStrip.appendChild(cell);
+    matCells.push({ box: cell, id: m.id });
+  }
+  matStrip.addEventListener('click', () => {
+    sfx.click();
+    currentTab = 'market';
+    renderTabbar();
+    renderTab('market');
+  });
+  updaters.push(() => {
+    const show = VEHICLES.some((x) => S.lines[x.id].unlocked && RECIPES[x.id]);
+    matStrip.classList.toggle('on', show);
+    if (!show) return;
+    const cap = matCap(S);
+    for (const mc of matCells) {
+      const have = S.materials[mc.id] ?? 0;
+      (mc.box.querySelector('b') as HTMLElement).textContent = fmt(have);
+      mc.box.classList.toggle('low', have < cap * 0.05);
+    }
+  });
+
   // Aktif sözleşme kartları (varsa) en üstte sabit
   const ctBox = el(`<div class="ct-box"></div>`);
   c.appendChild(ctBox);
@@ -335,6 +365,7 @@ function vehicleCard(id: string): HTMLElement {
       <div class="bar"><div class="bar-fill prodfill"></div><div class="bar-label prodlabel"></div><span class="bar-rate prodrate"></span></div>
       <button class="btn btn-gem gem-prod">${icon('gem')}${GEM_COST_INSTANT_PROD}</button>
     </div>
+    <div class="recipe"></div>
     <div class="line-row sell-row">
       <button class="btn btn-sell"></button>
       <div class="bar"><div class="bar-fill sellbar"></div><div class="bar-label selllabel"></div><span class="bar-rate sellrate"></span></div>
@@ -371,6 +402,25 @@ function vehicleCard(id: string): HTMLElement {
   </div>`);
 
   const q = (sel: string): HTMLElement => card.querySelector(sel) as HTMLElement;
+
+  // Hammadde reçetesi: birim başına gerekenler; depo yetmiyorsa kızarır
+  const recipeEl = q('.recipe');
+  const recipe = RECIPES[v.id];
+  if (recipe) {
+    recipeEl.innerHTML = Object.entries(recipe)
+      .map(([m, n]) => {
+        const def = MATERIALS.find((x) => x.id === m);
+        return `<span class="rc" style="color:${def?.accent ?? '#9fb7d8'}">${icon(def?.icon ?? 'steel')}${fmt(n)}</span>`;
+      })
+      .join('');
+    updaters.push(() => {
+      const short = Object.entries(recipe).some(([m, n]) => (S.materials[m] ?? 0) < n);
+      recipeEl.classList.toggle('short', short);
+    });
+  } else {
+    recipeEl.remove();
+  }
+
   const priceEl = q('.vcard-price');
   const stockEl = q('.vcard-stock b');
   const stockBox = q('.vcard-stock');
@@ -873,6 +923,86 @@ function renderAchievements(c: HTMLElement): void {
 
 function renderMarket(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('market.title')}</div>`));
+
+  // TEDARİK: hammadde piyasası (dalgalı fiyatlar) + Tedarik Müdürü
+  const supplyVisible = VEHICLES.some((v) => S.lines[v.id].unlocked && RECIPES[v.id]);
+  if (supplyVisible) {
+    const sp = el(`<div class="panel">
+      <div class="panel-name" style="margin-bottom:4px">🏗 ${t('mat.title')}</div>
+      <div class="panel-desc" style="margin-bottom:10px">${t('mat.hint')}</div>
+      <div class="mat-rows"></div>
+    </div>`);
+    c.appendChild(sp);
+    const rowsBox = sp.querySelector('.mat-rows') as HTMLElement;
+    for (const m of MATERIALS) {
+      const row = el(`<div class="mat-row">
+        <span class="mat-name" style="color:${m.accent}">${icon(m.icon)}${t('mat.' + m.id)}</span>
+        <span class="mat-price"></span>
+        <span class="mat-stockbar"><span class="fill" style="background:${m.accent}"></span><b></b></span>
+        <span class="mat-btns">
+          <button class="btn btn-buy m-b10"></button>
+          <button class="btn btn-unlock m-max">${t('mat.fill')}</button>
+        </span>
+      </div>`);
+      rowsBox.appendChild(row);
+      const priceLbl = row.querySelector('.mat-price') as HTMLElement;
+      const fillEl = row.querySelector('.fill') as HTMLElement;
+      const stockLbl = row.querySelector('.mat-stockbar b') as HTMLElement;
+      const b10 = row.querySelector('.m-b10') as HTMLButtonElement;
+      const bmax = row.querySelector('.m-max') as HTMLButtonElement;
+      b10.addEventListener('click', () => {
+        if (buyMaterial(S, m.id, Math.max(1, Math.ceil(matCap(S) * 0.1))) > 0) sfx.buy();
+        else sfx.error();
+      });
+      bmax.addEventListener('click', () => {
+        if (buyMaterial(S, m.id, matCap(S)) > 0) sfx.buy();
+        else sfx.error();
+      });
+      updaters.push(() => {
+        const p = matPrice(S, m.id);
+        const pct = Math.round((p / m.basePrice - 1) * 100);
+        priceLbl.textContent = fmtMoney(p) + (pct !== 0 ? ` ${pct > 0 ? '▲' : '▼'}%${Math.abs(pct)}` : '');
+        priceLbl.classList.toggle('up', p > m.basePrice);
+        priceLbl.classList.toggle('down', p < m.basePrice);
+        const cap = matCap(S);
+        const have = S.materials[m.id] ?? 0;
+        fillEl.style.width = `${Math.min(100, (have / cap) * 100)}%`;
+        stockLbl.textContent = `${fmt(have)} / ${fmt(cap)}`;
+        const chunk = Math.max(1, Math.ceil(cap * 0.1));
+        b10.textContent = `+${fmt(chunk)} · ${fmtMoney(chunk * p)}`;
+        b10.disabled = have >= cap || S.money < p;
+        bmax.disabled = have >= cap || S.money < p;
+      });
+    }
+    // Tedarik Müdürü — depo azalınca +%10 primle otomatik alım
+    const mgr = el(`<div class="panel">
+      <div class="panel-row">
+        <div class="panel-icon" style="color:var(--cyan)">${icon('tie')}</div>
+        <div style="flex:1">
+          <div class="panel-name">${t('mat.mgr')}</div>
+          <div class="panel-desc">${t('mat.mgrDesc')}</div>
+        </div>
+        <div class="panel-side"><button class="btn btn-unlock mgr-buy"></button></div>
+      </div>
+    </div>`);
+    c.appendChild(mgr);
+    const mgrBtn = mgr.querySelector('.mgr-buy') as HTMLButtonElement;
+    mgrBtn.addEventListener('click', () => {
+      if (buySupplyManager(S)) {
+        sfx.achievement();
+        toast(t('mat.mgrHired'), 'gold');
+      } else sfx.error();
+    });
+    updaters.push(() => {
+      if (S.supplyManager) {
+        mgrBtn.textContent = t('ui.hired');
+        mgrBtn.disabled = true;
+      } else {
+        mgrBtn.textContent = fmtMoney(SUPPLY_MANAGER_COST);
+        mgrBtn.disabled = S.money < SUPPLY_MANAGER_COST;
+      }
+    });
+  }
 
   // Gem boost
   const boost = el(`<div class="panel">
@@ -1448,6 +1578,7 @@ export function showWelcomeBack(report: OfflineReport): void {
       ${report.claimReady ? `<p>🧪 ${t('wb.claimReady')}</p>` : ''}
       ${report.rp > 0 ? `<p>🤖 +${fmt(report.rp)} ${t('research.points')}</p>` : ''}
       ${report.loanPaid > 0 ? `<p>🏦 −${fmtMoney(report.loanPaid)}</p>` : ''}
+      ${report.matCost > 0 ? `<p>🏗 −${fmtMoney(report.matCost)} · ${t('mat.cost')}</p>` : ''}
       <div class="modal-btns">
         <button class="btn btn-buy wb-collect">${t('ui.collect')}</button>
         ${report.earned > 0 ? `<button class="btn btn-ad wb-double">${icon('play')}${t('ui.double')}</button>` : ''}

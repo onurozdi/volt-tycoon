@@ -516,6 +516,71 @@ html, body {
 .scn-doorglow { animation: scn-glowpulse 3.2s ease-in-out infinite; }
 .scn-tip { animation: scn-glowpulse 2.4s ease-in-out infinite; }
 
+/* ============ Hammadde deposu ============ */
+
+/* Home şeridi: 4 stok bir arada, dokununca Market'e götürür */
+.mat-strip {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  user-select: none;
+}
+.mat-strip.on { display: flex; }
+.mat-cell { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.mat-cell .icon svg { width: 16px; height: 16px; }
+.mat-cell b { color: var(--text); }
+.mat-cell.low b { color: var(--danger); }
+.mat-cell.low { animation: debt-pulse 1.4s ease-in-out infinite; }
+
+/* Araç kartındaki reçete satırı */
+.recipe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -2px 0 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.recipe .rc { display: inline-flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; }
+.recipe .rc .icon svg { width: 13px; height: 13px; }
+.recipe.short .rc { color: var(--danger) !important; }
+.recipe.short { animation: debt-pulse 1.4s ease-in-out infinite; }
+
+/* Market'teki tedarik satırları */
+.mat-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid #1a2a55;
+}
+.mat-row:last-child { border-bottom: none; }
+.mat-row .mat-name { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 800; }
+.mat-row .mat-name .icon svg { width: 16px; height: 16px; }
+.mat-row .mat-price { text-align: right; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.mat-row .mat-price.up { color: var(--danger); }
+.mat-row .mat-price.down { color: var(--lime); }
+.mat-row .mat-stockbar {
+  position: relative;
+  grid-column: 1 / 2;
+  height: 16px;
+  background: #0a1430;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.mat-row .mat-stockbar .fill { position: absolute; inset: 0; width: 0; opacity: 0.35; transition: width 0.3s ease; }
+.mat-row .mat-stockbar b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.mat-row .mat-btns { display: flex; gap: 6px; }
+.mat-row .mat-btns .btn { padding: 5px 9px; font-size: 10.5px; white-space: nowrap; }
+
 .ct-box { display: flex; flex-direction: column; gap: 6px; }
 .ct-box:not(:empty) { margin-bottom: 4px; }
 /* Kompakt şerit: satırın arkaplan dolgusu stok ilerlemesidir */

@@ -6,7 +6,9 @@ import {
   CONTRACT_REP_PRICE_BONUS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
-  LOAN_REPAY_FEE, LOANS, LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
+  LOAN_REPAY_FEE, LOANS, LOCATIONS, MAT_CAPS, MAT_DRIFT_SEC, MAT_DRIFT_STEP,
+  MAT_MULT_MAX, MAT_MULT_MIN, MATERIALS, NEWS_EVENTS, OFFLINE_MIN_SECONDS,
+  RECIPES, SUPPLY_MANAGER_COST, SUPPLY_PREMIUM, VEHICLES,
 } from './config';
 import type { ActiveContract } from './state';
 import type { NewsEventDef } from './config';
@@ -27,6 +29,8 @@ export interface OfflineReport {
   rp: number;
   /** offline'da kesilen kredi taksitleri toplamı */
   loanPaid: number;
+  /** offline hammadde gideri (Tedarik Müdürü'nün otomatik alımları) */
+  matCost: number;
 }
 
 export interface EngineEvents {
@@ -339,6 +343,101 @@ export function toggleSellPause(s: GameState, vehicleId: string): void {
   line.sellPaused = !line.sellPaused;
 }
 
+// ---------- Hammaddeler ----------
+
+/** Güncel birim fiyat (dalgalı piyasa) */
+export function matPrice(s: GameState, matId: string): number {
+  const def = MATERIALS.find((m) => m.id === matId);
+  if (!def) return 1;
+  return Math.max(1, Math.round(def.basePrice * (s.matMult[matId] ?? 1)));
+}
+
+/** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre */
+export function matCap(s: GameState): number {
+  let cap = MAT_CAPS.garage;
+  for (const l of LOCATIONS) {
+    if (s.locations[l.id] && MAT_CAPS[l.id] > cap) cap = MAT_CAPS[l.id];
+  }
+  return cap;
+}
+
+/** Hammadde satın al; alınan adet döner (para/kapasiteye göre kırpılır) */
+export function buyMaterial(s: GameState, matId: string, units: number): number {
+  if (s.money < 0) return 0; // eksi bakiyede satın alma yok (banka kuralı)
+  const price = matPrice(s, matId);
+  const room = matCap(s) - (s.materials[matId] ?? 0);
+  let n = Math.max(0, Math.min(units, room, Math.floor(s.money / price)));
+  if (n <= 0) return 0;
+  const cost = n * price;
+  s.money -= cost;
+  s.stats.totalSpent += cost;
+  s.materials[matId] = (s.materials[matId] ?? 0) + n;
+  return n;
+}
+
+export function buySupplyManager(s: GameState): boolean {
+  if (s.supplyManager || s.money < SUPPLY_MANAGER_COST) return false;
+  s.money -= SUPPLY_MANAGER_COST;
+  s.stats.totalSpent += SUPPLY_MANAGER_COST;
+  s.supplyManager = true;
+  return true;
+}
+
+/** Reçeteden üretilebilecek azami birim (depodaki hammaddeyle) */
+function unitsCraftable(s: GameState, vehicleId: string, want: number): number {
+  const recipe = RECIPES[vehicleId];
+  if (!recipe) return want; // reçetesiz (ZipVolt) — sınırsız
+  let n = want;
+  for (const [mat, per] of Object.entries(recipe)) {
+    n = Math.min(n, Math.floor((s.materials[mat] ?? 0) / per));
+  }
+  return n;
+}
+
+/** Üretilen birimlerin hammaddesini depodan düş */
+function consumeMaterials(s: GameState, vehicleId: string, units: number): void {
+  const recipe = RECIPES[vehicleId];
+  if (!recipe || units <= 0) return;
+  for (const [mat, per] of Object.entries(recipe)) {
+    s.materials[mat] = Math.max(0, (s.materials[mat] ?? 0) - per * units);
+  }
+}
+
+/** Tedarik Müdürü: eksik hammaddeyi +%10 primle otomatik alır
+    (bir partilik ihtiyacın ~10 katına kadar stoklar; para yetmezse kısmi) */
+function autoSupply(s: GameState, vehicleId: string, units: number): void {
+  if (!s.supplyManager || s.money <= 0) return;
+  const recipe = RECIPES[vehicleId];
+  if (!recipe) return;
+  const cap = matCap(s);
+  for (const [mat, per] of Object.entries(recipe)) {
+    const have = s.materials[mat] ?? 0;
+    const need = per * units;
+    if (have >= need) continue;
+    const target = Math.min(cap, need * 10);
+    const price = Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+    const n = Math.max(0, Math.min(target - have, Math.floor(s.money / price)));
+    if (n <= 0) continue;
+    const cost = n * price;
+    s.money -= cost;
+    s.stats.totalSpent += cost;
+    s.materials[mat] = have + n;
+  }
+}
+
+/** Fiyat dalgası: geniş bantta yavaş rasgele yürüyüş */
+function tickMatDrift(s: GameState, dt: number): void {
+  s.nextMatDrift -= dt;
+  while (s.nextMatDrift <= 0) {
+    s.nextMatDrift += MAT_DRIFT_SEC;
+    for (const m of MATERIALS) {
+      const cur = s.matMult[m.id] ?? 1;
+      const step = (Math.random() - 0.5) * MAT_DRIFT_STEP;
+      s.matMult[m.id] = Math.min(MAT_MULT_MAX, Math.max(MAT_MULT_MIN, cur + step));
+    }
+  }
+}
+
 /** Ana simülasyon adımı. dt: gerçek saniye. */
 export function tick(s: GameState, dt: number): void {
   s.playedSec += dt;
@@ -346,6 +445,7 @@ export function tick(s: GameState, dt: number): void {
   tickNewsEvents(s, dt);
   tickLoans(s, dt);
   tickContracts(s, dt);
+  tickMatDrift(s, dt);
 
   // Claim dolumu (Ar-Ge Müdürü varsa dolduğunda otomatik toplanır)
   if (hasAutoClaim(s)) {
@@ -370,8 +470,18 @@ export function tick(s: GameState, dt: number): void {
       const interval = prodInterval(s, v, line);
       line.prodElapsed += dt;
       while (line.prodElapsed >= interval) {
+        // Hammadde kapısı: parti için malzeme yoksa üretim bekler
+        // (Tedarik Müdürü varsa önce eksik otomatik alınır)
+        let want = Math.min(batchSize(s), cap - line.stock);
+        if (unitsCraftable(s, v.id, want) < want) autoSupply(s, v.id, want);
+        const made = unitsCraftable(s, v.id, want);
+        if (made <= 0) {
+          // depo boş: sayaç dolu bekler, malzeme gelince anında üretir
+          line.prodElapsed = interval;
+          break;
+        }
         line.prodElapsed -= interval;
-        const made = Math.min(batchSize(s), cap - line.stock);
+        consumeMaterials(s, v.id, made);
         line.stock += made;
         line.totalProduced += made;
         s.stats.totalProduced += made;
@@ -670,15 +780,34 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
   let produced = 0;
   let sold = 0;
   let earned = 0;
+  let matCost = 0;
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
     if (!line.unlocked) continue;
     const cap = stockCap(s, v);
     const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
     const sellRate = line.salesManager && !line.sellPaused ? 1 / sellInterval(s, v, line) : 0;
-    const rawProduced = prodRate * seconds;
+    const recipe = RECIPES[v.id];
+    let rawProduced = prodRate * seconds;
+    if (recipe && !s.supplyManager) {
+      rawProduced = Math.min(rawProduced, unitsCraftable(s, v.id, Math.floor(rawProduced)));
+    }
     const lineSold = Math.floor(Math.min(sellRate * seconds, line.stock + rawProduced));
     const lineProduced = Math.floor(Math.max(0, Math.min(rawProduced, lineSold + cap - line.stock)));
+    if (recipe && lineProduced > 0) {
+      if (s.supplyManager) {
+        for (const [mat, per] of Object.entries(recipe)) {
+          const need = per * lineProduced;
+          const have = s.materials[mat] ?? 0;
+          const fromDepot = Math.min(have, need);
+          s.materials[mat] = have - fromDepot;
+          const bought = need - fromDepot;
+          if (bought > 0) matCost += bought * Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+        }
+      } else {
+        consumeMaterials(s, v.id, lineProduced);
+      }
+    }
     line.stock = Math.max(0, Math.min(cap, line.stock + lineProduced - lineSold));
     line.totalProduced += lineProduced;
     line.totalSold += lineSold;
@@ -691,8 +820,12 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
   }
   s.money += earned;
   s.stats.totalEarned += earned;
+  if (matCost > 0) {
+    s.money -= matCost;
+    s.stats.totalSpent += matCost;
+  }
   checkAchievements(s);
-  return { seconds, produced, sold, earned, claimReady: false, rp: 0, loanPaid: 0 };
+  return { seconds, produced, sold, earned, claimReady: false, rp: 0, loanPaid: 0, matCost: Math.round(matCost) };
 }
 
 // ---------- Offline progress ----------
@@ -726,6 +859,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   let produced = 0;
   let sold = 0;
   let earned = 0;
+  let matCost = 0;
 
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
@@ -734,7 +868,13 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
     const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
     const sellRate = line.salesManager && !line.sellPaused ? 1 / sellInterval(s, v, line) : 0;
 
-    const rawProduced = prodRate * T;
+    // Hammadde sınırı: Tedarik Müdürü yoksa üretim depodakiyle sınırlı
+    // (hatlar sırayla depodan pay alır); müdür varsa sınırsız, gideri sonra
+    const recipe = RECIPES[v.id];
+    let rawProduced = prodRate * T;
+    if (recipe && !s.supplyManager) {
+      rawProduced = Math.min(rawProduced, unitsCraftable(s, v.id, Math.floor(rawProduced)));
+    }
     const rawSellCapacity = sellRate * T;
 
     // Satılabilecek toplam: eldeki stok + üretilebilen
@@ -744,6 +884,22 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
       Math.max(0, Math.min(rawProduced, lineSold + cap - line.stock)),
     );
     const newStock = Math.max(0, Math.min(cap, line.stock + lineProduced - lineSold));
+
+    // Hammadde tüketimi: önce depo, müdür varsa kalan +%10 primle alınır
+    if (recipe && lineProduced > 0) {
+      if (s.supplyManager) {
+        for (const [mat, per] of Object.entries(recipe)) {
+          const need = per * lineProduced;
+          const have = s.materials[mat] ?? 0;
+          const fromDepot = Math.min(have, need);
+          s.materials[mat] = have - fromDepot;
+          const bought = need - fromDepot;
+          if (bought > 0) matCost += bought * Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
+        }
+      } else {
+        consumeMaterials(s, v.id, lineProduced);
+      }
+    }
 
     const price = sellPriceNoBoost(s, v);
     line.stock = newStock;
@@ -759,6 +915,10 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
 
   s.money += earned;
   s.stats.totalEarned += earned;
+  if (matCost > 0) {
+    s.money -= matCost;
+    s.stats.totalSpent += matCost;
+  }
 
   // Kredi taksitleri offline'da da kesilir (iflas sayacı İŞLEMEZ)
   const moneyBeforeLoans = s.money;
@@ -777,7 +937,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   pushChartSample(s, true); // offline dönüşünde grafik noktası
   checkAchievements(s);
   if (produced === 0 && sold === 0 && !claimReady && rpGained === 0 && loanPaid === 0) return null;
-  return { seconds: Math.floor(T), produced, sold, earned, claimReady, rp: rpGained, loanPaid };
+  return { seconds: Math.floor(T), produced, sold, earned, claimReady, rp: rpGained, loanPaid, matCost: Math.round(matCost) };
 }
 
 /** Welcome-back ekranında reklamla ×2: raporun kazancı kadar tekrar ekler */

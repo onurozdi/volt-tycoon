@@ -263,6 +263,16 @@ Kurallar:
 
 Tasarım amacı: oyuncu bir hedefe para biriktirirken sıkılmaya başladığında "kredi çeksem mi?" değerlendirmesi gerçek bir karar olsun; faiz, aceleciliğin fiyatıdır.
 
+## 9g. Hammadde Sistemi (test geri bildirimi, 11.07.2026)
+
+Üretim artık hammadde tüketir: **Çelik, Alüminyum, Çip, Lityum**. "Üretim bedava" çekirdek kuralı bilinçli olarak esnetildi; kilitlenme sigortası: **ZipVolt reçetesizdir** (hurda parçalardan üretilir) — parası biten oyuncu motoru her zaman yeniden döndürebilir.
+
+- **Reçeteler** (`RECIPES`): araç başına adet; maliyet satış fiyatının **~%20'si** (kâr marjı korunur). Kademeli: scooter yalnız çelik → arabalar +alüminyum/çip → kamyon ve üstü lityum ağırlıklı.
+- **Depo**: hammadde başına kapasite, açık en büyük tesisle büyür (800 → 20K → 2M → 200M). Home'da kompakt stok şeridi (azalınca kızarır, dokununca Market'e götürür); araç kartında birim reçete satırı (depo yetmeyince kızarır).
+- **Dalgalı piyasa**: fiyat çarpanı 0,55–1,75 bandında rasgele yürüyüş (20 sn'de bir adım) — "ucuzken stokla" kararı. Market'te canlı fiyat (▲/▼ %) + stok barı + parti satın alma düğmeleri. Haber olayları için hazır kanca: "lityum grevi" çarpanı itebilir (9. bölümdeki etkili haberlerle birleşecek).
+- **Tedarik Müdürü** ($40K, tek sefer): depo azalınca **+%10 primle** otomatik alım — üretim durmaz, offline'da da çalışır (gideri Welcome Back'te "🏗 −$X" satırı). Müdürsüz offline: üretim depodakiyle sınırlı.
+- Denge (bot, 24h): workshop 1h09m, factory 6h47m, giga **15h32m** (hammaddesiz 14h16m'ydi — ~%8 yavaşlama, hedeflenen "challenging ama akıcı" bant).
+
 ## 9f. Denge Simülasyonu (src/sim/bot.ts)
 
 Gerçek motoru birebir kullanan "optimal oynayan" bot: 24 oyun-saatlik koşuda kilometre taşı sürelerini, tıkanmaları (4+ dk alışverişsiz), gem darboğazlarını ve kredili/kredisiz farkını raporlar. Önizleme konsolundan çalışır: `(await import('/src/sim/bot.ts')).runSim({hours:24, useLoans:false, staffPaybackSec:240})`.

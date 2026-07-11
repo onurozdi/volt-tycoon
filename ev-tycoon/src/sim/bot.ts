@@ -5,9 +5,10 @@
 // önizleme üzerinden çağrılır. Haber olayları ve sözleşmeler kapalıdır
 // (epoch tabanlı zamanlayıcılar hızlandırılmış simülasyonda anlamsız).
 
-import { LOANS, LOCATIONS, RESEARCH, VEHICLES } from '../core/config';
+import { LOANS, LOCATIONS, RECIPES, RESEARCH, VEHICLES } from '../core/config';
 import {
-  buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
+  buyMaterial, buyProdManager, buyResearch, buySalesManager, buySalesRep,
+  buySupplyManager, buyTechnician,
   claim, setEngineEvents, startProduce, startSell, takeLoan, tick,
   unlockLocation, unlockVehicle,
 } from '../core/engine';
@@ -78,6 +79,21 @@ export function runSim(opt: SimOptions): SimReport {
       if (!l.salesManager) startSell(s, v.id);
     }
 
+    // Hammadde: Tedarik Müdürü yoksa elle stokla (~15 birimlik tampon;
+    // ilerleme/stall sayacına saymaz — rutin gider)
+    if (!s.supplyManager) {
+      for (const v of VEHICLES) {
+        const l = s.lines[v.id];
+        const recipe = RECIPES[v.id];
+        if (!l.unlocked || !recipe) continue;
+        for (const [mat, per] of Object.entries(recipe)) {
+          const target = per * 15;
+          const have = s.materials[mat] ?? 0;
+          if (have < target) buyMaterial(s, mat, target - have);
+        }
+      }
+    }
+
     let bought: string | null = null;
 
     // 1) Sıradaki tesis (en büyük sıçrama)
@@ -119,6 +135,9 @@ export function runSim(opt: SimOptions): SimReport {
         break; // yalnızca sıradaki araca bak (sonrakiler daha pahalı)
       }
     }
+
+    // 2b) Tedarik Müdürü (hammadde otomasyonu — alınabildiği an değerli)
+    if (!bought && !s.supplyManager && buySupplyManager(s)) bought = 'supplyMgr';
 
     // 3) Müdürler (otomasyon her şeyden kıymetli)
     if (!bought) {

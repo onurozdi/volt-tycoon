@@ -213,6 +213,31 @@ export const ART: Record<string, string> = {
     <path d="M32 34v8M24 50h16M28 42h8l2 8H26z"/>
   `),
   chart: S(`<path d="M10 8v46h46"/><path d="M18 44V30M30 44V20M42 44V26M54 44V14"/>`),
+
+  // --- Hammaddeler ---
+  steel: S(`
+    <path d="M14 46h16l-4-12h-8z"/>
+    <path d="M34 46h16l-4-12h-8z"/>
+    <path d="M24 32h16l-4-12h-8z"/>
+    <path d="M12 52h40" opacity="0.6"/>
+  `),
+  alu: S(`
+    <circle cx="30" cy="34" r="16"/>
+    <circle cx="30" cy="34" r="7" opacity="0.7"/>
+    <path d="M46 34c4 0 8 1 10 3v14H30" opacity="0.9"/>
+    <path d="M30 51h26" opacity="0.6"/>
+  `),
+  chip: S(`
+    <rect x="20" y="20" width="24" height="24" rx="4"/>
+    <rect x="28" y="28" width="8" height="8" opacity="0.7"/>
+    <path d="M26 20v-8M32 20v-8M38 20v-8M26 52v-8M32 52v-8M38 52v-8"/>
+    <path d="M20 26h-8M20 32h-8M20 38h-8M52 26h-8M52 32h-8M52 38h-8"/>
+  `),
+  lithium: S(`
+    <rect x="18" y="18" width="28" height="34" rx="5"/>
+    <path d="M26 12h12v6H26z"/>
+    <path d="M34 26l-6 9h6l-6 9" opacity="0.9"/>
+  `),
 };
 
 export function icon(name: string, cls = ''): string {
