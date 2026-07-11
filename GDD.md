@@ -243,13 +243,15 @@ Her tesiste **2 seçenek**: temkinli küçük kredi + daha büyük/yüksek faizl
 | Tesis | Kredi | Ana para | Faiz | Taksit |
 |---|---|---|---|---|
 | Garage | Esnaf Kredisi | $600 | %30 | 12 × 90sn |
-| Garage | Genişleme Kredisi | $2,5K | %35 | 16 × 120sn |
-| Workshop | İşletme Kredisi | $60K | %35 | 12 × 120sn |
-| Workshop | Büyüme Kredisi | $250K | %40 | 16 × 180sn |
-| Factory | Sanayi Kredisi | $4M | %40 | 16 × 180sn |
-| Factory | Kurumsal Kredi | $20M | %45 | 20 × 240sn |
-| Giga | Mega Tahvil | $400M | %50 | 20 × 240sn |
-| Giga | Titan Tahvili | $2B | %55 | 24 × 300sn |
+| Garage | Genişleme Kredisi | $6K | %35 | 16 × 120sn |
+| Workshop | İşletme Kredisi | $80K | %35 | 12 × 120sn |
+| Workshop | Büyüme Kredisi | $500K | %40 | 16 × 180sn |
+| Factory | Sanayi Kredisi | $8M | %40 | 16 × 180sn |
+| Factory | Kurumsal Kredi | $50M | %45 | 20 × 240sn |
+| Giga | Mega Tahvil | $600M | %50 | 20 × 240sn |
+| Giga | Titan Tahvili | $2,5B | %55 | 24 × 300sn |
+
+*(11.07.2026 denge simülasyonu: eski ana paralar dönem hedeflerinin %5-8'i kalıyordu ve hiçbir kilometre taşını hızlandırmıyordu; lisans mertebesine yükseltildi.)*
 
 Kurallar:
 - Aynı tekliften aynı anda 1 aktif kredi; toplam ana paralar dönem lisansı mertebesinde → kredi hızlandırır ama oyunu satın alamaz.
@@ -260,6 +262,12 @@ Kurallar:
 - Erken kapatma: kalan taksit toplamı tek seferde ödenir (indirim yok).
 
 Tasarım amacı: oyuncu bir hedefe para biriktirirken sıkılmaya başladığında "kredi çeksem mi?" değerlendirmesi gerçek bir karar olsun; faiz, aceleciliğin fiyatıdır.
+
+## 9f. Denge Simülasyonu (src/sim/bot.ts)
+
+Gerçek motoru birebir kullanan "optimal oynayan" bot: 24 oyun-saatlik koşuda kilometre taşı sürelerini, tıkanmaları (4+ dk alışverişsiz), gem darboğazlarını ve kredili/kredisiz farkını raporlar. Önizleme konsolundan çalışır: `(await import('/src/sim/bot.ts')).runSim({hours:24, useLoans:false, staffPaybackSec:240})`.
+
+**11.07.2026 bulguları ve düzeltmeler:** Reklamsız optimal oyunda tüm geç-oyun kapılarında bağlayıcı kısıt para değil GEM'di (haulen 10,5 saat, giga 5,3 saat gem beklemesi); krediler bu yüzden hiçbir kilometre taşını hızlandırmıyordu. Düzeltme: geç araç/tesis gem bedelleri ~%20-30 indirildi (kapılar 485→405 gem; reklamsız oran 736/405 = **1,82** ≥ 1,5 kuralı korunur), krediler lisans mertebesine büyütüldü. Sonuç: gigafactory 23h37m → **14h16m**; kalan gem beklemeleri 29-78 dk (reklam teşviki bandı — cezalandırmıyor, izlemeye değer kılıyor). Gem indirimi erken oyunu değiştirmedi (workshop 52dk, factory ~6h15m sabit).
 
 ## 9d. Sözleşme Panosu
 
