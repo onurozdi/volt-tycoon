@@ -385,6 +385,20 @@ html, body {
   opacity: 0.92;
 }
 
+/* Sözleşme itibarı satırları (İstatistik) */
+.rep-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid #1a2a55;
+  font-size: 12px;
+}
+.rep-row:last-child { border-bottom: none; }
+.rep-row .rep-name { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rep-row .rep-stars { flex: none; color: var(--gold); font-size: 11px; letter-spacing: 1px; text-shadow: 0 0 6px #ffd35e55; }
+.rep-row .rep-bonus { flex: none; min-width: 38px; text-align: right; font-weight: 800; color: var(--lime); font-variant-numeric: tabular-nums; }
+
 /* Şirket adı popup'ı */
 .company-modal .company-input {
   width: 100%;

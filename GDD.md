@@ -275,7 +275,7 @@ Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme 
 | Gigafactory | Elektrania Cumhuriyeti, Zappistan Krallığı |
 
 - **Pencere kuralı (haber fazlarından FARKLI):** yalnızca **son açılan 2 tesisin** verenleri teklif gönderir. Factory açılınca garaj verenleri tekliften düşer — büyüdükçe eski çevre küçülür.
-- **İtibar (veren başına bağımsız, 0–10):** başarılı teslim +1, başarısızlık −1. Etkisi mütevazı: teklif sıklığı hafif artar (aralık ×(1 − 0.035×itibar)) ve birim fiyat bandına +%1,5/itibar eklenir.
+- **İtibar (veren başına bağımsız, 0–10):** başarılı teslim +1, başarısızlık −1. Etkisi mütevazı: teklif sıklığı hafif artar (aralık ×(1 − 0.035×itibar)) ve birim fiyat bandına **+%2/yıldız** eklenir — itibar 10'da bant 1,05–1,45× olur, yani yüksek itibarla **piyasanın belirgin üstüne** satılır (kötü teklif gelmez olur). İstatistik sayfasında **Sözleşme İtibarı** paneli aktif verenleri ★ (0–10) ve güncel fiyat bonusuyla listeler; ipucu metni teslimin ödülünü/başarısızlığın bedelini açıklar.
 
 **Teklif üretimi:** son teklif aralığı 300–540sn (itibarla kısalır); araç, verenin tesisinden rastgele; adet = stok tavanının %50–90'ı (min 3); süre = o adedi üretme süresinin ~1,6 katı (tesis başına alt/üst sınırlı); birim fiyat = piyasa × **0,85–1,25** bandı — bazen piyasadan kötü teklif gelir, kabul etmek gerçek bir karardır (popup fiyat farkını ±% olarak renkli gösterir).
 

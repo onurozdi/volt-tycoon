@@ -1,12 +1,13 @@
 import {
-  ACHIEVEMENTS, BANKRUPTCY_GRACE, GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
+  ACHIEVEMENTS, BANKRUPTCY_GRACE, CONTRACT_REP_CAP, CONTRACT_REP_PRICE_BONUS, GEM_COST_BOOST,
+  GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
   LOANS, LOCATIONS, NEWS, NEWS_EVENTS, RESEARCH, TIME_WARP_MINUTES, VEHICLES,
 } from '../core/config';
 import type { NewsEventDef } from '../core/config';
 import type { BuyoutInfo } from '../core/engine';
 import { setPaused } from '../core/clock';
 import {
-  buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
+  activeIssuers, buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
   unlockVehicle, unlockLocation, acceptContract, adFillClaim, adRewardBoost, adRewardGems,
   canTakeLoan, contractDecay, deliverContract, doubleOfflineEarnings, gemInstantSell,
@@ -33,6 +34,8 @@ export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 's
 
 let S: GameState;
 let currentTab: Tab = 'home';
+/** Dişliyle ayarlar açılmadan önceki sekme — tekrar basınca buraya dönülür */
+let lastTabBeforeSettings: Tab = 'home';
 let updaters: Array<() => void> = [];
 let newsTimer = 0;
 
@@ -164,9 +167,15 @@ function renderHUD(): void {
   const gear = el(`<button class="hud-gear">${icon('settings')}</button>`);
   gear.addEventListener('click', () => {
     sfx.click();
-    currentTab = 'settings';
+    // Ayarlar açıkken dişliye tekrar basmak son açık sayfaya döndürür
+    if (currentTab === 'settings') {
+      currentTab = lastTabBeforeSettings;
+    } else {
+      lastTabBeforeSettings = currentTab;
+      currentTab = 'settings';
+    }
     renderTabbar();
-    renderTab('settings');
+    renderTab(currentTab);
   });
   row.appendChild(gear);
   hudMoney = row.querySelector('.hud-money .val') as HTMLElement;
@@ -791,6 +800,39 @@ function renderStats(c: HTMLElement): void {
       spentEl.textContent = fmtMoney(line.spent);
       netEl.textContent = (net >= 0 ? '+' : '−') + fmtMoney(Math.abs(net));
       netEl.classList.toggle('neg', net < 0);
+    });
+  }
+
+  // Sözleşme itibarı — aktif verenlerle ilişki (teslim = ★, başarısızlık = ceza)
+  const issuers = activeIssuers(S);
+  if (issuers.length > 0) {
+    const repPanel = el(`<div class="panel">
+      <div class="panel-name">📜 ${t('stats.rep')}</div>
+      <div class="panel-desc" style="margin:4px 0 10px">${t('stats.repHint')}</div>
+      <div class="rep-rows"></div>
+    </div>`);
+    c.appendChild(repPanel);
+    const repBox = repPanel.querySelector('.rep-rows') as HTMLElement;
+    const repRows: Array<{ stars: HTMLElement; bonus: HTMLElement; id: string }> = [];
+    for (const iss of issuers) {
+      const row = el(`<div class="rep-row">
+        <span class="rep-name">${t('issuer.' + iss.id)}</span>
+        <span class="rep-stars"></span>
+        <span class="rep-bonus"></span>
+      </div>`);
+      repBox.appendChild(row);
+      repRows.push({
+        stars: row.querySelector('.rep-stars') as HTMLElement,
+        bonus: row.querySelector('.rep-bonus') as HTMLElement,
+        id: iss.id,
+      });
+    }
+    updaters.push(() => {
+      for (const r of repRows) {
+        const rep = issuerRep(S, r.id);
+        r.stars.textContent = '★'.repeat(rep) + '☆'.repeat(CONTRACT_REP_CAP - rep);
+        r.bonus.textContent = rep > 0 ? `+%${Math.round(rep * CONTRACT_REP_PRICE_BONUS * 100)}` : '—';
+      }
     });
   }
 }

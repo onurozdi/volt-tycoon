@@ -598,10 +598,11 @@ export const CONTRACT_GAP_MIN = 300;
 export const CONTRACT_GAP_MAX = 540;
 /** rep başına aralık kısalması (rep 10 → %35 daha sık) */
 export const CONTRACT_REP_GAP_FACTOR = 0.035;
-/** Birim fiyat bandı: piyasanın [0.85, 1.25]'i; rep başına +0.015 kayar */
+/** Birim fiyat bandı: piyasanın [0.85, 1.25]'i; rep başına +0.02 kayar
+    (rep 10 → 1.05–1.45: yüksek itibarla piyasanın belirgin ÜSTÜNE satılır) */
 export const CONTRACT_PRICE_MIN = 0.85;
 export const CONTRACT_PRICE_MAX = 1.25;
-export const CONTRACT_REP_PRICE_BONUS = 0.015;
+export const CONTRACT_REP_PRICE_BONUS = 0.02;
 export const CONTRACT_REP_CAP = 10;
 /** Gecikme penceresi = sürenin bu oranı; ödül bu pencere boyunca %100→%50 erir */
 export const CONTRACT_DELAY_RATIO = 0.5;
