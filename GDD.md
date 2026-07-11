@@ -263,7 +263,7 @@ Tasarım amacı: oyuncu bir hedefe para biriktirirken sıkılmaya başladığın
 
 ## 9d. Sözleşme Panosu
 
-Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme Home'un tepesine **geri sayımlı altın kart** olarak sabitlenir. Eşzamanlı sözleşme sayısı **sınırsız** — doğal sınır, veren başına aynı anda 1 sözleşme kuralıdır (aktif pencerede en çok 4 veren olduğundan pratikte en çok 4).
+Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme Home'un tepesine **kompakt altın şerit** (~32px, aktif etki barı boyutunda) olarak sabitlenir: şeridin arkaplan dolgusu stok ilerlemesidir, sağda ödül + geri sayım okunur; stok tamamlanınca sağ etiket altın "TESLİM ET" rozetine döner ve **şeride dokunmak teslim eder**. Oyun içeriğini aşağı itmez. Eşzamanlı sözleşme sayısı **sınırsız** — doğal sınır, veren başına aynı anda 1 sözleşme kuralıdır (aktif pencerede en çok 4 veren olduğundan pratikte en çok 4).
 
 **Verenler (tesis başına 2):**
 

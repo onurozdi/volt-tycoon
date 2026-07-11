@@ -1022,28 +1022,24 @@ export function showContractOffer(o: ContractOffer): void {
   });
 }
 
+// Kompakt sözleşme şeridi: satırın kendisi ilerleme çubuğudur (arkaplan
+// dolgusu = stok); hazır olunca satıra dokunmak teslim eder.
 function rebuildContractCards(box: HTMLElement): void {
   box.innerHTML = '';
   for (const c of S.contracts) {
     const v = VEHICLES.find((x) => x.id === c.vehicleId)!;
-    const card = el(`<div class="ct-card" data-ct="${c.issuerId}" style="--accent:${v.accent}">
-      <div class="ct-head">
-        <span class="pl-icon" style="color:${v.accent}">${icon(v.icon)}</span>
-        <span class="ct-title">📜 ${t('issuer.' + c.issuerId)}
-          <small>${c.qty} × ${v.name} — ${fmtMoney(c.unitPrice)}${c.gemBonus > 0 ? ` · +${c.gemBonus}💎` : ''}</small></span>
-        <span class="ct-timer"></span>
-      </div>
-      <div class="bar ct-bar"><div class="bar-fill"></div><div class="bar-label"></div></div>
-      <button class="btn btn-unlock ct-deliver"></button>
+    const row = el(`<div class="ct-row" data-ct="${c.issuerId}">
+      <div class="ct-fill"></div>
+      <span class="ct-l">📜 ${t('issuer.' + c.issuerId)} · <b class="ct-have"></b> ${v.name}</span>
+      <span class="ct-r"></span>
     </div>`);
-    box.appendChild(card);
-    (card.querySelector('.ct-deliver') as HTMLButtonElement).addEventListener('click', () => {
+    box.appendChild(row);
+    row.addEventListener('click', () => {
+      if (S.lines[c.vehicleId].stock < c.qty) return;
       const payout = deliverContract(S, c);
       if (payout !== null) {
         sfx.achievement();
         toast(`📜 +${fmtMoney(payout)}${c.gemBonus > 0 ? ` +${c.gemBonus}💎` : ''}`, 'gold');
-      } else {
-        sfx.error();
       }
     });
   }
@@ -1052,26 +1048,24 @@ function rebuildContractCards(box: HTMLElement): void {
 function updateContractCards(box: HTMLElement): void {
   const now = Date.now();
   for (const c of S.contracts) {
-    const card = box.querySelector(`.ct-card[data-ct="${c.issuerId}"]`);
-    if (!card) continue;
+    const row = box.querySelector(`.ct-row[data-ct="${c.issuerId}"]`) as HTMLElement | null;
+    if (!row) continue;
     const line = S.lines[c.vehicleId];
     const have = Math.min(line.stock, c.qty);
+    const ready = line.stock >= c.qty;
     const late = now > c.deadline;
     const decay = contractDecay(c, now);
-    (card.querySelector('.bar-fill') as HTMLElement).style.width = `${(have / c.qty) * 100}%`;
-    (card.querySelector('.bar-label') as HTMLElement).textContent = `${have}/${c.qty}`;
-    const timer = card.querySelector('.ct-timer') as HTMLElement;
-    if (late) {
-      timer.textContent = `⚠ %${Math.round(decay * 100)} · ${fmtTime((c.delayUntil - now) / 1000)}`;
-      timer.classList.add('late');
-      card.classList.add('late');
-    } else {
-      timer.textContent = fmtTime((c.deadline - now) / 1000);
-    }
-    const btn = card.querySelector('.ct-deliver') as HTMLButtonElement;
+    (row.querySelector('.ct-fill') as HTMLElement).style.width = `${(have / c.qty) * 100}%`;
+    (row.querySelector('.ct-have') as HTMLElement).textContent = `${have}/${c.qty}`;
     const payout = Math.round(c.qty * c.unitPrice * decay);
-    btn.textContent = `${t('ct.deliver')} +${fmtMoney(payout)}${c.gemBonus > 0 ? ` +${c.gemBonus}💎` : ''}`;
-    btn.disabled = line.stock < c.qty;
+    const gemTxt = c.gemBonus > 0 ? ` +${c.gemBonus}💎` : '';
+    const lateTxt = `⚠ %${Math.round(decay * 100)} · ${fmtTime((c.delayUntil - now) / 1000)}`;
+    const r = row.querySelector('.ct-r') as HTMLElement;
+    r.textContent = ready
+      ? `${t('ct.deliver')} +${fmtMoney(payout)}${gemTxt}${late ? ` · ⚠ %${Math.round(decay * 100)}` : ''}`
+      : `+${fmtMoney(payout)}${gemTxt} · ${late ? lateTxt : fmtTime((c.deadline - now) / 1000)}`;
+    row.classList.toggle('ready', ready);
+    row.classList.toggle('late', late);
   }
 }
 
