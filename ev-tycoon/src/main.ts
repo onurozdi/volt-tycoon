@@ -5,7 +5,8 @@ import { computeOffline, setEngineEvents, tick } from './core/engine';
 import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
-import { initUI, persist, saleFloat, showBankruptcy, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { initUI, persist, saleFloat, showBankruptcy, showContractOffer, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { fmtMoney } from './core/formulas';
 import { initTutorial } from './ui/tutorial';
 import { hydrateFromNative } from './core/storage';
 
@@ -45,6 +46,14 @@ async function boot(): Promise<void> {
     onBankrupt: () => {
       sfx.error();
       showBankruptcy();
+    },
+    onContractOffer: (offer) => {
+      sfx.news();
+      showContractOffer(offer);
+    },
+    onContractFailed: (c, penalty) => {
+      sfx.error();
+      toast(t('ct.failed', { issuer: t('issuer.' + c.issuerId), penalty: fmtMoney(penalty) }), 'err');
     },
   });
 

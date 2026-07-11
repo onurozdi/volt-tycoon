@@ -1,9 +1,14 @@
 import {
   ACHIEVEMENTS, AD_REWARD_GEMS, BANKRUPTCY_GRACE, BOOST_HOURS,
+  CONTRACT_DECAY_FLOOR, CONTRACT_DELAY_RATIO, CONTRACT_DURATION, CONTRACT_FAIL_PENALTY,
+  CONTRACT_GAP_MAX, CONTRACT_GAP_MIN, CONTRACT_ISSUERS, CONTRACT_MAX_ACTIVE,
+  CONTRACT_PRICE_MAX, CONTRACT_PRICE_MIN, CONTRACT_REP_CAP, CONTRACT_REP_GAP_FACTOR,
+  CONTRACT_REP_PRICE_BONUS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
   LOAN_REPAY_FEE, LOANS, LOCATIONS, NEWS_EVENTS, OFFLINE_MIN_SECONDS, VEHICLES,
 } from './config';
+import type { ActiveContract } from './state';
 import type { NewsEventDef } from './config';
 import {
   batchSize, claimDuration, claimReward, hasAutoClaim, homeCapFor, offlineCapSeconds,
@@ -30,6 +35,19 @@ export interface EngineEvents {
   onAchievement?: (id: string, gems: number) => void;
   onNewsEvent?: (def: NewsEventDef, extra?: BuyoutInfo) => void;
   onBankrupt?: () => void;
+  onContractOffer?: (offer: ContractOffer) => void;
+  onContractFailed?: (c: ActiveContract, penalty: number) => void;
+}
+
+/** Popup'ta gösterilen, henüz kabul edilmemiş teklif */
+export interface ContractOffer {
+  issuerId: string;
+  vehicleId: string;
+  qty: number;
+  unitPrice: number;
+  /** piyasa fiyatına oran (karar bilgisi: +%12 / −%8 gibi) */
+  vsMarket: number;
+  durationSec: number;
 }
 
 /** Anlık olayların (buyout/gift) popup'ta gösterilecek detayı */
@@ -184,12 +202,137 @@ function tickLoansOffline(s: GameState, T: number): void {
   s.loans = s.loans.filter((l) => l.remaining > 0);
 }
 
+// ---------- Sözleşmeler ----------
+
+/** Aktif verenler: açık olan SON 2 tesisin verenleri */
+export function activeIssuers(s: GameState): typeof CONTRACT_ISSUERS {
+  const openLocs = LOCATIONS.filter((l) => s.locations[l.id]).map((l) => l.id);
+  const window = openLocs.slice(-2);
+  return CONTRACT_ISSUERS.filter((i) => window.includes(i.locationId));
+}
+
+export function issuerRep(s: GameState, issuerId: string): number {
+  return s.contractRep[issuerId] ?? 0;
+}
+
+function bumpRep(s: GameState, issuerId: string, delta: number): void {
+  s.contractRep[issuerId] = Math.max(0, Math.min(CONTRACT_REP_CAP, issuerRep(s, issuerId) + delta));
+}
+
+/** Teklif üret: veren (itibar ağırlıklı), araç (verenin tesisinden),
+    miktar (depoya sığan, üretim hızına göre dolabilir), fiyat bandı */
+function generateContractOffer(s: GameState): ContractOffer | null {
+  const busy = new Set(s.contracts.map((c) => c.issuerId));
+  const candidates = activeIssuers(s).filter((i) => !busy.has(i.id));
+  if (candidates.length === 0) return null;
+  // itibar hafif ağırlık: rep 10 ≈ 1.8x seçilme şansı
+  const weights = candidates.map((i) => 1 + issuerRep(s, i.id) * 0.08);
+  let roll = Math.random() * weights.reduce((a, b) => a + b, 0);
+  let issuer = candidates[0];
+  for (let i = 0; i < candidates.length; i++) {
+    roll -= weights[i];
+    if (roll <= 0) {
+      issuer = candidates[i];
+      break;
+    }
+  }
+  const vehicles = VEHICLES.filter((v) => v.locationId === issuer.locationId && s.lines[v.id].unlocked);
+  if (vehicles.length === 0) return null;
+  const v = vehicles[Math.floor(Math.random() * vehicles.length)];
+  const line = s.lines[v.id];
+  const cap = stockCap(s, v);
+  // Miktar: deponun %50-90'ı (tek seferde stoktan teslim edilir)
+  const qty = Math.max(3, Math.floor(cap * (0.5 + Math.random() * 0.4)));
+  // Süre: mevcut hızla üretim süresinin ~1.6 katı, tesis aralığına sıkıştırılır
+  const fillSec = (qty * prodInterval(s, v, line)) / batchSize(s);
+  const [dMin, dMax] = CONTRACT_DURATION[issuer.locationId] ?? [600, 1200];
+  const durationSec = Math.round(Math.min(dMax, Math.max(dMin, fillSec * 1.6)));
+  // Fiyat: piyasanın [0.85, 1.25]'i; itibar bandı yukarı kaydırır
+  const rep = issuerRep(s, issuer.id);
+  const band = CONTRACT_PRICE_MIN + Math.random() * (CONTRACT_PRICE_MAX - CONTRACT_PRICE_MIN);
+  const vsMarket = band + rep * CONTRACT_REP_PRICE_BONUS;
+  const unitPrice = Math.max(1, Math.round(sellPriceNoBoost(s, v) * vsMarket));
+  return { issuerId: issuer.id, vehicleId: v.id, qty, unitPrice, vsMarket, durationSec };
+}
+
+function nextContractGap(s: GameState, issuerId: string): number {
+  const gap = CONTRACT_GAP_MIN + Math.random() * (CONTRACT_GAP_MAX - CONTRACT_GAP_MIN);
+  return gap * (1 - issuerRep(s, issuerId) * CONTRACT_REP_GAP_FACTOR);
+}
+
+function tickContracts(s: GameState, dt: number): void {
+  // Süresi tamamen geçen sözleşmeler: başarısız + ceza + itibar kaybı
+  const now = Date.now();
+  for (const c of [...s.contracts]) {
+    if (now > c.delayUntil) {
+      const penalty = Math.round(c.qty * c.unitPrice * CONTRACT_FAIL_PENALTY);
+      s.money -= penalty; // eksiye inebilir (banka/iflas sistemiyle uyumlu)
+      s.stats.totalSpent += penalty;
+      bumpRep(s, c.issuerId, -1);
+      s.contracts = s.contracts.filter((x) => x !== c);
+      events.onContractFailed?.(c, penalty);
+    }
+  }
+  // Yeni teklif zamanlayıcısı
+  if (s.contracts.length >= CONTRACT_MAX_ACTIVE) return;
+  s.nextContractIn -= dt;
+  if (s.nextContractIn > 0) return;
+  const offer = generateContractOffer(s);
+  s.nextContractIn = nextContractGap(s, offer ? offer.issuerId : '');
+  if (offer) events.onContractOffer?.(offer);
+}
+
+export function acceptContract(s: GameState, o: ContractOffer): void {
+  const now = Date.now();
+  s.contracts.push({
+    issuerId: o.issuerId,
+    vehicleId: o.vehicleId,
+    qty: o.qty,
+    unitPrice: o.unitPrice,
+    deadline: now + o.durationSec * 1000,
+    delayUntil: now + o.durationSec * (1 + CONTRACT_DELAY_RATIO) * 1000,
+  });
+}
+
+/** Gecikme erimesi: son teslim öncesi 1; gecikme penceresinde 1→0.5 iner */
+export function contractDecay(c: ActiveContract, now: number): number {
+  if (now <= c.deadline) return 1;
+  const p = (now - c.deadline) / (c.delayUntil - c.deadline);
+  return Math.max(CONTRACT_DECAY_FLOOR, 1 - p * (1 - CONTRACT_DECAY_FLOOR));
+}
+
+/** Stoktan teslim: ödül (erimiş) ödenir, itibar +1 */
+export function deliverContract(s: GameState, c: ActiveContract): number | null {
+  if (!s.contracts.includes(c)) return null;
+  const line = s.lines[c.vehicleId];
+  if (line.stock < c.qty) return null;
+  const now = Date.now();
+  const payout = Math.round(c.qty * c.unitPrice * contractDecay(c, now));
+  line.stock -= c.qty;
+  line.totalSold += c.qty;
+  line.revenue += payout;
+  s.stats.totalSold += c.qty;
+  s.stats.totalEarned += payout;
+  s.money += payout;
+  bumpRep(s, c.issuerId, 1);
+  s.contracts = s.contracts.filter((x) => x !== c);
+  checkAchievements(s);
+  return payout;
+}
+
+/** Oto-satışı hat bazında duraklat/başlat (sözleşme için stok biriktirme) */
+export function toggleSellPause(s: GameState, vehicleId: string): void {
+  const line = s.lines[vehicleId];
+  line.sellPaused = !line.sellPaused;
+}
+
 /** Ana simülasyon adımı. dt: gerçek saniye. */
 export function tick(s: GameState, dt: number): void {
   s.playedSec += dt;
   pushChartSample(s);
   tickNewsEvents(s, dt);
   tickLoans(s, dt);
+  tickContracts(s, dt);
 
   // Claim dolumu (Ar-Ge Müdürü varsa dolduğunda otomatik toplanır)
   if (hasAutoClaim(s)) {
@@ -233,8 +376,8 @@ export function tick(s: GameState, dt: number): void {
       }
     }
 
-    // --- Satış ---
-    const sellActive = (line.selling || line.salesManager) && line.stock > 0;
+    // --- Satış --- (sellPaused: oyuncu sözleşme için stok biriktiriyor)
+    const sellActive = (line.selling || (line.salesManager && !line.sellPaused)) && line.stock > 0;
     if (sellActive) {
       const interval = sellInterval(s, v, line);
       line.sellElapsed += dt;
@@ -519,7 +662,7 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
     if (!line.unlocked) continue;
     const cap = stockCap(s, v);
     const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
-    const sellRate = line.salesManager ? 1 / sellInterval(s, v, line) : 0;
+    const sellRate = line.salesManager && !line.sellPaused ? 1 / sellInterval(s, v, line) : 0;
     const rawProduced = prodRate * seconds;
     const lineSold = Math.floor(Math.min(sellRate * seconds, line.stock + rawProduced));
     const lineProduced = Math.floor(Math.max(0, Math.min(rawProduced, lineSold + cap - line.stock)));
@@ -576,7 +719,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
     if (!line.unlocked) continue;
     const cap = stockCap(s, v);
     const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
-    const sellRate = line.salesManager ? 1 / sellInterval(s, v, line) : 0;
+    const sellRate = line.salesManager && !line.sellPaused ? 1 / sellInterval(s, v, line) : 0;
 
     const rawProduced = prodRate * T;
     const rawSellCapacity = sellRate * T;

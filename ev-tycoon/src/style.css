@@ -340,6 +340,41 @@ html, body {
   box-shadow: 0 0 16px #ffd35e55, inset 0 1px 0 #ffffff77;
 }
 
+/* Sözleşme kartları (Home üstü, sabit) */
+.ct-box { display: flex; flex-direction: column; gap: 10px; }
+.ct-box:not(:empty) { margin-bottom: 4px; }
+.ct-card {
+  background: linear-gradient(160deg, #1c1a0a 0%, #14204a 60%, #101b3c 100%);
+  border: 1px solid #ffd35e66;
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  box-shadow: 0 0 10px #ffd35e22;
+}
+.ct-card.late { border-color: var(--danger); box-shadow: 0 0 12px #ff5e6c44; animation: debt-pulse 1.2s ease-in-out infinite; }
+.ct-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ct-title { flex: 1; min-width: 0; font-size: 12.5px; font-weight: 800; }
+.ct-title small { display: block; font-size: 10px; font-weight: 600; color: var(--text-dim); }
+.ct-timer { flex: none; font-size: 11px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+.ct-timer.late { color: var(--danger); }
+.ct-bar { height: 18px; margin-bottom: 8px; }
+.ct-bar .bar-fill { background: linear-gradient(90deg, #d99a12, var(--gold)); box-shadow: 0 0 10px #ffd35e55; }
+.ct-deliver { width: 100%; padding: 9px; font-size: 12px; }
+
+/* Teklif popup ekleri */
+.ct-modal h2 small.ct-stars { color: var(--gold); font-size: 12px; margin-left: 6px; letter-spacing: 2px; }
+.ct-wants { font-size: 13px; color: var(--text); margin-top: 2px; }
+.ct-vs { font-size: 11px; font-weight: 800; }
+.ct-vs.up { color: var(--lime); }
+.ct-vs.down { color: var(--danger); }
+
+/* Duraklatılmış oto-satış anahtarı */
+.btn-auto.paused {
+  background: #2a1a0e;
+  border-color: #6b4a1e;
+  color: var(--gold);
+  cursor: pointer;
+}
+
 /* Tesis bölüm başlığı + özlü söz (ana sayfa) */
 .loc-title {
   display: flex;

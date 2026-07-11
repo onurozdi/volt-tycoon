@@ -8,10 +8,11 @@ import { setPaused } from '../core/clock';
 import {
   buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
-  unlockVehicle, unlockLocation, adFillClaim, adRewardBoost, adRewardGems,
-  canTakeLoan, doubleOfflineEarnings, gemInstantSell, hasAnyManager, payoffLoan,
-  repayCost, takeLoan, timeWarp,
+  unlockVehicle, unlockLocation, acceptContract, adFillClaim, adRewardBoost, adRewardGems,
+  canTakeLoan, contractDecay, deliverContract, doubleOfflineEarnings, gemInstantSell,
+  hasAnyManager, issuerRep, payoffLoan, repayCost, takeLoan, timeWarp, toggleSellPause,
 } from '../core/engine';
+import type { ContractOffer } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
   batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, hasAutoClaim, homeCapFor,
@@ -190,6 +191,19 @@ function renderTab(tab: Tab): void {
 // ---------- HOME ----------
 
 function renderHome(c: HTMLElement): void {
+  // Aktif sözleşme kartları (varsa) en üstte sabit
+  const ctBox = el(`<div class="ct-box"></div>`);
+  c.appendChild(ctBox);
+  let lastCtKey = '';
+  updaters.push(() => {
+    const key = S.contracts.map((x) => `${x.issuerId}:${x.qty}`).join('|');
+    if (key !== lastCtKey) {
+      lastCtKey = key;
+      rebuildContractCards(ctBox);
+    }
+    updateContractCards(ctBox);
+  });
+
   // Kademeli açılım: açık mekânlar + yalnızca SIRADAKİ kilitli mekân görünür;
   // daha sonrakiler tamamen gizli kalır (merak unsuru).
   // Her tesis aynı yapıyı kullanır: başlık + altında özlü söz.
@@ -327,6 +341,12 @@ function vehicleCard(id: string): HTMLElement {
     e.stopPropagation();
   });
   btnSell.addEventListener('click', () => {
+    if (line.salesManager) {
+      // Oto-satış anahtarı: sözleşme için stok biriktirmeye izin verir
+      toggleSellPause(S, id);
+      sfx.click();
+      return;
+    }
     if (startSell(S, id)) sfx.click();
     else sfx.error();
   });
@@ -422,9 +442,9 @@ function vehicleCard(id: string): HTMLElement {
     sellFill.style.width = `${sPct}%`;
     sellLabel.textContent = sActive ? fmtTime(Math.max(0, sInt - line.sellElapsed)) : `${sInt.toFixed(1)}s`;
     if (line.salesManager) {
-      btnSell.textContent = t('ui.autoSell');
-      btnSell.className = 'btn btn-auto';
-      btnSell.disabled = true;
+      btnSell.textContent = line.sellPaused ? `⏸ ${t('ui.paused')}` : t('ui.autoSell');
+      btnSell.className = line.sellPaused ? 'btn btn-auto paused' : 'btn btn-auto';
+      btnSell.disabled = false; // anahtar: duraklat/başlat
     } else {
       btnSell.textContent = t('ui.sell');
       btnSell.className = 'btn btn-sell';
@@ -955,6 +975,102 @@ function renderBank(c: HTMLElement): void {
         `${t('bank.remaining', { n: loan.remaining, amt: fmtMoney(loan.installment) })} · ${t('bank.next', { time: fmtTime(loan.nextIn) })}`;
     }
   });
+}
+
+// ---------- Sözleşmeler ----------
+
+function vehicleName(id: string): string {
+  return VEHICLES.find((v) => v.id === id)?.name ?? id;
+}
+
+/** Teklif popup'ı: kabul/ret oyuncunun; açıkken oyun durur */
+export function showContractOffer(o: ContractOffer): void {
+  setPaused(true);
+  const rep = issuerRep(S, o.issuerId);
+  const stars = rep > 0 ? ' ' + '★'.repeat(Math.min(5, Math.ceil(rep / 2))) : '';
+  const pct = Math.round((o.vsMarket - 1) * 100);
+  const pctTxt = pct >= 0 ? `+%${pct}` : `−%${Math.abs(pct)}`;
+  const total = o.qty * o.unitPrice;
+  const overlay = el(`<div class="modal-overlay">
+    <div class="modal event-modal good ct-modal">
+      <div class="event-badge">📜 ${t('ct.offer')}</div>
+      <h2>${t('issuer.' + o.issuerId)}<small class="ct-stars">${stars}</small></h2>
+      <p class="ct-wants">${t('ct.wants', { qty: o.qty, vehicle: vehicleName(o.vehicleId) })}</p>
+      <p class="event-fx">${fmtMoney(o.unitPrice)} × ${o.qty} = ${fmtMoney(total)}
+        <span class="ct-vs ${pct >= 0 ? 'up' : 'down'}">(${t('ct.vsMarket', { pct: pctTxt })})</span></p>
+      <p class="event-dur">⏱ ${t('event.duration', { time: fmtTime(o.durationSec) })}</p>
+      <div class="modal-btns">
+        <button class="btn btn-buy ct-decline">${t('ct.decline')}</button>
+        <button class="btn btn-unlock ct-accept">${t('ct.accept')}</button>
+      </div>
+    </div>
+  </div>`);
+  document.body.appendChild(overlay);
+  (overlay.querySelector('.ct-accept') as HTMLButtonElement).addEventListener('click', () => {
+    sfx.buy();
+    acceptContract(S, o);
+    overlay.remove();
+    setPaused(false);
+    if (currentTab === 'home') renderTab('home');
+  });
+  (overlay.querySelector('.ct-decline') as HTMLButtonElement).addEventListener('click', () => {
+    sfx.click();
+    overlay.remove();
+    setPaused(false);
+  });
+}
+
+function rebuildContractCards(box: HTMLElement): void {
+  box.innerHTML = '';
+  for (const c of S.contracts) {
+    const v = VEHICLES.find((x) => x.id === c.vehicleId)!;
+    const card = el(`<div class="ct-card" data-ct="${c.issuerId}" style="--accent:${v.accent}">
+      <div class="ct-head">
+        <span class="pl-icon" style="color:${v.accent}">${icon(v.icon)}</span>
+        <span class="ct-title">📜 ${t('issuer.' + c.issuerId)}
+          <small>${c.qty} × ${v.name} — ${fmtMoney(c.unitPrice)}</small></span>
+        <span class="ct-timer"></span>
+      </div>
+      <div class="bar ct-bar"><div class="bar-fill"></div><div class="bar-label"></div></div>
+      <button class="btn btn-unlock ct-deliver"></button>
+    </div>`);
+    box.appendChild(card);
+    (card.querySelector('.ct-deliver') as HTMLButtonElement).addEventListener('click', () => {
+      const payout = deliverContract(S, c);
+      if (payout !== null) {
+        sfx.achievement();
+        toast(`📜 +${fmtMoney(payout)}`, 'gold');
+      } else {
+        sfx.error();
+      }
+    });
+  }
+}
+
+function updateContractCards(box: HTMLElement): void {
+  const now = Date.now();
+  for (const c of S.contracts) {
+    const card = box.querySelector(`.ct-card[data-ct="${c.issuerId}"]`);
+    if (!card) continue;
+    const line = S.lines[c.vehicleId];
+    const have = Math.min(line.stock, c.qty);
+    const late = now > c.deadline;
+    const decay = contractDecay(c, now);
+    (card.querySelector('.bar-fill') as HTMLElement).style.width = `${(have / c.qty) * 100}%`;
+    (card.querySelector('.bar-label') as HTMLElement).textContent = `${have}/${c.qty}`;
+    const timer = card.querySelector('.ct-timer') as HTMLElement;
+    if (late) {
+      timer.textContent = `⚠ %${Math.round(decay * 100)} · ${fmtTime((c.delayUntil - now) / 1000)}`;
+      timer.classList.add('late');
+      card.classList.add('late');
+    } else {
+      timer.textContent = fmtTime((c.deadline - now) / 1000);
+    }
+    const btn = card.querySelector('.ct-deliver') as HTMLButtonElement;
+    const payout = Math.round(c.qty * c.unitPrice * decay);
+    btn.textContent = `${t('ct.deliver')} +${fmtMoney(payout)}`;
+    btn.disabled = line.stock < c.qty;
+  }
 }
 
 /** İflas ekranı — tek çıkış: sıfırdan başlamak */

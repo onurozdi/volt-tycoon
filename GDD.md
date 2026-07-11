@@ -261,6 +261,30 @@ Kurallar:
 
 Tasarım amacı: oyuncu bir hedefe para biriktirirken sıkılmaya başladığında "kredi çeksem mi?" değerlendirmesi gerçek bir karar olsun; faiz, aceleciliğin fiyatıdır.
 
+## 9d. Sözleşme Panosu
+
+Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme Home'un tepesine **geri sayımlı altın kart** olarak sabitlenir (aynı anda en fazla 2 aktif sözleşme).
+
+**Verenler (tesis başına 2):**
+
+| Tesis | Verenler |
+|---|---|
+| Garage | Komşu Kemal, Mahalle Pizzacısı |
+| Workshop | Belediye, Kurye Kooperatifi |
+| Factory | Ulusal Bayi Zinciri, Araç Kiralama Devi |
+| Gigafactory | Elektrania Cumhuriyeti, Zappistan Krallığı |
+
+- **Pencere kuralı (haber fazlarından FARKLI):** yalnızca **son açılan 2 tesisin** verenleri teklif gönderir. Factory açılınca garaj verenleri tekliften düşer — büyüdükçe eski çevre küçülür.
+- **İtibar (veren başına bağımsız, 0–10):** başarılı teslim +1, başarısızlık −1. Etkisi mütevazı: teklif sıklığı hafif artar (aralık ×(1 − 0.035×itibar)) ve birim fiyat bandına +%1,5/itibar eklenir.
+
+**Teklif üretimi:** son teklif aralığı 300–540sn (itibarla kısalır); araç, verenin tesisinden rastgele; adet = stok tavanının %50–90'ı (min 3); süre = o adedi üretme süresinin ~1,6 katı (tesis başına alt/üst sınırlı); birim fiyat = piyasa × **0,85–1,25** bandı — bazen piyasadan kötü teklif gelir, kabul etmek gerçek bir karardır (popup fiyat farkını ±% olarak renkli gösterir).
+
+**Stok biriktirme:** satış müdürü olan hatlarda OTO SAT düğmesi tıklanarak **duraklatılabilir** (⏸); satış durur, stok birikir, sözleşme stoktan tek tuşla teslim edilir.
+
+**Gecikme ve ceza:** son teslim geçilirse **gecikme penceresi** başlar (sözleşme süresinin yarısı): ödül karttan canlı izlenerek doğrusal olarak **%50'ye kadar erir** (kart kırmızı nabız atar, ⚠ %X gösterir). Pencere de dolarsa **BAŞARISIZ**: sözleşme bedelinin **%20'si para cezası** + itibar −1.
+
+Tasarım amacı: oto-satış konforuna karşı "biriktir ve topluca sat" kararı; kötü teklifleri reddetmeyi öğrenmek de oyunun parçası.
+
 ## 10. Başarımlar (MVP — gem kaynağı)
 
 | Başarım | Koşul | Gem |

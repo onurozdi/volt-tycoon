@@ -16,10 +16,24 @@ export interface LineState {
   salesManager: boolean;
   totalSold: number;
   totalProduced: number;
+  /** oyuncu oto-satışı duraklatıp stok biriktiriyor (sözleşmeler için) */
+  sellPaused: boolean;
   /** bu hattın toplam satış geliri (ciro) */
   revenue: number;
   /** bu hatta yapılan para harcaması (lisans + personel + müdürler) */
   spent: number;
+}
+
+export interface ActiveContract {
+  issuerId: string;
+  vehicleId: string;
+  qty: number;
+  /** teklif anında sabitlenen birim fiyat */
+  unitPrice: number;
+  /** son teslim (epoch ms); sonrasında ödül erimeye başlar */
+  deadline: number;
+  /** gecikme penceresinin sonu (epoch ms); geçilirse başarısız + ceza */
+  delayUntil: number;
 }
 
 export interface ActiveLoan {
@@ -39,6 +53,12 @@ export interface GameState {
   rp: number; // research points
   /** aktif krediler */
   loans: ActiveLoan[];
+  /** aktif sözleşmeler */
+  contracts: ActiveContract[];
+  /** sözleşme verenlerle itibar (verenId -> 0..10, bağımsız) */
+  contractRep: Record<string, number>;
+  /** bir sonraki sözleşme teklifine kalan oyun-içi saniye */
+  nextContractIn: number;
   /** bakiye eksideyken aktif oyunda geçen süre (iflas sayacı, sn) */
   debtTimer: number;
   lines: Record<string, LineState>;
@@ -82,6 +102,7 @@ export function newLine(unlocked: boolean): LineState {
     salesManager: false,
     totalSold: 0,
     totalProduced: 0,
+    sellPaused: false,
     revenue: 0,
     spent: 0,
   };
@@ -98,6 +119,9 @@ export function newGame(lang: Lang): GameState {
     gems: STARTING_GEMS,
     rp: 0,
     loans: [],
+    contracts: [],
+    contractRep: {},
+    nextContractIn: 240, // ilk teklif ~4. dakikada
     debtTimer: 0,
     lines,
     locations,
@@ -168,6 +192,13 @@ export function loadGame(): GameState | null {
     // Banka alanları eski kayıtlarda yok
     if (!Array.isArray(s.loans)) s.loans = [];
     if (typeof s.debtTimer !== 'number') s.debtTimer = 0;
+    // Sözleşme alanları eski kayıtlarda yok
+    if (!Array.isArray(s.contracts)) s.contracts = [];
+    if (!s.contractRep) s.contractRep = {};
+    if (typeof s.nextContractIn !== 'number') s.nextContractIn = 240;
+    for (const v of VEHICLES) {
+      if (typeof s.lines[v.id].sellPaused !== 'boolean') s.lines[v.id].sellPaused = false;
+    }
     // Finansal grafik alanları eski kayıtlarda yok: mevcut toplamlardan tohumla
     if (typeof s.stats.totalSpent !== 'number') {
       s.stats.totalSpent = Object.values(s.lines).reduce((a, l) => a + (l.spent || 0), 0);

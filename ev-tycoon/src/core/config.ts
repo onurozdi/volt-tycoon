@@ -573,6 +573,51 @@ export const BANKRUPTCY_GRACE = 300; // sn
  */
 export const LOAN_REPAY_FEE = 0.08;
 
+// ---- Sözleşme sistemi (GDD 9d) ----
+
+export interface ContractIssuerDef {
+  id: string;
+  locationId: string;
+}
+
+/** Tesis başına 2 sözleşme veren. AKTİF verenler: açık olan SON 2 tesisin
+    verenleri (fabrika açılınca garaj verenleri artık teklif göndermez). */
+export const CONTRACT_ISSUERS: ContractIssuerDef[] = [
+  { id: 'neighbor', locationId: 'garage' },
+  { id: 'pizzeria', locationId: 'garage' },
+  { id: 'municipality', locationId: 'workshop' },
+  { id: 'courierco', locationId: 'workshop' },
+  { id: 'dealer', locationId: 'factory' },
+  { id: 'rentacar', locationId: 'factory' },
+  { id: 'elektrania', locationId: 'gigafactory' },
+  { id: 'zappistan', locationId: 'gigafactory' },
+];
+
+/** Teklif aralığı (sn) — itibar sıklığı artırır (aşağıdaki çarpanla) */
+export const CONTRACT_GAP_MIN = 300;
+export const CONTRACT_GAP_MAX = 540;
+/** rep başına aralık kısalması (rep 10 → %35 daha sık) */
+export const CONTRACT_REP_GAP_FACTOR = 0.035;
+/** Birim fiyat bandı: piyasanın [0.85, 1.25]'i; rep başına +0.015 kayar */
+export const CONTRACT_PRICE_MIN = 0.85;
+export const CONTRACT_PRICE_MAX = 1.25;
+export const CONTRACT_REP_PRICE_BONUS = 0.015;
+export const CONTRACT_REP_CAP = 10;
+/** Gecikme penceresi = sürenin bu oranı; ödül bu pencere boyunca %100→%50 erir */
+export const CONTRACT_DELAY_RATIO = 0.5;
+export const CONTRACT_DECAY_FLOOR = 0.5;
+/** Tam başarısızlıkta ceza: sözleşme toplam değerinin oranı */
+export const CONTRACT_FAIL_PENALTY = 0.2;
+/** Aynı anda en fazla aktif sözleşme (veren başına 1) */
+export const CONTRACT_MAX_ACTIVE = 2;
+/** Tesise göre sözleşme süresi aralığı (sn) */
+export const CONTRACT_DURATION: Record<string, [number, number]> = {
+  garage: [480, 900],
+  workshop: [900, 1800],
+  factory: [1800, 3600],
+  gigafactory: [3600, 7200],
+};
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye
