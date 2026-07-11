@@ -403,20 +403,19 @@ function consumeMaterials(s: GameState, vehicleId: string, units: number): void 
   }
 }
 
-/** Tedarik Müdürü: eksik hammaddeyi +%10 primle otomatik alır
-    (bir partilik ihtiyacın ~10 katına kadar stoklar; para yetmezse kısmi) */
+/** Tedarik Müdürü: TAM ZAMANINDA alım — üretim başlarken yalnızca o
+    partinin eksiğini +%10 primle alır, asla fazlasını stoklamaz.
+    (Araç 2 lityum istiyorsa 2 lityum alınır.) Para yetmezse kısmi. */
 function autoSupply(s: GameState, vehicleId: string, units: number): void {
   if (!s.supplyManager || s.money <= 0) return;
   const recipe = RECIPES[vehicleId];
   if (!recipe) return;
-  const cap = matCap(s);
   for (const [mat, per] of Object.entries(recipe)) {
     const have = s.materials[mat] ?? 0;
     const need = per * units;
     if (have >= need) continue;
-    const target = Math.min(cap, need * 10);
     const price = Math.max(1, Math.round(matPrice(s, mat) * SUPPLY_PREMIUM));
-    const n = Math.max(0, Math.min(target - have, Math.floor(s.money / price)));
+    const n = Math.max(0, Math.min(need - have, Math.floor(s.money / price)));
     if (n <= 0) continue;
     const cost = n * price;
     s.money -= cost;
