@@ -341,6 +341,36 @@ html, body {
 }
 
 /* Sözleşme kartları (Home üstü, sabit) */
+/* ============ Görsel tesis sahnesi ============ */
+
+.scene {
+  position: relative;
+  height: 96px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #060c1e 0%, #0c193a 70%, #0f2148 100%);
+  margin-bottom: 2px;
+}
+.scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* Zemin neon çizgisi — SVG dar kalsa da tüm genişlikte sürer */
+.scene::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #35e0ff77 15%, #35e0ff77 85%, transparent);
+  box-shadow: 0 0 8px #35e0ff55;
+  pointer-events: none;
+}
+@keyframes scn-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
+.scn-beacon { animation: scn-blink 1.8s ease-in-out infinite; }
+@keyframes scn-glowpulse { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.55; } }
+.scn-doorglow { animation: scn-glowpulse 3.2s ease-in-out infinite; }
+.scn-tip { animation: scn-glowpulse 2.4s ease-in-out infinite; }
+
 .ct-box { display: flex; flex-direction: column; gap: 6px; }
 .ct-box:not(:empty) { margin-bottom: 4px; }
 /* Kompakt şerit: satırın arkaplan dolgusu stok ilerlemesidir */

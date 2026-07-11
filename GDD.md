@@ -287,6 +287,19 @@ Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme 
 
 Tasarım amacı: oto-satış konforuna karşı "biriktir ve topluca sat" kararı; kötü teklifleri reddetmeyi öğrenmek de oyunun parçası.
 
+## 9e. Görsel Tesis Sahnesi
+
+Home'un en tepesinde **sabit 96px yükseklikte SVG panorama** (Neon Tech: koyu gövde + tesise özgü neon kontur). Açılan tesisle soldan sağa büyür: garaj (cyan) → atölye testere çatı (lime) → fabrika bacaları (altın) → gigafactory + yanıp sönen ikaz ışığı (mor). Sıradaki kilitli tesis **soluk kesikli siluet + "?"** olarak görünür (merak unsuru); gökyüzünde tesis büyüdükçe yıldız artar. Yükseklik sabit olduğundan sayfa düzeni asla oynamaz.
+
+**Kilometre taşı detayları** — kazanılan başarımlar sahneye kalıcı minik objeler ekler (oyuncunun hikâyesi birikir):
+
+| Detay | Koşul |
+|---|---|
+| Kedi kulübesi + garaj çatısında kedi 😺 | Tam Kadro (allVehicles) |
+| Atölye üstünde ⚡ reklam panosu | İlk milyon (earned1m) |
+| Saha sonunda şirket bayrağı | İş Gücü 150 çalışan (techLegion) |
+| Gigafactory çatısında uydu çanağı | Araştırma Ustası (researchMaster) |
+
 ## 10. Başarımlar (MVP — gem kaynağı)
 
 | Başarım | Koşul | Gem |

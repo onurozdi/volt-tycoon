@@ -26,6 +26,7 @@ import type { Lang } from '../i18n';
 import { showRewardedAd } from './ads';
 import { icon } from './art';
 import { initMusic, setMusicEnabled, setSoundEnabled, sfx } from './audio';
+import { sceneSVG, sceneSignature } from './scene';
 import { createTimeline } from './timeline';
 
 export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 'settings';
@@ -192,6 +193,18 @@ function renderTab(tab: Tab): void {
 // ---------- HOME ----------
 
 function renderHome(c: HTMLElement): void {
+  // Görsel tesis sahnesi — açılan tesisle büyüyen panorama (sabit yükseklik)
+  const scene = el(`<div class="scene"></div>`);
+  c.appendChild(scene);
+  let lastScn = '';
+  updaters.push(() => {
+    const k = sceneSignature(S);
+    if (k !== lastScn) {
+      lastScn = k;
+      scene.innerHTML = sceneSVG(S);
+    }
+  });
+
   // Aktif sözleşme kartları (varsa) en üstte sabit
   const ctBox = el(`<div class="ct-box"></div>`);
   c.appendChild(ctBox);
