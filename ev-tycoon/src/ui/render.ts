@@ -361,8 +361,8 @@ function vehicleCard(id: string): HTMLElement {
         <div class="vcard-title">${v.name}</div>
         <div class="vcard-class">${t(v.classKey)}</div>
         <div class="vcard-price"></div>
-        <div class="recipe"></div>
       </div>
+      <div class="recipe"></div>
       <div class="vcard-stock">${t('ui.stock')}<b></b><span class="cap"></span></div>
     </div>
     <div class="line-row prod-row">
@@ -414,12 +414,15 @@ function vehicleCard(id: string): HTMLElement {
     recipeEl.innerHTML = Object.entries(recipe)
       .map(([m, n]) => {
         const def = MATERIALS.find((x) => x.id === m);
-        return `<span class="rc" style="color:${def?.accent ?? '#9fb7d8'}">${icon(def?.icon ?? 'steel')}${fmt(n)}</span>`;
+        return `<span class="rc" data-m="${m}" data-n="${n}" style="color:${def?.accent ?? '#9fb7d8'}">${icon(def?.icon ?? 'steel')}${fmt(n)}</span>`;
       })
       .join('');
+    const rcEls = Array.from(recipeEl.querySelectorAll('.rc')) as HTMLElement[];
     updaters.push(() => {
-      const short = Object.entries(recipe).some(([m, n]) => (S.materials[m] ?? 0) < n);
-      recipeEl.classList.toggle('short', short);
+      // Yalnızca BİTEN malzeme kızarır (bir birimlik ihtiyacı karşılamıyorsa)
+      for (const rc of rcEls) {
+        rc.classList.toggle('short', (S.materials[rc.dataset.m as string] ?? 0) < Number(rc.dataset.n));
+      }
     });
   } else {
     recipeEl.remove();
