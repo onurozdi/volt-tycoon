@@ -26,7 +26,7 @@ import type { Lang } from '../i18n';
 import { showRewardedAd } from './ads';
 import { icon } from './art';
 import { initMusic, setMusicEnabled, setSoundEnabled, sfx } from './audio';
-import { sceneSVG, sceneSignature } from './scene';
+import { isoSVG, isoSignature } from './isobg';
 import { createTimeline } from './timeline';
 
 export type Tab = 'home' | 'research' | 'stats' | 'ach' | 'market' | 'bank' | 'settings';
@@ -42,10 +42,58 @@ export function initUI(state: GameState): void {
   S = state;
   setSoundEnabled(S.settings.sound);
   initMusic(S.settings.music);
+  ensureIsoBg();
   renderHUD();
   renderTabbar();
   renderTab(currentTab);
   rotateNews(true);
+}
+
+/** İzometrik arkaplan katmanı: içeriğin arkasında durur, kaydırmayla
+    yavaş parallax yapar (0.25×). Yalnızca Home'da görünür (renderTab). */
+function ensureIsoBg(): void {
+  if (document.getElementById('isobg')) return;
+  const bg = el(`<div id="isobg"><div class="iso-wrap"><div class="iso-sign"></div><div class="iso-art"></div></div></div>`);
+  const app = document.getElementById('app') as HTMLElement;
+  app.insertBefore(bg, app.firstChild);
+  const wrap = bg.querySelector('.iso-wrap') as HTMLElement;
+  const content = $('#content');
+  content.addEventListener('scroll', () => {
+    wrap.style.transform = `translateY(${-content.scrollTop * 0.25}px)`;
+  }, { passive: true });
+}
+
+/** Şirket adı popup'ı — ilk açılışta ve Ayarlar'dan düzenlemede kullanılır */
+export function showCompanyPrompt(done?: () => void): void {
+  setPaused(true);
+  const overlay = el(`<div class="modal-overlay">
+    <div class="modal company-modal">
+      <div class="tut-emoji">🏢⚡</div>
+      <h2>${t('company.title')}</h2>
+      <p>${t('company.prompt')}</p>
+      <input class="company-input" maxlength="18" spellcheck="false" placeholder="${t('company.ph')}" />
+      <div class="modal-btns">
+        <button class="btn btn-unlock c-ok">${t('company.ok')}</button>
+      </div>
+    </div>
+  </div>`);
+  document.body.appendChild(overlay);
+  const inp = overlay.querySelector('.company-input') as HTMLInputElement;
+  inp.value = S.companyName;
+  const confirm = (): void => {
+    S.companyName = inp.value.trim().slice(0, 18) || t('company.ph');
+    persist();
+    overlay.remove();
+    setPaused(false);
+    sfx.buy();
+    if (currentTab === 'home') renderTab('home');
+    done?.();
+  };
+  (overlay.querySelector('.c-ok') as HTMLButtonElement).addEventListener('click', confirm);
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') confirm();
+  });
+  setTimeout(() => inp.focus(), 60);
 }
 
 // ---------- yardımcılar ----------
@@ -181,6 +229,8 @@ function renderTab(tab: Tab): void {
   const c = $('#content');
   c.innerHTML = '';
   c.scrollTop = 0;
+  // İzometrik arkaplan yalnızca Home'da görünür
+  document.getElementById('isobg')?.classList.toggle('on', tab === 'home');
   if (tab === 'home') renderHome(c);
   else if (tab === 'research') renderResearch(c);
   else if (tab === 'stats') renderStats(c);
@@ -193,15 +243,16 @@ function renderTab(tab: Tab): void {
 // ---------- HOME ----------
 
 function renderHome(c: HTMLElement): void {
-  // Görsel tesis sahnesi — açılan tesisle büyüyen panorama (sabit yükseklik)
-  const scene = el(`<div class="scene"></div>`);
-  c.appendChild(scene);
-  let lastScn = '';
+  // İzometrik arkaplan: güncel tesis + kilometre taşı detayları + şirket tabelası
+  let lastIso = '';
   updaters.push(() => {
-    const k = sceneSignature(S);
-    if (k !== lastScn) {
-      lastScn = k;
-      scene.innerHTML = sceneSVG(S);
+    const k = isoSignature(S);
+    if (k !== lastIso) {
+      lastIso = k;
+      const art = document.querySelector('#isobg .iso-art');
+      const sign = document.querySelector('#isobg .iso-sign');
+      if (art) art.innerHTML = isoSVG(S);
+      if (sign) sign.textContent = S.companyName || 'VOLT TYCOON';
     }
   });
 
@@ -1137,6 +1188,21 @@ function renderSettings(c: HTMLElement): void {
     renderTabbar();
     renderTab('settings');
     rotateNews(true);
+  });
+
+  // Şirket adı
+  const coRow = el(`<div class="panel settings-row">
+    <span>${t('company.title')}</span>
+    <button class="btn co-edit"></button>
+  </div>`);
+  c.appendChild(coRow);
+  const coBtn = coRow.querySelector('.co-edit') as HTMLButtonElement;
+  coBtn.textContent = S.companyName || t('company.ph');
+  coBtn.addEventListener('click', () => {
+    sfx.click();
+    showCompanyPrompt(() => {
+      coBtn.textContent = S.companyName;
+    });
   });
 
   // Müzik

@@ -5,7 +5,7 @@ import { computeOffline, setEngineEvents, tick } from './core/engine';
 import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
-import { initUI, persist, saleFloat, showBankruptcy, showContractOffer, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
+import { initUI, persist, saleFloat, showBankruptcy, showCompanyPrompt, showContractOffer, showNewsEvent, showWelcomeBack, toast, updateFrame } from './ui/render';
 import { fmtMoney } from './core/formulas';
 import { initTutorial } from './ui/tutorial';
 import { hydrateFromNative } from './core/storage';
@@ -62,7 +62,9 @@ async function boot(): Promise<void> {
   const report = computeOffline(state, Date.now());
 
   initUI(state);
-  initTutorial(state);
+  // Şirket adı yoksa önce onu sor; öğretici (gerekiyorsa) ardından başlar
+  if (!state.companyName) showCompanyPrompt(() => initTutorial(state));
+  else initTutorial(state);
   if (report) showWelcomeBack(report);
 
   // Ana döngü: sabit zamanlayıcı (arka planda rAF durduğu için ona bağlanmıyoruz)

@@ -84,6 +84,8 @@ export interface GameState {
    */
   chart: { int: number; d: Array<[number, number, number]> };
   settings: { lang: Lang; sound: boolean; music: boolean };
+  /** oyuncunun şirket adı (ilk açılış popup'ında sorulur) */
+  companyName: string;
   /** öğretici adımı: 0 = hikâye bekliyor, 1..N = adımlar, 99 = bitti */
   tutStep: number;
   lastSeen: number; // epoch ms
@@ -138,6 +140,7 @@ export function newGame(lang: Lang): GameState {
     playedSec: 0,
     chart: { int: 10, d: [[0, 0, 0]] },
     settings: { lang, sound: true, music: true },
+    companyName: '',
     tutStep: 0,
     lastSeen: Date.now(),
     createdAt: Date.now(),
@@ -196,6 +199,8 @@ export function loadGame(): GameState | null {
     if (!LANGS.includes(s.settings.lang)) s.settings.lang = 'en';
     // Müzik ayarı eski kayıtlarda yok: sesi kapatan oyuncuya müzik de açılmasın
     if (typeof s.settings.music !== 'boolean') s.settings.music = s.settings.sound;
+    // Şirket adı eski kayıtlarda yok: boş bırak, açılışta popup sorar
+    if (typeof s.companyName !== 'string') s.companyName = '';
     // Öğretici bu alandan önceki kayıtlarda yok: mevcut oyuncuyu rahatsız etme
     if (typeof s.tutStep !== 'number') s.tutStep = 99;
     // Banka alanları eski kayıtlarda yok

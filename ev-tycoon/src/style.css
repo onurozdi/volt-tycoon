@@ -4,7 +4,7 @@
   --bg-0: #060b1d;
   --bg-1: #0a1128;
   --bg-2: #0f1a3d;
-  --panel: #101b3ccc;
+  --panel: #101b3ce6;
   --panel-solid: #111c3e;
   --line: #223061;
   --text: #dfe9ff;
@@ -341,30 +341,70 @@ html, body {
 }
 
 /* Sözleşme kartları (Home üstü, sabit) */
-/* ============ Görsel tesis sahnesi ============ */
+/* ============ İzometrik tesis arkaplanı ============ */
 
-.scene {
-  position: relative;
-  height: 96px;
+#isobg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: linear-gradient(180deg, #060c1e 0%, #0c193a 70%, #0f2148 100%);
-  margin-bottom: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
 }
-.scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-/* Zemin neon çizgisi — SVG dar kalsa da tüm genişlikte sürer */
-.scene::after {
-  content: '';
+#isobg.on { opacity: 1; }
+#isobg .iso-wrap {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 6px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #35e0ff77 15%, #35e0ff77 85%, transparent);
-  box-shadow: 0 0 8px #35e0ff55;
-  pointer-events: none;
+  top: 96px;
+  will-change: transform;
 }
+#isobg .iso-art svg { display: block; width: 100%; height: auto; opacity: 0.55; }
+/* Vinyet: kenarlar ve alt karartılır ki kartlar okunur kalsın */
+#isobg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 85% at 50% 32%, transparent 28%, #060b1daa 68%, #060b1df0 100%),
+    linear-gradient(180deg, #0a112800 55%, #0a1128d8 92%);
+}
+/* Şirket tabelası — arkaplanın parçası, neon altın */
+.iso-sign {
+  text-align: center;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 0 16px #ffd35e99, 0 0 4px #ffd35e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 16px;
+  margin-bottom: 2px;
+  opacity: 0.9;
+}
+
+/* Şirket adı popup'ı */
+.company-modal .company-input {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 14px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+  background: #0a1430;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.company-modal .company-input:focus { border-color: var(--gold); box-shadow: 0 0 10px #ffd35e44; }
+
 @keyframes scn-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
 .scn-beacon { animation: scn-blink 1.8s ease-in-out infinite; }
 @keyframes scn-glowpulse { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.55; } }

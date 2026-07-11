@@ -287,18 +287,22 @@ Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme 
 
 Tasarım amacı: oto-satış konforuna karşı "biriktir ve topluca sat" kararı; kötü teklifleri reddetmeyi öğrenmek de oyunun parçası.
 
-## 9e. Görsel Tesis Sahnesi
+## 9e. İzometrik Tesis Arkaplanı + Şirket Adı
 
-Home'un en tepesinde **sabit 96px yükseklikte SVG panorama** (Neon Tech: koyu gövde + tesise özgü neon kontur). Açılan tesisle soldan sağa büyür: garaj (cyan) → atölye testere çatı (lime) → fabrika bacaları (altın) → gigafactory + yanıp sönen ikaz ışığı (mor). Sıradaki kilitli tesis **soluk kesikli siluet + "?"** olarak görünür (merak unsuru); gökyüzünde tesis büyüdükçe yıldız artar. Yükseklik sabit olduğundan sayfa düzeni asla oynamaz.
+Home içeriğinin **arkasında**, Egg Inc. esintili **izometrik low-poly** tesis görseli durur (Neon Tech paleti: koyu yüzeyler — üst açık/sol orta/sağ koyu iso ışıklandırması — + tesise özgü neon kontur). Her zaman **en büyük açık tesis** çizilir: garaj (cyan) → atölye testere çatı (lime) → fabrika bacaları (altın) → gigafactory çift katlı dev platform + yanıp sönen ikaz (mor).
+
+- **Okunabilirlik önce gelir:** görsel soluk tutulur (%55 opaklık + kenar/alt vinyet), kartlar ~%90 opak — hiçbir rakam arkaplanla karışmaz.
+- **Parallax:** Home kaydırıldıkça arkaplan 0,25× hızla kayar (derinlik hissi). Diğer sekmelerde arkaplan yumuşakça kaybolur.
+- **Şirket adı:** ilk açılışta popup sorar ("Her efsane bir adla başlar…", 18 karakter), Ayarlar'dan değiştirilebilir; tesisin üstünde **neon altın tabela** olarak yazar. Boş bırakılırsa "Volt Motors".
 
 **Kilometre taşı detayları** — kazanılan başarımlar sahneye kalıcı minik objeler ekler (oyuncunun hikâyesi birikir):
 
 | Detay | Koşul |
 |---|---|
-| Kedi kulübesi + garaj çatısında kedi 😺 | Tam Kadro (allVehicles) |
-| Atölye üstünde ⚡ reklam panosu | İlk milyon (earned1m) |
-| Saha sonunda şirket bayrağı | İş Gücü 150 çalışan (techLegion) |
-| Gigafactory çatısında uydu çanağı | Araştırma Ustası (researchMaster) |
+| Kedi kulübesi + çatısında kedi 😺 | Tam Kadro (allVehicles) |
+| Sahada ⚡ reklam totemi | İlk milyon (earned1m) |
+| Şirket bayrağı | İş Gücü 150 çalışan (techLegion) |
+| Çatıda uydu çanağı | Araştırma Ustası (researchMaster, giga sahnesi) |
 
 ## 10. Başarımlar (MVP — gem kaynağı)
 
