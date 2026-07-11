@@ -263,7 +263,7 @@ Tasarım amacı: oyuncu bir hedefe para biriktirirken sıkılmaya başladığın
 
 ## 9d. Sözleşme Panosu
 
-Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme Home'un tepesine **geri sayımlı altın kart** olarak sabitlenir (aynı anda en fazla 2 aktif sözleşme).
+Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme Home'un tepesine **geri sayımlı altın kart** olarak sabitlenir. Eşzamanlı sözleşme sayısı **sınırsız** — doğal sınır, veren başına aynı anda 1 sözleşme kuralıdır (aktif pencerede en çok 4 veren olduğundan pratikte en çok 4).
 
 **Verenler (tesis başına 2):**
 
@@ -281,7 +281,9 @@ Teklifler **popup** olarak gelir (reddetmek ücretsiz); kabul edilen sözleşme 
 
 **Stok biriktirme:** satış müdürü olan hatlarda OTO SAT düğmesi tıklanarak **duraklatılabilir** (⏸); satış durur, stok birikir, sözleşme stoktan tek tuşla teslim edilir.
 
-**Gecikme ve ceza:** son teslim geçilirse **gecikme penceresi** başlar (sözleşme süresinin yarısı): ödül karttan canlı izlenerek doğrusal olarak **%50'ye kadar erir** (kart kırmızı nabız atar, ⚠ %X gösterir). Pencere de dolarsa **BAŞARISIZ**: sözleşme bedelinin **%20'si para cezası** + itibar −1.
+**Gem ikramiyesi:** sözleşmelerin ~%25'i gem ikramiyesi taşır (garage 1 / workshop 1–2 / factory 2–3 / giga 3–5); popup ve kartta 💎 olarak görünür, teslimde ödenir. Yüksek risk-ödül: başarısızlıkta **aynı miktar gem ceza olarak gider** (oyuncunun gem'i asla 0'ın altına inmez).
+
+**Gecikme ve ceza:** son teslim geçilirse **gecikme penceresi** başlar (sözleşme süresinin yarısı): ödül karttan canlı izlenerek doğrusal olarak **%50'ye kadar erir** (kart kırmızı nabız atar, ⚠ %X gösterir). Pencere de dolarsa **BAŞARISIZ**: sözleşme bedelinin **%20'si para cezası** + varsa gem ikramiyesi kadar gem + itibar −1.
 
 Tasarım amacı: oto-satış konforuna karşı "biriktir ve topluca sat" kararı; kötü teklifleri reddetmeyi öğrenmek de oyunun parçası.
 

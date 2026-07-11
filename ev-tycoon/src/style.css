@@ -363,6 +363,7 @@ html, body {
 /* Teklif popup ekleri */
 .ct-modal h2 small.ct-stars { color: var(--gold); font-size: 12px; margin-left: 6px; letter-spacing: 2px; }
 .ct-wants { font-size: 13px; color: var(--text); margin-top: 2px; }
+.ct-gems { color: #c9b6ff; text-shadow: 0 0 8px #a98aff66; }
 .ct-vs { font-size: 11px; font-weight: 800; }
 .ct-vs.up { color: var(--lime); }
 .ct-vs.down { color: var(--danger); }

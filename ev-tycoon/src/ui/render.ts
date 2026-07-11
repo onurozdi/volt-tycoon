@@ -998,6 +998,7 @@ export function showContractOffer(o: ContractOffer): void {
       <p class="ct-wants">${t('ct.wants', { qty: o.qty, vehicle: vehicleName(o.vehicleId) })}</p>
       <p class="event-fx">${fmtMoney(o.unitPrice)} × ${o.qty} = ${fmtMoney(total)}
         <span class="ct-vs ${pct >= 0 ? 'up' : 'down'}">(${t('ct.vsMarket', { pct: pctTxt })})</span></p>
+      ${o.gemBonus > 0 ? `<p class="event-fx ct-gems">💎 ${t('ct.gemBonus', { g: o.gemBonus })}</p>` : ''}
       <p class="event-dur">⏱ ${t('event.duration', { time: fmtTime(o.durationSec) })}</p>
       <div class="modal-btns">
         <button class="btn btn-buy ct-decline">${t('ct.decline')}</button>
@@ -1028,7 +1029,7 @@ function rebuildContractCards(box: HTMLElement): void {
       <div class="ct-head">
         <span class="pl-icon" style="color:${v.accent}">${icon(v.icon)}</span>
         <span class="ct-title">📜 ${t('issuer.' + c.issuerId)}
-          <small>${c.qty} × ${v.name} — ${fmtMoney(c.unitPrice)}</small></span>
+          <small>${c.qty} × ${v.name} — ${fmtMoney(c.unitPrice)}${c.gemBonus > 0 ? ` · +${c.gemBonus}💎` : ''}</small></span>
         <span class="ct-timer"></span>
       </div>
       <div class="bar ct-bar"><div class="bar-fill"></div><div class="bar-label"></div></div>
@@ -1039,7 +1040,7 @@ function rebuildContractCards(box: HTMLElement): void {
       const payout = deliverContract(S, c);
       if (payout !== null) {
         sfx.achievement();
-        toast(`📜 +${fmtMoney(payout)}`, 'gold');
+        toast(`📜 +${fmtMoney(payout)}${c.gemBonus > 0 ? ` +${c.gemBonus}💎` : ''}`, 'gold');
       } else {
         sfx.error();
       }
@@ -1068,7 +1069,7 @@ function updateContractCards(box: HTMLElement): void {
     }
     const btn = card.querySelector('.ct-deliver') as HTMLButtonElement;
     const payout = Math.round(c.qty * c.unitPrice * decay);
-    btn.textContent = `${t('ct.deliver')} +${fmtMoney(payout)}`;
+    btn.textContent = `${t('ct.deliver')} +${fmtMoney(payout)}${c.gemBonus > 0 ? ` +${c.gemBonus}💎` : ''}`;
     btn.disabled = line.stock < c.qty;
   }
 }

@@ -1,7 +1,7 @@
 import {
   ACHIEVEMENTS, AD_REWARD_GEMS, BANKRUPTCY_GRACE, BOOST_HOURS,
   CONTRACT_DECAY_FLOOR, CONTRACT_DELAY_RATIO, CONTRACT_DURATION, CONTRACT_FAIL_PENALTY,
-  CONTRACT_GAP_MAX, CONTRACT_GAP_MIN, CONTRACT_ISSUERS, CONTRACT_MAX_ACTIVE,
+  CONTRACT_GAP_MAX, CONTRACT_GAP_MIN, CONTRACT_GEM_BONUS, CONTRACT_GEM_CHANCE, CONTRACT_ISSUERS,
   CONTRACT_PRICE_MAX, CONTRACT_PRICE_MIN, CONTRACT_REP_CAP, CONTRACT_REP_GAP_FACTOR,
   CONTRACT_REP_PRICE_BONUS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
@@ -36,7 +36,7 @@ export interface EngineEvents {
   onNewsEvent?: (def: NewsEventDef, extra?: BuyoutInfo) => void;
   onBankrupt?: () => void;
   onContractOffer?: (offer: ContractOffer) => void;
-  onContractFailed?: (c: ActiveContract, penalty: number) => void;
+  onContractFailed?: (c: ActiveContract, penalty: number, gemsLost: number) => void;
 }
 
 /** Popup'ta gösterilen, henüz kabul edilmemiş teklif */
@@ -48,6 +48,8 @@ export interface ContractOffer {
   /** piyasa fiyatına oran (karar bilgisi: +%12 / −%8 gibi) */
   vsMarket: number;
   durationSec: number;
+  /** başarıda ekstra gem (0 = yok); başarısızlıkta aynı miktar gem gider */
+  gemBonus: number;
 }
 
 /** Anlık olayların (buyout/gift) popup'ta gösterilecek detayı */
@@ -252,7 +254,13 @@ function generateContractOffer(s: GameState): ContractOffer | null {
   const band = CONTRACT_PRICE_MIN + Math.random() * (CONTRACT_PRICE_MAX - CONTRACT_PRICE_MIN);
   const vsMarket = band + rep * CONTRACT_REP_PRICE_BONUS;
   const unitPrice = Math.max(1, Math.round(sellPriceNoBoost(s, v) * vsMarket));
-  return { issuerId: issuer.id, vehicleId: v.id, qty, unitPrice, vsMarket, durationSec };
+  // Bazı sözleşmeler gem ikramiyesi taşır — başarısızlıkta aynı miktar gem gider
+  let gemBonus = 0;
+  if (Math.random() < CONTRACT_GEM_CHANCE) {
+    const [gMin, gMax] = CONTRACT_GEM_BONUS[issuer.locationId] ?? [1, 1];
+    gemBonus = gMin + Math.floor(Math.random() * (gMax - gMin + 1));
+  }
+  return { issuerId: issuer.id, vehicleId: v.id, qty, unitPrice, vsMarket, durationSec, gemBonus };
 }
 
 function nextContractGap(s: GameState, issuerId: string): number {
@@ -268,13 +276,16 @@ function tickContracts(s: GameState, dt: number): void {
       const penalty = Math.round(c.qty * c.unitPrice * CONTRACT_FAIL_PENALTY);
       s.money -= penalty; // eksiye inebilir (banka/iflas sistemiyle uyumlu)
       s.stats.totalSpent += penalty;
+      // Gem ikramiyeli sözleşmede ceza gem'e de dokunur — ama asla 0'ın altına inmez
+      const gemsLost = Math.min(s.gems, c.gemBonus);
+      s.gems -= gemsLost;
       bumpRep(s, c.issuerId, -1);
       s.contracts = s.contracts.filter((x) => x !== c);
-      events.onContractFailed?.(c, penalty);
+      events.onContractFailed?.(c, penalty, gemsLost);
     }
   }
-  // Yeni teklif zamanlayıcısı
-  if (s.contracts.length >= CONTRACT_MAX_ACTIVE) return;
+  // Yeni teklif zamanlayıcısı (eşzamanlı sözleşme sınırı yok; veren başına 1
+  // sözleşme kuralı generateContractOffer içindeki busy filtresiyle korunur)
   s.nextContractIn -= dt;
   if (s.nextContractIn > 0) return;
   const offer = generateContractOffer(s);
@@ -291,6 +302,7 @@ export function acceptContract(s: GameState, o: ContractOffer): void {
     unitPrice: o.unitPrice,
     deadline: now + o.durationSec * 1000,
     delayUntil: now + o.durationSec * (1 + CONTRACT_DELAY_RATIO) * 1000,
+    gemBonus: o.gemBonus,
   });
 }
 
@@ -314,6 +326,7 @@ export function deliverContract(s: GameState, c: ActiveContract): number | null 
   s.stats.totalSold += c.qty;
   s.stats.totalEarned += payout;
   s.money += payout;
+  s.gems += c.gemBonus;
   bumpRep(s, c.issuerId, 1);
   s.contracts = s.contracts.filter((x) => x !== c);
   checkAchievements(s);

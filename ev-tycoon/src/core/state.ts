@@ -34,6 +34,8 @@ export interface ActiveContract {
   deadline: number;
   /** gecikme penceresinin sonu (epoch ms); geçilirse başarısız + ceza */
   delayUntil: number;
+  /** başarıda ekstra gem; başarısızlıkta aynı miktar gem cezası (taban 0) */
+  gemBonus: number;
 }
 
 export interface ActiveLoan {
@@ -196,6 +198,9 @@ export function loadGame(): GameState | null {
     if (!Array.isArray(s.contracts)) s.contracts = [];
     if (!s.contractRep) s.contractRep = {};
     if (typeof s.nextContractIn !== 'number') s.nextContractIn = 240;
+    for (const c of s.contracts) {
+      if (typeof c.gemBonus !== 'number') c.gemBonus = 0;
+    }
     for (const v of VEHICLES) {
       if (typeof s.lines[v.id].sellPaused !== 'boolean') s.lines[v.id].sellPaused = false;
     }

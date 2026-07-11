@@ -606,10 +606,17 @@ export const CONTRACT_REP_CAP = 10;
 /** Gecikme penceresi = sürenin bu oranı; ödül bu pencere boyunca %100→%50 erir */
 export const CONTRACT_DELAY_RATIO = 0.5;
 export const CONTRACT_DECAY_FLOOR = 0.5;
-/** Tam başarısızlıkta ceza: sözleşme toplam değerinin oranı */
+/** Tam başarısızlıkta ceza: sözleşme toplam değerinin oranı
+    (+ sözleşmede gem ikramiyesi varsa o kadar gem gider, gem 0'ın altına inmez) */
 export const CONTRACT_FAIL_PENALTY = 0.2;
-/** Aynı anda en fazla aktif sözleşme (veren başına 1) */
-export const CONTRACT_MAX_ACTIVE = 2;
+/** Bazı sözleşmelerde gem ikramiyesi: şans + tesise göre miktar aralığı */
+export const CONTRACT_GEM_CHANCE = 0.25;
+export const CONTRACT_GEM_BONUS: Record<string, [number, number]> = {
+  garage: [1, 1],
+  workshop: [1, 2],
+  factory: [2, 3],
+  gigafactory: [3, 5],
+};
 /** Tesise göre sözleşme süresi aralığı (sn) */
 export const CONTRACT_DURATION: Record<string, [number, number]> = {
   garage: [480, 900],

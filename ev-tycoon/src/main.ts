@@ -51,9 +51,10 @@ async function boot(): Promise<void> {
       sfx.news();
       showContractOffer(offer);
     },
-    onContractFailed: (c, penalty) => {
+    onContractFailed: (c, penalty, gemsLost) => {
       sfx.error();
-      toast(t('ct.failed', { issuer: t('issuer.' + c.issuerId), penalty: fmtMoney(penalty) }), 'err');
+      const key = gemsLost > 0 ? 'ct.failedGems' : 'ct.failed';
+      toast(t(key, { issuer: t('issuer.' + c.issuerId), penalty: fmtMoney(penalty), gems: gemsLost }), 'err');
     },
   });
 
