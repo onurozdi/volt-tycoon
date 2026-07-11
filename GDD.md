@@ -272,6 +272,7 @@ Tasarım amacı: oyuncu bir hedefe para biriktirirken sıkılmaya başladığın
 - **Dalgalı piyasa**: fiyat çarpanı 0,55–1,75 bandında rasgele yürüyüş (20 sn'de bir adım) — "ucuzken stokla" kararı. Market'te canlı fiyat (▲/▼ %) + stok barı + parti satın alma düğmeleri. Haber olayları için hazır kanca: "lityum grevi" çarpanı itebilir (9. bölümdeki etkili haberlerle birleşecek).
 - **Tedarik Müdürü** ($40K, tek sefer): depo azalınca **+%10 primle** otomatik alım — üretim durmaz, offline'da da çalışır (gideri Welcome Back'te "🏗 −$X" satırı). Müdürsüz offline: üretim depodakiyle sınırlı.
 - Denge (bot, 24h): workshop 1h09m, factory 6h47m, giga **15h32m** (hammaddesiz 14h16m'ydi — ~%8 yavaşlama, hedeflenen "challenging ama akıcı" bant).
+- Reçete denetimi (11.07.2026): tüm araçlar %18,8–20,5 maliyet bandında; en kötü piyasada (×1,75 + %10 prim) %36-39 — kâr daima pozitif. 36 saatlik tam koşu: VoltVan 18h52m, Colossus 24h27m, Transitron + tüm araştırma **31h09m** (reklamsız optimal; sözleşme/olay/reklam kapalı). Hammadde kaynaklı tıkanma yok; depo kapasiteleri üretimi hiçbir aşamada boğmuyor.
 
 ## 9f. Denge Simülasyonu (src/sim/bot.ts)
 
