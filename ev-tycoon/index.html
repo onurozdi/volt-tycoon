@@ -8,18 +8,43 @@
     <title>Volt Tycoon</title>
   </head>
   <body>
-    <!-- Açılış animasyonu: sallanan kablo + fiş; oyun hazır olunca kapanır -->
+    <!-- Açılış: şimşeğin her kenarı ayrı floresan lamba gibi dağınık sırayla
+         pıtırdayarak yanar; TYCOON'un N'sinden sallanan fiş sarkar -->
     <div id="boot">
-      <svg class="boot-swing" viewBox="-65 0 130 260" xmlns="http://www.w3.org/2000/svg">
-        <path d="M0 0 C 3 55 -4 115 0 168" stroke="#22406e" stroke-width="5" fill="none" stroke-linecap="round"/>
-        <g transform="translate(0 168)">
-          <rect x="-14" y="0" width="28" height="36" rx="7" fill="#0e1c3e" stroke="#35e0ff" stroke-width="2.5"/>
-          <circle cx="0" cy="14" r="4.5" fill="#35e0ff" class="boot-led"/>
-          <rect x="-9" y="36" width="6" height="15" rx="2.5" fill="#ffd35e"/>
-          <rect x="3" y="36" width="6" height="15" rx="2.5" fill="#ffd35e"/>
+      <svg class="boot-bolt" viewBox="320 160 400 710" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bbolt" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3ef0c8"/>
+            <stop offset="55%" stop-color="#7ee87a"/>
+            <stop offset="100%" stop-color="#c8f43e"/>
+          </linearGradient>
+        </defs>
+        <g class="boot-off">
+          <path d="M566 200 L360 560"/><path d="M360 560 L490 560"/>
+          <path d="M490 560 L458 824"/><path d="M458 824 L676 452"/>
+          <path d="M676 452 L542 452"/><path d="M542 452 L566 200"/>
+        </g>
+        <g class="boot-on">
+          <path class="bseg b1" d="M566 200 L360 560"/>
+          <path class="bseg b2" d="M360 560 L490 560"/>
+          <path class="bseg b3" d="M490 560 L458 824"/>
+          <path class="bseg b4" d="M458 824 L676 452"/>
+          <path class="bseg b5" d="M676 452 L542 452"/>
+          <path class="bseg b6" d="M542 452 L566 200"/>
         </g>
       </svg>
-      <div class="boot-title">VOLT TYCOON</div>
+      <div class="boot-words">
+        <div class="boot-w1">VOLT</div>
+        <div class="boot-w2">TYCOON<svg class="boot-cable" viewBox="-28 0 56 170" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0 C 2 38 -3 78 0 116" stroke="#22406e" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <g transform="translate(0 116)">
+            <rect x="-10" y="0" width="20" height="26" rx="5" fill="#0e1c3e" stroke="#35e0ff" stroke-width="2"/>
+            <circle cx="0" cy="10" r="3" fill="#35e0ff" class="boot-led"/>
+            <rect x="-6.5" y="26" width="4.5" height="11" rx="2" fill="#ffd35e"/>
+            <rect x="2" y="26" width="4.5" height="11" rx="2" fill="#ffd35e"/>
+          </g>
+        </svg></div>
+      </div>
       <div class="boot-sub">POCKETFORGE GAMES</div>
     </div>
     <div id="app">

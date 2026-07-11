@@ -341,7 +341,7 @@ html, body {
 }
 
 /* Sözleşme kartları (Home üstü, sabit) */
-/* ============ Açılış animasyonu (sallanan kablo + fiş) ============ */
+/* ============ Açılış animasyonu (floresan şimşek + N'den sarkan fiş) ============ */
 
 #boot {
   position: fixed;
@@ -351,37 +351,105 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 30px;
   background: radial-gradient(120% 90% at 50% 30%, #101d42 0%, #0a1128 55%, #060b1d 100%);
   transition: opacity 0.4s ease;
 }
 #boot.out { opacity: 0; pointer-events: none; }
-#boot .boot-swing {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 130px;
-  height: 300px;
-  margin-left: -65px;
-  transform-origin: 50% 0;
-  animation: boot-swing 1.5s ease-in-out infinite alternate;
+
+/* Şimşek: her kenar ayrı "floresan tüp" — dağınık sırayla pıtırdayıp yanar */
+#boot .boot-bolt { width: 200px; height: auto; }
+#boot .boot-bolt path { stroke-width: 30; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+#boot .boot-off path { stroke: #13264e; }
+#boot .boot-on path {
+  stroke: url(#bbolt);
+  opacity: 0;
+  filter: drop-shadow(0 0 9px #7ee87a99);
+  animation: boot-tube 1.5s ease-out forwards;
 }
-@keyframes boot-swing { from { transform: rotate(-13deg); } to { transform: rotate(13deg); } }
-#boot .boot-led { animation: scn-blink 1s ease-in-out infinite; }
-#boot .boot-title {
-  margin-top: 230px;
+/* Kenarlar komşu sırayla DEĞİL, dağınık gecikmelerle yanar */
+#boot .b1 { animation-delay: 0.05s; }
+#boot .b2 { animation-delay: 0.62s; }
+#boot .b3 { animation-delay: 0.24s; }
+#boot .b4 { animation-delay: 0.86s; }
+#boot .b5 { animation-delay: 0.41s; }
+#boot .b6 { animation-delay: 1.05s; }
+@keyframes boot-tube {
+  0% { opacity: 0; }
+  10% { opacity: 0.85; }
+  14% { opacity: 0.08; }
+  26% { opacity: 0.7; }
+  32% { opacity: 0.12; }
+  44% { opacity: 0.95; }
+  50% { opacity: 0.25; }
+  62% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* İki satır neon tüp yazı */
+#boot .boot-words { text-align: center; position: relative; }
+#boot .boot-w1 {
   font-size: 30px;
   font-weight: 900;
-  letter-spacing: 6px;
-  color: var(--cyan);
-  text-shadow: 0 0 18px #3ef0c888, 0 0 4px #3ef0c8;
-  animation: boot-flicker 2.4s linear infinite;
+  letter-spacing: 14px;
+  margin-right: -14px;
+  color: #b5fdea;
+  text-shadow: 0 0 6px #3ef0c8, 0 0 20px #3ef0c8aa, 0 0 38px #3ef0c855;
+  animation: boot-word 1.2s ease-out 0.35s both;
 }
-#boot .boot-sub { margin-top: 10px; font-size: 10px; letter-spacing: 4px; color: var(--text-dim); font-weight: 700; }
-@keyframes boot-flicker {
-  0%, 7%, 9%, 100% { opacity: 1; }
-  8% { opacity: 0.4; }
-  42%, 44% { opacity: 1; }
-  43% { opacity: 0.55; }
+#boot .boot-w2 {
+  display: inline-block;
+  position: relative;
+  font-size: 46px;
+  font-weight: 900;
+  letter-spacing: 8px;
+  margin-right: -8px;
+  color: #ffeebc;
+  text-shadow: 0 0 6px #ffd35e, 0 0 22px #ffd35eaa, 0 0 40px #ffd35e55;
+  animation: boot-word 1.2s ease-out 0.75s both;
+}
+@keyframes boot-word {
+  0% { opacity: 0; }
+  12% { opacity: 0.8; }
+  16% { opacity: 0.1; }
+  30% { opacity: 0.9; }
+  36% { opacity: 0.2; }
+  50% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* TYCOON'un N'sinden sarkan, sallanan fiş */
+#boot .boot-cable {
+  position: absolute;
+  right: -20px;
+  top: 60%;
+  width: 52px;
+  height: 158px;
+  transform-origin: 50% 0;
+  animation: boot-swing 1.6s ease-in-out infinite alternate;
+}
+@keyframes boot-swing { from { transform: rotate(-11deg); } to { transform: rotate(11deg); } }
+#boot .boot-led { animation: scn-blink 1s ease-in-out infinite; }
+
+#boot .boot-sub {
+  position: absolute;
+  bottom: 26px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+/* Tablette ortalanmış ve daha büyük */
+@media (min-width: 640px) {
+  #boot { gap: 42px; }
+  #boot .boot-bolt { width: 280px; }
+  #boot .boot-w1 { font-size: 44px; letter-spacing: 20px; margin-right: -20px; }
+  #boot .boot-w2 { font-size: 66px; letter-spacing: 12px; margin-right: -12px; }
+  #boot .boot-cable { right: -26px; width: 62px; height: 190px; }
 }
 
 /* ============ Görsel tesis sahnesi (panorama) ============ */
