@@ -361,11 +361,9 @@ function vehicleCard(id: string): HTMLElement {
         <div class="vcard-title">${v.name}</div>
         <div class="vcard-class">${t(v.classKey)}</div>
         <div class="vcard-price"></div>
-      </div>
-      <div class="vcard-side">
-        <div class="vcard-stock">${t('ui.stock')}<b></b><span class="cap"></span></div>
         <div class="recipe"></div>
       </div>
+      <div class="vcard-stock">${t('ui.stock')}<b></b><span class="cap"></span></div>
     </div>
     <div class="line-row prod-row">
       <button class="btn btn-produce"></button>

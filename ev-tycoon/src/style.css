@@ -539,13 +539,14 @@ html, body {
 .mat-cell.low b { color: var(--danger); }
 .mat-cell.low { animation: debt-pulse 1.4s ease-in-out infinite; }
 
-/* Araç reçetesi — başlığın sağında, stok altında dikey mini liste
-   (kart yüksekliğini bozmaz, tüm kartlar aynı boyda kalır) */
-.vcard-side .recipe {
-  display: grid;
-  grid-template-columns: auto auto;
-  gap: 1px 9px;
-  justify-items: end;
+/* Araç reçetesi — fiyatın hemen altında yatay kompakt sıra
+   (başlık yüksekliği sabit: kartlar aynı boyda kalır) */
+.recipe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin-top: 3px;
   font-size: 10px;
   font-weight: 700;
   color: var(--text-dim);
@@ -763,14 +764,8 @@ html, body {
 .vcard-class { font-size: 11px; color: var(--text-dim); letter-spacing: 0.4px; }
 .vcard-price { margin-top: 3px; font-size: 13px; color: var(--lime); font-weight: 700; }
 
-.vcard-side {
-  margin-left: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
 .vcard-stock {
+  margin-left: auto;
   text-align: right;
   font-size: 12px;
   color: var(--text-dim);
