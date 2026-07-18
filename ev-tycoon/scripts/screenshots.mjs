@@ -6,12 +6,18 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 const OUT = process.argv[2];
+// İsteğe bağlı boyut: node screenshots.mjs OUT [genişlik] [yükseklik] [ölçek]
+// Telefon: 450x800x2 → 900x1600 (9:16) · 7" tablet: 720x1280x2 → 1440x2560
+// 10" tablet (yatay): 1280x720x2 → 2560x1440 (16:9)
+const W = Number(process.argv[3]) || 450;
+const H = Number(process.argv[4]) || 800;
+const DSF = Number(process.argv[5]) || 2;
 const URL = 'http://localhost:5188';
 fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await puppeteer.launch({ headless: 'new' });
 const page = await browser.newPage();
-await page.setViewport({ width: 450, height: 800, deviceScaleFactor: 2 });
+await page.setViewport({ width: W, height: H, deviceScaleFactor: DSF });
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const shot = async (name) => {
