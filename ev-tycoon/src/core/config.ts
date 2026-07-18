@@ -481,7 +481,7 @@ export const NEWS: NewsDef[] = [
 /** buyout: süresiz ANLIK olay — stoğu ≥%80 dolu bir aracın tüm stoğu
     anında satılır (yatırımcı ziyareti). Yalnızca uygun araç varken çıkar.
     gift: süresiz ANLIK olay — gizemli ziyaretçi 1-4 gem bırakır. */
-export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout' | 'gift' | 'matgift';
+export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout' | 'gift' | 'matgift' | 'matPrice';
 
 export interface NewsEventDef {
   id: string;
@@ -543,6 +543,22 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'port_container', locationId: 'factory', vehicleId: null, kind: 'matgift', mat: 'chip', pct: 0.3, mult: 1, durationSec: 0, positive: true },
   { id: 'state_recycling', locationId: 'gigafactory', vehicleId: null, kind: 'matgift', mat: 'steel', pct: 0.4, mult: 1, durationSec: 0, positive: true },
   { id: 'lithium_grant', locationId: 'gigafactory', vehicleId: null, kind: 'matgift', mat: 'lithium', pct: 0.35, mult: 1, durationSec: 0, positive: true },
+
+  // ---- Piyasayı sarsan haberler ----
+  // matPrice: süreli hammadde fiyat şoku (mult>1 = zam → KÖTÜ; mult<1 = ucuzluk → İYİ).
+  // "Grev öncesi stokladıysan kazanırsın" — DOLDUR kararını stratejikleştirir.
+  { id: 'lithium_strike', locationId: 'factory', vehicleId: null, kind: 'matPrice', mat: 'lithium', mult: 2.8, durationSec: 150, positive: false },
+  { id: 'lithium_find', locationId: 'gigafactory', vehicleId: null, kind: 'matPrice', mat: 'lithium', mult: 0.5, durationSec: 150, positive: true },
+  { id: 'chip_crisis', locationId: 'factory', vehicleId: null, kind: 'matPrice', mat: 'chip', mult: 2.2, durationSec: 120, positive: false },
+  { id: 'chip_glut', locationId: 'workshop', vehicleId: null, kind: 'matPrice', mat: 'chip', mult: 0.55, durationSec: 120, positive: true },
+  { id: 'steel_tariff', locationId: 'workshop', vehicleId: null, kind: 'matPrice', mat: 'steel', mult: 2.0, durationSec: 120, positive: false },
+  { id: 'steel_dump', locationId: 'workshop', vehicleId: null, kind: 'matPrice', mat: 'steel', mult: 0.5, durationSec: 120, positive: true },
+  { id: 'alu_shortage', locationId: 'factory', vehicleId: null, kind: 'matPrice', mat: 'aluminum', mult: 2.0, durationSec: 120, positive: false },
+  { id: 'alu_surplus', locationId: 'gigafactory', vehicleId: null, kind: 'matPrice', mat: 'aluminum', mult: 0.55, durationSec: 120, positive: true },
+  // Talep/vergi dalgaları (mevcut türlerle):
+  { id: 'ev_tax', locationId: 'workshop', vehicleId: null, kind: 'price', mult: 0.8, durationSec: 120, positive: false },
+  { id: 'hormuz', locationId: 'factory', vehicleId: null, kind: 'sellSpeed', mult: 2.0, durationSec: 120, positive: true },
+  { id: 'ev_fire', locationId: 'factory', vehicleId: null, kind: 'sellSpeed', mult: 0.7, durationSec: 90, positive: false },
 ];
 
 export const EVENT_GAP_MIN = 240; // sn — iki olay arası en az

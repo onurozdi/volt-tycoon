@@ -1524,6 +1524,11 @@ export function rotateNews(immediate = false): void {
 // ---------- Haber olayı popup + aktif olay şeridi ----------
 
 function eventFxText(def: NewsEventDef): string {
+  // Hammadde fiyat şoku: kapsam araç değil malzemedir
+  if (def.kind === 'matPrice') {
+    const dir = def.mult >= 1 ? 'up' : 'down';
+    return t(`event.fx.matPrice.${dir}`, { name: t('mat.' + (def.mat ?? 'steel')), mult: def.mult });
+  }
   const dir = def.mult >= 1 ? 'up' : 'down';
   const fx = t(`event.fx.${def.kind}.${dir}`, { mult: def.mult });
   const scope = def.vehicleId
@@ -1532,8 +1537,13 @@ function eventFxText(def: NewsEventDef): string {
   return `${fx} — ${scope}`;
 }
 
+/** Olay oyuncu İÇİN iyi mi? (matPrice'ta zam kötü, ucuzluk iyidir) */
+function eventIsGood(def: NewsEventDef): boolean {
+  return def.kind === 'matPrice' ? def.mult < 1 : def.mult >= 1;
+}
+
 export function showNewsEvent(def: NewsEventDef, extra?: BuyoutInfo): void {
-  const good = def.mult >= 1;
+  const good = eventIsGood(def);
   const isInstant = def.kind === 'buyout' || def.kind === 'gift' || def.kind === 'matgift';
   const title = t(`event.${def.id}.title`, extra?.vehicleName ? { name: extra.vehicleName } : undefined);
   const fxLine =
@@ -1580,9 +1590,10 @@ function updateEventBar(): void {
   }
   const def = NEWS_EVENTS.find((e) => e.id === ev.id);
   if (!def) return;
+  const good = eventIsGood(def);
   bar.classList.add('on');
-  bar.classList.toggle('bad', def.mult < 1);
-  bar.innerHTML = `<span>${def.mult >= 1 ? '📈' : '📉'} ${t('event.active')}: ${eventFxText(def)}</span><b>${fmtTime((ev.until - Date.now()) / 1000)}</b>`;
+  bar.classList.toggle('bad', !good);
+  bar.innerHTML = `<span>${good ? '📈' : '📉'} ${t('event.active')}: ${eventFxText(def)}</span><b>${fmtTime((ev.until - Date.now()) / 1000)}</b>`;
 }
 
 // ---------- Welcome back ----------

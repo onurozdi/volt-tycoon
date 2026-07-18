@@ -93,7 +93,10 @@ function tickNewsEvents(s: GameState, dt: number): void {
       // matgift: o hammaddeyi kullanan açık bir hat olmalı ve depo dolu olmamalı
       (e.kind !== 'matgift' ||
         ((s.materials[e.mat ?? 'steel'] ?? 0) < matCap(s) * 0.85 &&
-          VEHICLES.some((v) => s.lines[v.id].unlocked && RECIPES[v.id]?.[e.mat ?? 'steel']))),
+          VEHICLES.some((v) => s.lines[v.id].unlocked && RECIPES[v.id]?.[e.mat ?? 'steel']))) &&
+      // matPrice şoku: o hammaddeyi kullanan açık bir hat olmalı (anlamsız şok çıkmasın)
+      (e.kind !== 'matPrice' ||
+        VEHICLES.some((v) => s.lines[v.id].unlocked && RECIPES[v.id]?.[e.mat ?? 'steel'])),
   );
   if (pool.length === 0) return;
   const def = pool[Math.floor(Math.random() * pool.length)];
@@ -364,11 +367,19 @@ export function toggleSellPause(s: GameState, vehicleId: string): void {
 
 // ---------- Hammaddeler ----------
 
-/** Güncel birim fiyat (dalgalı piyasa) */
+/** Güncel birim fiyat: dalgalı piyasa × (varsa) aktif haber şoku.
+    "Lityum grevi" gibi olaylar süre boyunca fiyatı normal bandın
+    çok dışına iter — elle alım, DOLDUR ve Tedarik Müdürü dahil
+    her satın alma bu fiyattan işler. */
 export function matPrice(s: GameState, matId: string): number {
   const def = MATERIALS.find((m) => m.id === matId);
   if (!def) return 1;
-  return Math.max(1, Math.round(def.basePrice * (s.matMult[matId] ?? 1)));
+  let mult = s.matMult[matId] ?? 1;
+  if (s.activeEvent && Date.now() <= s.activeEvent.until) {
+    const ev = NEWS_EVENTS.find((e) => e.id === s.activeEvent!.id);
+    if (ev && ev.kind === 'matPrice' && ev.mat === matId) mult *= ev.mult;
+  }
+  return Math.max(1, Math.round(def.basePrice * mult));
 }
 
 /** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre */
