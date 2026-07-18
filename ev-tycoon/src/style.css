@@ -131,6 +131,9 @@ html, body {
   min-width: 0;
   white-space: nowrap;
 }
+/* Para değeri hücreyi doldurur: daha büyük punto + büyük ikon */
+.hud-money-main .val { font-size: 19px; font-weight: 800; }
+.hud-money-main .icon { width: 21px; height: 21px; }
 .hud-money-side {
   display: flex;
   flex-direction: column;
@@ -524,7 +527,9 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding: 6px 12px;
+  /* mobilde rahat dokunma hedefi (≥44px) */
+  min-height: 46px;
+  padding: 11px 14px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
