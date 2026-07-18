@@ -1,0 +1,69 @@
+<svg viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="fbg" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#122150"/>
+      <stop offset="55%" stop-color="#0b1434"/>
+      <stop offset="100%" stop-color="#060b1d"/>
+    </radialGradient>
+    <filter id="fglow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="500" fill="url(#fbg)"/>
+  <!-- soluk devre izleri -->
+  <g stroke="#35e0ff" stroke-width="4" opacity="0.08" fill="none" stroke-linecap="round">
+    <path d="M30 90h120l60 60v80"/>
+    <path d="M994 110h-100l-50 50"/>
+    <path d="M80 440h130l70-70"/>
+    <path d="M954 420h-120l-50-50"/>
+  </g>
+
+  <!-- Neon tüp logo (açılış ekranıyla aynı dil) — ortalanmış -->
+  <g transform="translate(242 46) scale(0.93)" stroke-linecap="round" stroke-linejoin="round" fill="none" filter="url(#fglow)">
+    <!-- VOLT -->
+    <g stroke-width="11">
+      <path stroke="#35b6ff" d="M60 40 L85 140"/>
+      <path stroke="#35b6ff" d="M110 40 L85 140"/>
+      <circle stroke="#35e0ff" cx="165" cy="90" r="48"/>
+      <path stroke="#2f9fe8" d="M235 40 V140"/>
+      <path stroke="#2f9fe8" d="M235 140 H285"/>
+      <path stroke="#45c8ff" d="M305 40 H380"/>
+      <path stroke="#45c8ff" d="M342 45 V140"/>
+    </g>
+    <!-- şimşek -->
+    <g stroke-width="11">
+      <path stroke="#ffd35e" d="M499 10 L450 96"/>
+      <path stroke="#ffc63c" d="M450 96 H481"/>
+      <path stroke="#ffd35e" d="M481 96 L474 160"/>
+      <path stroke="#ffc63c" d="M474 160 L526 71"/>
+      <path stroke="#ffd35e" d="M526 71 H494"/>
+      <path stroke="#ffc63c" d="M494 71 L499 10"/>
+    </g>
+    <!-- TYCOON -->
+    <g stroke-width="11">
+      <path stroke="#35d0ff" d="M20 185 H95"/>
+      <path stroke="#35d0ff" d="M57 190 V300"/>
+      <path stroke="#2f9fe8" d="M110 185 L140 242"/>
+      <path stroke="#2f9fe8" d="M170 185 L140 242"/>
+      <path stroke="#2f9fe8" d="M140 242 V300"/>
+      <path stroke="#1f6fd0" d="M262 202 A55 55 0 1 0 262 282"/>
+      <circle stroke="#35e0ff" cx="305" cy="242" r="57"/>
+      <circle stroke="#35b6ff" cx="388" cy="242" r="57"/>
+      <path stroke="#45c8ff" d="M465 300 V185"/>
+      <path stroke="#45c8ff" d="M465 185 L535 300"/>
+      <path stroke="#45c8ff" d="M535 300 V185"/>
+    </g>
+    <!-- N'den sarkan fiş -->
+    <path d="M535 300 C537 322 531 344 535 360" stroke="#22406e" stroke-width="4.5"/>
+    <g transform="translate(535 360)">
+      <rect x="-11" y="0" width="22" height="26" rx="5" fill="#0e1c3e" stroke="#35e0ff" stroke-width="2.2"/>
+      <circle cx="0" cy="10" r="3" fill="#35e0ff"/>
+      <rect x="-7.5" y="26" width="5" height="11" rx="2" fill="#ffd35e"/>
+      <rect x="2.5" y="26" width="5" height="11" rx="2" fill="#ffd35e"/>
+    </g>
+  </g>
+
+  <text x="512" y="472" text-anchor="middle" fill="#8fa3d0" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="6">POCKETFORGE GAMES</text>
+</svg>
