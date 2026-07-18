@@ -481,7 +481,7 @@ export const NEWS: NewsDef[] = [
 /** buyout: süresiz ANLIK olay — stoğu ≥%80 dolu bir aracın tüm stoğu
     anında satılır (yatırımcı ziyareti). Yalnızca uygun araç varken çıkar.
     gift: süresiz ANLIK olay — gizemli ziyaretçi 1-4 gem bırakır. */
-export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout' | 'gift';
+export type EventKind = 'prodSpeed' | 'sellSpeed' | 'price' | 'buyout' | 'gift' | 'matgift';
 
 export interface NewsEventDef {
   id: string;
@@ -493,6 +493,9 @@ export interface NewsEventDef {
   mult: number;
   durationSec: number;
   positive: boolean;
+  /** matgift: hediye edilen hammadde ve depo kapasitesinin oranı */
+  mat?: string;
+  pct?: number;
 }
 
 export const NEWS_EVENTS: NewsEventDef[] = [
@@ -529,6 +532,17 @@ export const NEWS_EVENTS: NewsEventDef[] = [
   { id: 'tusk_praise', locationId: 'gigafactory', vehicleId: null, kind: 'price', mult: 1.5, durationSec: 90, positive: true },
   { id: 'rocket_stunt', locationId: 'gigafactory', vehicleId: null, kind: 'sellSpeed', mult: 1.5, durationSec: 90, positive: true },
   { id: 'ai_tantrum', locationId: 'gigafactory', vehicleId: null, kind: 'prodSpeed', mult: 0.85, durationSec: 60, positive: false },
+
+  // ---- Hediye hammadde (anlık; miktar = depo kapasitesinin oranı) ----
+  // Ton tesisle büyür: mahalledeki hurdalıktan devletin geri dönüşüm hibesine
+  { id: 'junkyard_steel', locationId: 'garage', vehicleId: null, kind: 'matgift', mat: 'steel', pct: 0.3, mult: 1, durationSec: 0, positive: true },
+  { id: 'neighbor_scrap', locationId: 'garage', vehicleId: null, kind: 'matgift', mat: 'steel', pct: 0.2, mult: 1, durationSec: 0, positive: true },
+  { id: 'city_recycling', locationId: 'workshop', vehicleId: null, kind: 'matgift', mat: 'aluminum', pct: 0.3, mult: 1, durationSec: 0, positive: true },
+  { id: 'school_chips', locationId: 'workshop', vehicleId: null, kind: 'matgift', mat: 'chip', pct: 0.25, mult: 1, durationSec: 0, positive: true },
+  { id: 'rival_bankrupt', locationId: 'factory', vehicleId: null, kind: 'matgift', mat: 'aluminum', pct: 0.35, mult: 1, durationSec: 0, positive: true },
+  { id: 'port_container', locationId: 'factory', vehicleId: null, kind: 'matgift', mat: 'chip', pct: 0.3, mult: 1, durationSec: 0, positive: true },
+  { id: 'state_recycling', locationId: 'gigafactory', vehicleId: null, kind: 'matgift', mat: 'steel', pct: 0.4, mult: 1, durationSec: 0, positive: true },
+  { id: 'lithium_grant', locationId: 'gigafactory', vehicleId: null, kind: 'matgift', mat: 'lithium', pct: 0.35, mult: 1, durationSec: 0, positive: true },
 ];
 
 export const EVENT_GAP_MIN = 240; // sn — iki olay arası en az
@@ -663,12 +677,16 @@ export const RECIPES: Record<string, Record<string, number>> = {
   transitron: { steel: 8_000_000, aluminum: 4_500_000, chip: 2_500_000, lithium: 1_400_000 },
 };
 
-/** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre */
+/** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre.
+    Eğri "tesisle rahatlar": tam depo, tam kapasite üretimde yaklaşık
+    garage ~15dk (aktif ilgi) → workshop ~1s → factory ~3s → giga ~6-8s
+    (offline tavanıyla uyumlu) yeter — oyuncu ilerledikçe hammaddeye
+    daha seyrek bakar, darlık hissi kalkar ama tamamen de salınmaz. */
 export const MAT_CAPS: Record<string, number> = {
-  garage: 800,
-  workshop: 20_000,
-  factory: 2_000_000,
-  gigafactory: 200_000_000,
+  garage: 8_000,
+  workshop: 120_000,
+  factory: 40_000_000,
+  gigafactory: 8_000_000_000,
 };
 
 /** Fiyat dalgalanması: her adımda ±%6'ya kadar rasgele yürüyüş, geniş bant */

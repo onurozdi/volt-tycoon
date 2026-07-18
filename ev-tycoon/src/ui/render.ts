@@ -1534,14 +1534,16 @@ function eventFxText(def: NewsEventDef): string {
 
 export function showNewsEvent(def: NewsEventDef, extra?: BuyoutInfo): void {
   const good = def.mult >= 1;
-  const isInstant = def.kind === 'buyout' || def.kind === 'gift';
+  const isInstant = def.kind === 'buyout' || def.kind === 'gift' || def.kind === 'matgift';
   const title = t(`event.${def.id}.title`, extra?.vehicleName ? { name: extra.vehicleName } : undefined);
   const fxLine =
     def.kind === 'buyout' && extra?.amount !== undefined
       ? `💰 +${fmtMoney(extra.amount)}`
       : def.kind === 'gift' && extra?.gems !== undefined
         ? `💎 +${extra.gems}`
-        : eventFxText(def);
+        : def.kind === 'matgift' && extra?.matAmount !== undefined
+          ? `🏗 +${fmt(extra.matAmount)} ${t('mat.' + (extra.matId ?? 'steel'))}`
+          : eventFxText(def);
   const durLine = isInstant ? `⚡ ${t('ui.instant')}` : t('event.duration', { time: fmtTime(def.durationSec) });
   // Popup açıkken oyun tamamen durur: üretim/satış ilerlemez, etki
   // süresi işlemez, yeni popup birikmez. Kapatınca etki süresi baştan

@@ -56,11 +56,13 @@ export interface ContractOffer {
   gemBonus: number;
 }
 
-/** Anlık olayların (buyout/gift) popup'ta gösterilecek detayı */
+/** Anlık olayların (buyout/gift/matgift) popup'ta gösterilecek detayı */
 export interface BuyoutInfo {
   vehicleName?: string;
   amount?: number;
   gems?: number;
+  matId?: string;
+  matAmount?: number;
 }
 
 let events: EngineEvents = {};
@@ -87,7 +89,11 @@ function tickNewsEvents(s: GameState, dt: number): void {
       s.locations[e.locationId] &&
       (e.vehicleId === null || s.lines[e.vehicleId]?.unlocked) &&
       // buyout yalnızca stoğu %80+ dolu bir araç varken havuza girer
-      (e.kind !== 'buyout' || buyoutTarget(s) !== null),
+      (e.kind !== 'buyout' || buyoutTarget(s) !== null) &&
+      // matgift: o hammaddeyi kullanan açık bir hat olmalı ve depo dolu olmamalı
+      (e.kind !== 'matgift' ||
+        ((s.materials[e.mat ?? 'steel'] ?? 0) < matCap(s) * 0.85 &&
+          VEHICLES.some((v) => s.lines[v.id].unlocked && RECIPES[v.id]?.[e.mat ?? 'steel']))),
   );
   if (pool.length === 0) return;
   const def = pool[Math.floor(Math.random() * pool.length)];
@@ -115,6 +121,19 @@ function tickNewsEvents(s: GameState, dt: number): void {
     const gems = 1 + Math.floor(Math.random() * 4);
     s.gems += gems;
     events.onNewsEvent?.(def, { gems });
+    return;
+  }
+
+  if (def.kind === 'matgift') {
+    // Anlık olay: depo kapasitesinin belirli oranı kadar hammadde hediye.
+    // Bedava mal ortalama alış maliyetini de düşürür (araç gideri lehine).
+    const mat = def.mat ?? 'steel';
+    const cap = matCap(s);
+    const before = s.materials[mat] ?? 0;
+    const granted = Math.max(1, Math.min(Math.round(cap * (def.pct ?? 0.25)), cap - before));
+    updateAvgCost(s, mat, granted, 0);
+    s.materials[mat] = before + granted;
+    events.onNewsEvent?.(def, { matId: mat, matAmount: granted });
     return;
   }
 
