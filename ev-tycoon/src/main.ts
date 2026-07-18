@@ -87,6 +87,11 @@ async function boot(): Promise<void> {
     const now = performance.now();
     let dt = (now - last) / 1000;
     last = now;
+    // Gizliyken döngü TAMAMEN durur: tarayıcı arka planda zamanlayıcıyı
+    // seyrek de olsa ateşler; tick+autosave çalışırsa lastSeen ilerleyip
+    // dönüşteki offline kredisini tırpanlar (saatler buharlaşır). Gizlenme
+    // anında kayıt zaten alınıyor; dönüşte computeOffline tam süreyi öder.
+    if (document.hidden) return;
     // Haber popup'ı açıkken oyun duraklatılır — üretim/satış/etki ilerlemez
     if (isPaused()) {
       updateFrame(0);
