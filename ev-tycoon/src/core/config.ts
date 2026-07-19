@@ -734,6 +734,15 @@ export const MARK_TAU = 3600; // sn — hype ~3 saatte tabana iner (üstel)
 export const MARK_COST_UNITS = 18;
 export const MARK_RP_BASE = 5; // 10 denendi: research'ten RP çalması pacing'i bozdu
 
+// ---------- Halka Arz (IPO) — prestij döngüsü ----------
+// Koşul: gigafactory açık + bu koşuda ≥ $1B kazanç + borçsuz.
+// Hisse = kök eğrisi (ilk IPO ~12); hisse başına kalıcı +%2 üretim hızı
+// VE +%2 satış fiyatı. Sıfırlanır: para/hatlar/personel/research/RP/
+// tesisler/depo/sözleşmeler/itibar. Korunur: gem/başarım/hisse/ad/ayarlar.
+export const IPO_UNLOCK_EARN = 1_000_000_000;
+export const IPO_SHARE_BASE = 12;
+export const IPO_BONUS_PER_SHARE = 0.02;
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye

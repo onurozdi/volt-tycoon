@@ -325,7 +325,12 @@ Home'un en tepesinde **sabit 96px yükseklikte SVG panorama** (Neon Tech: koyu g
 | Şirket bayrağı | İş Gücü 150 çalışan (techLegion) |
 | Çatıda uydu çanağı | Araştırma Ustası (researchMaster, giga sahnesi) |
 
-## 9h. Prestij — Halka Arz / IPO (ONAYLI TASARIM, 18.07.2026 — uygulama sırada)
+## 9h. Prestij — Halka Arz / IPO (19.07.2026 — YAYINDA)
+
+**Ölçülen sonuçlar (bot, 36h):** ilk IPO 17h40m'de (+12 hisse — hedef 12-15 bandında ✓); 2. koşu: workshop **%42**, factory **%20**, giga **%15** hızlı; bot 36 saat içinde 2. IPO'yu da yaptı — hisseler bileşik büyüdüğü için her koşu bir öncekinden hızlı. (İlk döngü hızlanması "40-60%" hedefin altında ama birikimli yapı türe uygun; istenirse tek sabitle ayarlanır: IPO_BONUS_PER_SHARE.)
+
+**Kritik kural (sim'in yakaladığı tasarım hatasından):** tesis/araç **gem bedelleri yalnızca yaşam boyu İLK açılışta ödenir** — IPO sonrası koşularda gem yeniden istenmez ("lisans sende"). Aksi halde 2. koşu gem'e takılıp kilitleniyordu (başarım gem'leri tek seferlik). Kilitli kartlar sonraki koşularda 💎 rozetini göstermez.
+
 
 Son-oyun döngüsü (bot: mevcut içerik ~31 saatte bitiyor). **Koşul:** gigafactory açık + bu koşuda kazanç ≥ $1B. **Yer:** Banka sekmesinde "HALKA ARZ" paneli + dramatik onay ekranı.
 

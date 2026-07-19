@@ -519,6 +519,11 @@ html, body {
 .scn-doorglow { animation: scn-glowpulse 3.2s ease-in-out infinite; }
 .scn-tip { animation: scn-glowpulse 2.4s ease-in-out infinite; }
 
+/* Halka Arz paneli */
+.ipo-panel { border-color: #ffd35e66; box-shadow: 0 0 10px #ffd35e22; }
+.ipo-panel .ipo-row { font-size: 12px; font-weight: 700; color: var(--text-dim); padding: 2px 0; }
+.ipo-panel .ipo-row:first-child { color: var(--gold); }
+
 /* Mark yükseltme düğmesi + rozet */
 .btn-mark {
   width: 100%;

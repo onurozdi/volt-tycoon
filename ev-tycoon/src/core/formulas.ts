@@ -1,5 +1,5 @@
 import {
-  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, LOCATIONS,
+  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, IPO_BONUS_PER_SHARE, LOCATIONS,
   MARK_COST_UNITS, MARK_FLOOR, MARK_FLOOR_PER_MARK, MARK_HYPE, MARK_MAX, MARK_PRICE_BONUS, MARK_RP_BASE, MARK_TAU,
   NEWS_EVENTS, OVERSTAFF_GROWTH,
   RESEARCH, STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
@@ -95,9 +95,14 @@ export function eventMult(s: GameState, kind: EventKind, vehicleId: string): num
   return def.mult;
 }
 
+/** Halka arz hisse çarpanı: hisse başına +%2 (üretim hızı VE satış fiyatı) */
+export function shareMult(s: GameState): number {
+  return 1 + IPO_BONUS_PER_SHARE * s.shares;
+}
+
 export function prodInterval(s: GameState, v: VehicleDef, line: LineState): number {
   return (v.baseProdTime * rMult(s, 'prodTime') * retrofitMult(s, v.locationId))
-    / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
+    / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id) / shareMult(s);
 }
 
 /** Model hype eğrisi: yeni kasa ×1.25 hızlı satar, üstel olarak ~2 saatte
@@ -132,12 +137,12 @@ export function sellInterval(s: GameState, v: VehicleDef, line: LineState): numb
 
 export function sellPrice(s: GameState, v: VehicleDef): number {
   const boost = Date.now() < s.boostUntil ? BOOST_MULT : 1;
-  return Math.round(v.basePrice * markPriceMult(s.lines[v.id]) * rMult(s, 'price') * boost * eventMult(s, 'price', v.id));
+  return Math.round(v.basePrice * markPriceMult(s.lines[v.id]) * shareMult(s) * rMult(s, 'price') * boost * eventMult(s, 'price', v.id));
 }
 
 /** Boost'suz taban fiyat (offline hesap ve UI için) */
 export function sellPriceNoBoost(s: GameState, v: VehicleDef): number {
-  return Math.round(v.basePrice * markPriceMult(s.lines[v.id]) * rMult(s, 'price'));
+  return Math.round(v.basePrice * markPriceMult(s.lines[v.id]) * shareMult(s) * rMult(s, 'price'));
 }
 
 export function stockCap(s: GameState, v: VehicleDef): number {

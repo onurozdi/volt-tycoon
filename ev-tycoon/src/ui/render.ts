@@ -1,5 +1,6 @@
 import {
   ACHIEVEMENTS, BANKRUPTCY_GRACE, CONTRACT_REP_CAP, CONTRACT_REP_PRICE_BONUS, GEM_COST_BOOST,
+  IPO_BONUS_PER_SHARE, IPO_UNLOCK_EARN,
   GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
   LOANS, LOCATIONS, MATERIALS, NEWS, NEWS_EVENTS, RECIPES, RESEARCH,
   SUPPLY_MANAGER_COST, TIME_WARP_MINUTES, VEHICLES,
@@ -11,7 +12,7 @@ import {
   activeIssuers, buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
   unlockVehicle, unlockLocation, acceptContract, adFillClaim, adRewardBoost, adRewardGems,
-  buyMark, buyMaterial, buySupplyManager, canTakeLoan, contractDecay, deliverContract,
+  buyMark, buyMaterial, buySupplyManager, canIPO, canTakeLoan, contractDecay, deliverContract, doIPO, gemCostFor, ipoShares, runEarned,
   doubleOfflineEarnings, gemInstantSell,
   hasAnyManager, issuerRep, matCap, matDrainPerMin, matPrice, payoffLoan,
   repayCost, takeLoan, timeWarp, toggleSellPause,
@@ -246,11 +247,12 @@ function renderHome(c: HTMLElement): void {
   const scnSign = scene.querySelector('.scene-sign') as HTMLElement;
   let lastScn = '';
   updaters.push(() => {
-    const k = sceneSignature(S) + ':' + S.companyName;
+    const k = sceneSignature(S) + ':' + S.companyName + ':' + S.ipoCount;
     if (k !== lastScn) {
       lastScn = k;
       scnArt.innerHTML = sceneSVG(S);
-      scnSign.textContent = S.companyName;
+      // Her halka arz tabelaya bir ★ ekler (marka büyüme hissi)
+      scnSign.textContent = S.companyName + (S.ipoCount > 0 ? ' ' + '★'.repeat(Math.min(5, S.ipoCount)) : '');
     }
   });
 
@@ -331,7 +333,7 @@ function locationUnlockCard(id: string): HTMLElement {
       <div class="vcard-stock loc-lock">${icon('lock')}</div>
     </div>
     <div class="locked-row">
-      <button class="btn btn-unlock btn-milestone">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}${loc.unlockGems > 0 ? ` + 💎${loc.unlockGems}` : ''}</button>
+      <button class="btn btn-unlock btn-milestone">${t('loc.unlock')} — ${fmtMoney(loc.unlockCost)}${gemCostFor(S, 'loc', id, loc.unlockGems) > 0 ? ` + 💎${loc.unlockGems}` : ''}</button>
     </div>
   </div>`);
   const btn = card.querySelector('.btn-unlock') as HTMLButtonElement;
@@ -345,7 +347,7 @@ function locationUnlockCard(id: string): HTMLElement {
     }
   });
   updaters.push(() => {
-    btn.disabled = S.money < loc.unlockCost || S.gems < loc.unlockGems;
+    btn.disabled = S.money < loc.unlockCost || S.gems < gemCostFor(S, 'loc', id, loc.unlockGems);
   });
   return card;
 }
@@ -643,7 +645,7 @@ function vehicleCard(id: string): HTMLElement {
 
 function lockedCard(id: string): HTMLElement {
   const v = VEHICLES.find((x) => x.id === id)!;
-  const gemPart = v.unlockGems > 0 ? ` + 💎${v.unlockGems}` : '';
+  const gemPart = gemCostFor(S, 'veh', id, v.unlockGems) > 0 ? ` + 💎${v.unlockGems}` : '';
   const card = el(`<div class="vcard locked" style="--accent:#3a4a7a">
     <div class="vcard-head">
       <div class="vcard-icon">${icon(v.icon)}</div>
@@ -668,7 +670,7 @@ function lockedCard(id: string): HTMLElement {
     }
   });
   updaters.push(() => {
-    btn.disabled = S.money < v.unlockCost || S.gems < v.unlockGems;
+    btn.disabled = S.money < v.unlockCost || S.gems < gemCostFor(S, 'veh', id, v.unlockGems);
   });
   return card;
 }
@@ -1162,6 +1164,65 @@ function renderMarket(c: HTMLElement): void {
 function renderBank(c: HTMLElement): void {
   c.appendChild(el(`<div class="screen-title">${t('bank.title')}</div>`));
   c.appendChild(el(`<div class="screen-sub">${t('bank.sub')}</div>`));
+
+  // HALKA ARZ (IPO) — prestij paneli
+  const ipo = el(`<div class="panel ipo-panel">
+    <div class="panel-name">📈 ${t('ipo.title')}</div>
+    <div class="panel-desc" style="margin:4px 0 8px">${t('ipo.desc')}</div>
+    <div class="ipo-status"></div>
+    <button class="btn btn-mark ipo-btn"></button>
+  </div>`);
+  c.appendChild(ipo);
+  const ipoStatus = ipo.querySelector('.ipo-status') as HTMLElement;
+  const ipoBtn = ipo.querySelector('.ipo-btn') as HTMLButtonElement;
+  ipoBtn.addEventListener('click', () => {
+    if (!canIPO(S)) return;
+    sfx.click();
+    setPaused(true);
+    const n = ipoShares(S);
+    const overlay = el(`<div class="modal-overlay">
+      <div class="modal event-modal good ct-modal">
+        <div class="event-badge">📈 ${t('ipo.title')}</div>
+        <h2>${t('ipo.confirmTitle')}</h2>
+        <p class="event-fx">+${fmt(n)} ⭐</p>
+        <p>${t('ipo.confirmBody')}</p>
+        <div class="modal-btns">
+          <button class="btn btn-buy ipo-cancel">${t('settings.cancel')}</button>
+          <button class="btn btn-unlock ipo-go">${t('ipo.button')}</button>
+        </div>
+      </div>
+    </div>`);
+    document.body.appendChild(overlay);
+    (overlay.querySelector('.ipo-cancel') as HTMLButtonElement).addEventListener('click', () => {
+      overlay.remove();
+      setPaused(false);
+    });
+    (overlay.querySelector('.ipo-go') as HTMLButtonElement).addEventListener('click', () => {
+      const gained = doIPO(S);
+      overlay.remove();
+      setPaused(false);
+      persist();
+      sfx.achievement();
+      toast(t('ipo.done', { n: gained }), 'gold');
+      currentTab = 'home';
+      renderTabbar();
+      renderTab('home');
+    });
+  });
+  updaters.push(() => {
+    const rows: string[] = [];
+    if (S.shares > 0) {
+      rows.push(`⭐ ${t('ipo.shares', { n: S.shares, p: Math.round(S.shares * IPO_BONUS_PER_SHARE * 100) })}`);
+    }
+    if (!S.locations['gigafactory']) rows.push(`🔒 ${t('ipo.reqGiga')}`);
+    const earned = runEarned(S);
+    if (earned < IPO_UNLOCK_EARN) rows.push(`💰 ${t('ipo.reqMoney', { cur: fmtMoney(earned), goal: fmtMoney(IPO_UNLOCK_EARN) })}`);
+    if (S.loans.length > 0) rows.push(`🏦 ${t('ipo.reqLoans')}`);
+    ipoStatus.innerHTML = rows.map((x) => `<div class="ipo-row">${x}</div>`).join('');
+    const ok = canIPO(S);
+    ipoBtn.disabled = !ok;
+    ipoBtn.textContent = ok ? `🔔 ${t('ipo.button')} · +${fmt(ipoShares(S))} ⭐` : `🔔 ${t('ipo.button')}`;
+  });
 
   // Aktif krediler
   const activeBox = el(`<div class="bank-active"></div>`);

@@ -78,6 +78,17 @@ export interface GameState {
   supplyManager: boolean;
   /** Günün Sözleşmesi'nin en son sunulduğu yerel gün (YYYY-MM-DD) */
   lastDailyDay: string;
+  /** Halka arz hisseleri — hisse başına kalıcı +%2 üretim + %2 fiyat */
+  shares: number;
+  /** kaç kez halka arz yapıldı (panorama tabelasındaki ★ sayısı) */
+  ipoCount: number;
+  /** son IPO anındaki yaşam boyu kazanç — koşu kazancı = toplam − bu */
+  ipoBaseEarned: number;
+  /** yaşam boyu açılmış araçlar — gem bedeli yalnızca İLK açılışta ödenir
+      (halka arz sonrası koşularda gem yeniden istenmez) */
+  vehEver: Record<string, boolean>;
+  /** yaşam boyu açılmış tesisler — gem bedeli yalnızca İLK açılışta ödenir */
+  locEver: Record<string, boolean>;
   /** bakiye eksideyken aktif oyunda geçen süre (iflas sayacı, sn) */
   debtTimer: number;
   lines: Record<string, LineState>;
@@ -151,6 +162,11 @@ export function newGame(lang: Lang): GameState {
     nextMatDrift: 20,
     supplyManager: false,
     lastDailyDay: '',
+    shares: 0,
+    ipoCount: 0,
+    ipoBaseEarned: 0,
+    vehEver: {},
+    locEver: {},
     debtTimer: 0,
     lines,
     locations,
@@ -246,6 +262,18 @@ export function loadGame(): GameState | null {
     if (typeof s.nextMatDrift !== 'number') s.nextMatDrift = 20;
     if (typeof s.supplyManager !== 'boolean') s.supplyManager = false;
     if (typeof s.lastDailyDay !== 'string') s.lastDailyDay = '';
+    if (typeof s.shares !== 'number') s.shares = 0;
+    if (typeof s.ipoCount !== 'number') s.ipoCount = 0;
+    if (typeof s.ipoBaseEarned !== 'number') s.ipoBaseEarned = 0;
+    // Yaşam boyu lisans kayıtları: mevcut açıklardan tohumla
+    if (!s.vehEver) {
+      s.vehEver = {};
+      for (const v of VEHICLES) if (s.lines[v.id].unlocked) s.vehEver[v.id] = true;
+    }
+    if (!s.locEver) {
+      s.locEver = {};
+      for (const l of LOCATIONS) if (s.locations[l.id]) s.locEver[l.id] = true;
+    }
     for (const v of VEHICLES) {
       if (typeof s.lines[v.id].sellPaused !== 'boolean') s.lines[v.id].sellPaused = false;
       if (typeof s.lines[v.id].mark !== 'number') s.lines[v.id].mark = 0;

@@ -8,7 +8,7 @@
 import { LOANS, LOCATIONS, RECIPES, RESEARCH, VEHICLES } from '../core/config';
 import {
   buyMark, buyMaterial, buyProdManager, buyResearch, buySalesManager, buySalesRep,
-  buySupplyManager, buyTechnician,
+  buySupplyManager, buyTechnician, canIPO, doIPO,
   claim, setEngineEvents, startProduce, startSell, takeLoan, tick,
   unlockLocation, unlockVehicle,
 } from '../core/engine';
@@ -95,6 +95,14 @@ export function runSim(opt: SimOptions): SimReport {
     }
 
     let bought: string | null = null;
+
+    // 0) Halka arz: koşul sağlanır sağlanmaz (optimal prestij oyunu)
+    if (canIPO(s)) {
+      const gained = doIPO(s);
+      milestones.push({ name: `IPO +${gained} hisse`, t, money: 0 });
+      lastPurchaseT = t;
+      continue;
+    }
 
     // 1) Sıradaki tesis (en büyük sıçrama)
     const nextLoc = LOCATIONS.find((l) => !s.locations[l.id]);

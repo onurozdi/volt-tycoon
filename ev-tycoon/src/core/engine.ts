@@ -6,11 +6,13 @@ import {
   CONTRACT_REP_PRICE_BONUS,
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
+  IPO_SHARE_BASE, IPO_UNLOCK_EARN,
   LOAN_REPAY_FEE, LOANS, LOCATIONS, MAT_CAPS, MAT_DRIFT_SEC, MAT_DRIFT_STEP,
   MAT_MULT_MAX, MAT_MULT_MIN, MATERIALS, NEWS_EVENTS, OFFLINE_MIN_SECONDS,
   RECIPES, SUPPLY_MANAGER_COST, SUPPLY_PREMIUM, VEHICLES,
 } from './config';
 import type { ActiveContract } from './state';
+import { newLine } from './state';
 import type { NewsEventDef } from './config';
 import {
   batchSize, claimDuration, claimReward, hasAutoClaim, homeCapFor, markCost, offlineCapSeconds,
@@ -357,6 +359,55 @@ export function deliverContract(s: GameState, c: ActiveContract): number | null 
   s.contracts = s.contracts.filter((x) => x !== c);
   checkAchievements(s);
   return payout;
+}
+
+// ---------- Halka Arz (IPO) ----------
+
+/** Bu koşunun kazancı (son IPO'dan beri) */
+export function runEarned(s: GameState): number {
+  return Math.max(0, s.stats.totalEarned - s.ipoBaseEarned);
+}
+
+/** Halka arz yapılabilir mi? Giga açık + koşuda ≥ $1B + borçsuz */
+export function canIPO(s: GameState): boolean {
+  return !!s.locations['gigafactory'] && runEarned(s) >= IPO_UNLOCK_EARN && s.loans.length === 0;
+}
+
+/** Şimdi arz edilirse kazanılacak hisse (kök eğrisi — ilk IPO ~12) */
+export function ipoShares(s: GameState): number {
+  return Math.floor(IPO_SHARE_BASE * Math.sqrt(runEarned(s) / IPO_UNLOCK_EARN));
+}
+
+/** Halka arz: hisseler kalıcı yazılır, şirket sıfırdan kurulur.
+    Korunur: gem, başarımlar, hisseler, şirket adı, ayarlar, yaşam boyu
+    istatistikler, günlük sözleşme hakkı. Gerisi tertemiz başlar. */
+export function doIPO(s: GameState): number {
+  if (!canIPO(s)) return 0;
+  const gained = ipoShares(s);
+  s.shares += gained;
+  s.ipoCount += 1;
+  s.ipoBaseEarned = s.stats.totalEarned;
+  // --- sıfırlama ---
+  s.money = 0;
+  s.rp = 0;
+  s.claimElapsed = 0;
+  s.boostUntil = 0;
+  s.debtTimer = 0;
+  s.loans = [];
+  s.contracts = [];
+  s.contractRep = {};
+  s.nextContractIn = 240;
+  s.activeEvent = null;
+  s.nextEventIn = 180;
+  s.research = {};
+  s.materials = { steel: 60, aluminum: 0, chip: 0, lithium: 0 };
+  s.matMult = { steel: 1, aluminum: 1, chip: 1, lithium: 1 };
+  s.matAvgCost = { steel: 2, aluminum: 6, chip: 20, lithium: 50 };
+  s.nextMatDrift = 20;
+  s.supplyManager = false;
+  for (const l of LOCATIONS) s.locations[l.id] = l.unlockCost === 0;
+  for (const v of VEHICLES) s.lines[v.id] = newLine(v.unlockCost === 0);
+  return gained;
 }
 
 /** Mark yükseltmesi: para + RP karşılığı yeni kasa — satış fiyatı +%12,
@@ -770,14 +821,23 @@ export function payoffLoan(s: GameState, defId: string): boolean {
   return true;
 }
 
+/** Yaşam boyu lisans kuralı: gem bedeli yalnızca İLK açılışta ödenir —
+    halka arz sonrası koşularda aynı tesis/araç gem istemez (lisans sende) */
+export function gemCostFor(s: GameState, kind: 'veh' | 'loc', id: string, gems: number): number {
+  const ever = kind === 'veh' ? s.vehEver[id] : s.locEver[id];
+  return ever ? 0 : gems;
+}
+
 export function unlockLocation(s: GameState, id: string): boolean {
   const def = LOCATIONS.find((l) => l.id === id);
   if (!def || s.locations[id]) return false;
-  if (s.money < def.unlockCost || s.gems < def.unlockGems) return false;
+  const gemCost = gemCostFor(s, 'loc', id, def.unlockGems);
+  if (s.money < def.unlockCost || s.gems < gemCost) return false;
   s.money -= def.unlockCost;
   s.stats.totalSpent += def.unlockCost;
-  s.gems -= def.unlockGems;
+  s.gems -= gemCost;
   s.locations[id] = true;
+  s.locEver[id] = true;
   checkAchievements(s);
   return true;
 }
@@ -785,13 +845,15 @@ export function unlockLocation(s: GameState, id: string): boolean {
 export function unlockVehicle(s: GameState, id: string): boolean {
   const line = s.lines[id];
   const v = vehicleDef(id);
-  if (line.unlocked || s.money < v.unlockCost || s.gems < v.unlockGems) return false;
+  const gemCost = gemCostFor(s, 'veh', id, v.unlockGems);
+  if (line.unlocked || s.money < v.unlockCost || s.gems < gemCost) return false;
   s.money -= v.unlockCost;
   s.stats.totalSpent += v.unlockCost;
-  s.gems -= v.unlockGems;
+  s.gems -= gemCost;
   line.spent += v.unlockCost;
   line.unlocked = true;
   line.modelAge = 0; // yeni model: satış hype ile başlar
+  s.vehEver[id] = true;
   return true;
 }
 
