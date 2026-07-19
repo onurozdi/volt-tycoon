@@ -1,7 +1,7 @@
 import './style.css';
 import { AUTOSAVE_INTERVAL, SAVE_KEY } from './core/config';
 import { isPaused } from './core/clock';
-import { computeOffline, setEngineEvents, tick } from './core/engine';
+import { computeOffline, dailyContractOffer, setEngineEvents, tick } from './core/engine';
 import { loadGame, newGame, resetGame, saveGame } from './core/state';
 import { detectLang, setLang, t } from './i18n';
 import { sfx } from './ui/audio';
@@ -66,6 +66,17 @@ async function boot(): Promise<void> {
   if (!state.companyName) showCompanyPrompt(() => initTutorial(state));
   else initTutorial(state);
   if (report) showWelcomeBack(report);
+
+  // Günün Sözleşmesi: açılıştan ~8sn sonra (açılış animasyonu + olası
+  // Welcome Back kapandıktan sonra) günde bir kez sunulur
+  setTimeout(() => {
+    if (isPaused()) return; // başka popup açıksa bugünü yakma, yarın gelir
+    const daily = dailyContractOffer(state);
+    if (daily) {
+      sfx.news();
+      showContractOffer(daily);
+    }
+  }, 8000);
 
   // Açılış animasyonu: oyun hazır — en az ~1.4sn gösterim, dokununca atlanır
   const bootEl = document.getElementById('boot');

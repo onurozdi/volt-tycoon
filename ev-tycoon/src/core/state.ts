@@ -72,6 +72,8 @@ export interface GameState {
   nextMatDrift: number;
   /** Tedarik Müdürü: depo azalınca +%10 primle otomatik alım */
   supplyManager: boolean;
+  /** Günün Sözleşmesi'nin en son sunulduğu yerel gün (YYYY-MM-DD) */
+  lastDailyDay: string;
   /** bakiye eksideyken aktif oyunda geçen süre (iflas sayacı, sn) */
   debtTimer: number;
   lines: Record<string, LineState>;
@@ -142,6 +144,7 @@ export function newGame(lang: Lang): GameState {
     matAvgCost: { steel: 2, aluminum: 6, chip: 20, lithium: 50 },
     nextMatDrift: 20,
     supplyManager: false,
+    lastDailyDay: '',
     debtTimer: 0,
     lines,
     locations,
@@ -236,6 +239,7 @@ export function loadGame(): GameState | null {
     if (!s.matAvgCost) s.matAvgCost = { steel: 2, aluminum: 6, chip: 20, lithium: 50 };
     if (typeof s.nextMatDrift !== 'number') s.nextMatDrift = 20;
     if (typeof s.supplyManager !== 'boolean') s.supplyManager = false;
+    if (typeof s.lastDailyDay !== 'string') s.lastDailyDay = '';
     for (const v of VEHICLES) {
       if (typeof s.lines[v.id].sellPaused !== 'boolean') s.lines[v.id].sellPaused = false;
     }

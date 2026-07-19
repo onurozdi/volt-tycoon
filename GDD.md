@@ -325,6 +325,30 @@ Home'un en tepesinde **sabit 96px yükseklikte SVG panorama** (Neon Tech: koyu g
 | Şirket bayrağı | İş Gücü 150 çalışan (techLegion) |
 | Çatıda uydu çanağı | Araştırma Ustası (researchMaster, giga sahnesi) |
 
+## 9h. Prestij — Halka Arz / IPO (ONAYLI TASARIM, 18.07.2026 — uygulama sırada)
+
+Son-oyun döngüsü (bot: mevcut içerik ~31 saatte bitiyor). **Koşul:** gigafactory açık + bu koşuda kazanç ≥ $1B. **Yer:** Banka sekmesinde "HALKA ARZ" paneli + dramatik onay ekranı.
+
+- **Hisse kazanımı:** koşu kazancına bağlı kök eğrisi (ilk IPO ~12-15 hisse; her koşu kabaca katlar).
+- **Hisse bonusu (kalıcı):** hisse başına **+%2 üretim hızı VE +%2 satış fiyatı**.
+- **Sıfırlanır:** para, hatlar (ZipVolt hariç kilitli), personel, müdürler, research, RP, tesisler (garaj kalır), depo (başlangıç paketi), krediler (borçluyken IPO YAPILAMAZ — önce kapat), sözleşmeler ve **itibar** (yeni şirket = yeni ilişkiler).
+- **Korunur:** gem, başarımlar, hisseler, şirket adı, ayarlar, yaşam boyu istatistikler.
+- **Kimlik:** ad kalır; panoramadaki tabelaya IPO başına **★** eklenir ("Onur Cars ★★").
+- **Doğrulama:** bot simülasyonu IPO döngüsüyle koşacak — 2. koşu %40-60 daha hızlı hedef.
+
+## 9i. Günün Sözleşmesi (18.07.2026 — yayında)
+
+Günde bir kez (yerel gün), açılıştan ~8 sn sonra "Günün Siparişi" popup'ı: en büyük açık araçtan depo %60'ı kadar sipariş, **piyasanın ×1,2'si** + tesise göre **3-6 gem** ödül, süre cömert (dolum ×2). Reddetmek de günü kullanır; aktif günlük sözleşme varken yenisi gelmez; öğretici bitmeden hiç gelmez. Zorlamasız "yarın yine gel" nezaketi.
+
+## 9j. Araç Kademeleri — Mark II/III + model eskimesi (PLANLI, IPO sonrası; sim kapılı)
+
+Kullanıcı tasarımı: her kasanın satış hızı zamanla yavaşlar ama **asla sıfırlanmaz** (taban), yeni kasa hype ile yüksek başlar. Parametre önerisi: hype ×1,25 → ~2 saatte taban ×0,8; Mark yükseltmesi para+RP, satış fiyatı +%12/kademe, **üretim hızı değişmez**; kartta Mk II/III rozeti. Denge kapısı: bot koşusunda giga süresi %10'dan fazla uzarsa yayın öncesi yumuşatılır. Mevcut keyif dengesi ("biraz risk, ilerleyen sayılar") korunacak.
+
+## 9k. Yol haritası notları (18.07.2026)
+
+- **Bulut kayıt** iki katman: (1) Kayıt Dışa/İçe Aktar (kod string; hemen, cihazdan bağımsız, iOS'a da hazır) → (2) Play Games Services Saved Games (lansman öncesi; Console'da PGS projesi + native köprü; emülatörde test edilir — fiziksel cihaz gerekmez).
+- **AdMob:** hesap başvurusu KULLANICI aksiyonu (admob.google.com — ödeme/adres doğrulaması haftalar sürebilir, erken başvur). SDK + UMP onay akışı lansman sprintinde; ek fikir: "Şok Sigortası" (kötü haberi reklamla iptal et — oyuncu dostu).
+
 ## 10. Başarımlar (MVP — gem kaynağı)
 
 | Başarım | Koşul | Gem |

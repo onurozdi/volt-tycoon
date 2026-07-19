@@ -359,6 +359,38 @@ export function deliverContract(s: GameState, c: ActiveContract): number | null 
   return payout;
 }
 
+/** Günün Sözleşmesi: günde bir kez, piyasa ÜSTÜ fiyat + gem ödüllü özel
+    teklif ("yarın yine gel" nezaketi — zorlamasız retention). Teklif
+    sunulduğu an gün işaretlenir; reddetmek de hakkı kullanır. */
+export function dailyContractOffer(s: GameState): ContractOffer | null {
+  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD (yerel)
+  if (s.lastDailyDay === today) return null;
+  if (s.tutStep < 99) return null; // öğretici bitmeden rahatsız etme
+  if (s.contracts.some((c) => c.issuerId === 'daily')) return null;
+  // En büyük açık araç (oyuncunun güncel düzlemi)
+  let v: (typeof VEHICLES)[number] | null = null;
+  for (const cand of VEHICLES) if (s.lines[cand.id].unlocked) v = cand;
+  if (!v) return null;
+  s.lastDailyDay = today;
+  const line = s.lines[v.id];
+  const cap = stockCap(s, v);
+  const qty = Math.max(3, Math.floor(cap * 0.6));
+  const fillSec = (qty * prodInterval(s, v, line)) / batchSize(s);
+  const durationSec = Math.round(Math.min(7200, Math.max(600, fillSec * 2)));
+  const unitPrice = Math.max(1, Math.round(sellPriceNoBoost(s, v) * 1.2));
+  // Gem ödülü tesise göre: garage 3 → giga 6
+  const tierGems: Record<string, number> = { garage: 3, workshop: 4, factory: 5, gigafactory: 6 };
+  return {
+    issuerId: 'daily',
+    vehicleId: v.id,
+    qty,
+    unitPrice,
+    vsMarket: 1.2,
+    durationSec,
+    gemBonus: tierGems[v.locationId] ?? 3,
+  };
+}
+
 /** Oto-satışı hat bazında duraklat/başlat (sözleşme için stok biriktirme) */
 export function toggleSellPause(s: GameState, vehicleId: string): void {
   const line = s.lines[vehicleId];
