@@ -275,7 +275,6 @@ function renderHome(c: HTMLElement): void {
     const show = VEHICLES.some((x) => S.lines[x.id].unlocked && RECIPES[x.id]);
     matStrip.classList.toggle('on', show);
     if (!show) return;
-    const cap = matCap(S);
     for (const mc of matCells) {
       const have = S.materials[mc.id] ?? 0;
       (mc.box.querySelector('b') as HTMLElement).textContent = fmt(have);
@@ -283,7 +282,7 @@ function renderHome(c: HTMLElement): void {
       const drain = matDrainPerMin(S, mc.id);
       (mc.box.querySelector('small') as HTMLElement).textContent =
         drain > 0 ? `−${drain >= 10 ? fmt(Math.round(drain)) : Math.round(drain * 10) / 10}/${t('ui.minShort')}` : '';
-      mc.box.classList.toggle('low', have < cap * 0.05);
+      mc.box.classList.toggle('low', have < matCap(S, mc.id) * 0.05);
     }
   });
 
@@ -993,11 +992,11 @@ function renderMarket(c: HTMLElement): void {
       const b10 = row.querySelector('.m-b10') as HTMLButtonElement;
       const bmax = row.querySelector('.m-max') as HTMLButtonElement;
       b10.addEventListener('click', () => {
-        if (buyMaterial(S, m.id, Math.max(1, Math.ceil(matCap(S) * 0.1))) > 0) sfx.buy();
+        if (buyMaterial(S, m.id, Math.max(1, Math.ceil(matCap(S, m.id) * 0.1))) > 0) sfx.buy();
         else sfx.error();
       });
       bmax.addEventListener('click', () => {
-        if (buyMaterial(S, m.id, matCap(S)) > 0) sfx.buy();
+        if (buyMaterial(S, m.id, matCap(S, m.id)) > 0) sfx.buy();
         else sfx.error();
       });
       updaters.push(() => {
@@ -1006,7 +1005,7 @@ function renderMarket(c: HTMLElement): void {
         priceLbl.textContent = fmtMoney(p) + (pct !== 0 ? ` ${pct > 0 ? '▲' : '▼'}%${Math.abs(pct)}` : '');
         priceLbl.classList.toggle('up', p > m.basePrice);
         priceLbl.classList.toggle('down', p < m.basePrice);
-        const cap = matCap(S);
+        const cap = matCap(S, m.id);
         const have = S.materials[m.id] ?? 0;
         fillEl.style.width = `${Math.min(100, (have / cap) * 100)}%`;
         const drain = matDrainPerMin(S, m.id);

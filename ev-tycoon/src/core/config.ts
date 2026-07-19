@@ -671,26 +671,31 @@ export interface MaterialDef {
   accent: string;
 }
 
+// Fiziksel mantık (kullanıcı tasarımı): araç başına ADET sıralaması
+// Çelik > Alüminyum > Lityum > Çip (bir arabada tonlarca çelik, birkaç çip);
+// birim FİYAT tam tersi: çip en pahalı. Toplam maliyet yine fiyatın ~%20'si.
 export const MATERIALS: MaterialDef[] = [
   { id: 'steel', basePrice: 2, icon: 'steel', accent: '#9fb7d8' },
   { id: 'aluminum', basePrice: 6, icon: 'alu', accent: '#7fd8ff' },
-  { id: 'chip', basePrice: 20, icon: 'chip', accent: '#c8f43e' },
-  { id: 'lithium', basePrice: 50, icon: 'lithium', accent: '#c9b6ff' },
+  { id: 'lithium', basePrice: 40, icon: 'lithium', accent: '#c9b6ff' },
+  { id: 'chip', basePrice: 300, icon: 'chip', accent: '#c8f43e' },
 ];
 
-/** Araç başına hammadde reçetesi (birim başına adet). ZipVolt yok. */
+/** Araç başına hammadde reçetesi (birim başına adet). ZipVolt yok.
+    Kademeli giriş: garaj yalnız çelik(+alüminyum), lityum workshop'ta,
+    çip fairwaygo'dan itibaren (yüksek teknoloji hissi). */
 export const RECIPES: Record<string, Record<string, number>> = {
   voltrider: { steel: 9 },
-  econoev: { steel: 40, aluminum: 20, chip: 1 },
-  trihauler: { steel: 120, aluminum: 40, chip: 8 },
-  fairwaygo: { steel: 300, aluminum: 150, chip: 60, lithium: 6 },
-  citypod: { steel: 1500, aluminum: 800, chip: 300, lithium: 80 },
-  volterra: { steel: 6000, aluminum: 3000, chip: 1500, lithium: 600 },
-  terravolt: { steel: 25_000, aluminum: 12_000, chip: 6000, lithium: 3000 },
-  haulen: { steel: 100_000, aluminum: 50_000, chip: 25_000, lithium: 16_000 },
-  voltvan: { steel: 400_000, aluminum: 250_000, chip: 120_000, lithium: 70_000 },
-  colossus: { steel: 1_800_000, aluminum: 1_000_000, chip: 600_000, lithium: 300_000 },
-  transitron: { steel: 8_000_000, aluminum: 4_500_000, chip: 2_500_000, lithium: 1_400_000 },
+  econoev: { steel: 50, aluminum: 13, lithium: 1 },
+  trihauler: { steel: 150, aluminum: 40, lithium: 2 },
+  fairwaygo: { steel: 700, aluminum: 150, lithium: 12, chip: 1 },
+  citypod: { steel: 3600, aluminum: 900, lithium: 80, chip: 7 },
+  volterra: { steel: 17_000, aluminum: 4500, lithium: 450, chip: 37 },
+  terravolt: { steel: 75_000, aluminum: 20_000, lithium: 2000, chip: 165 },
+  haulen: { steel: 340_000, aluminum: 90_000, lithium: 9000, chip: 730 },
+  voltvan: { steel: 1_500_000, aluminum: 400_000, lithium: 40_000, chip: 3300 },
+  colossus: { steel: 6_800_000, aluminum: 1_800_000, lithium: 180_000, chip: 15_000 },
+  transitron: { steel: 30_000_000, aluminum: 8_000_000, lithium: 800_000, chip: 66_000 },
 };
 
 /** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre.
@@ -703,6 +708,16 @@ export const MAT_CAPS: Record<string, number> = {
   workshop: 120_000,
   factory: 40_000_000,
   gigafactory: 8_000_000_000,
+};
+
+/** Hammadde başına depo oranı — tüketim oranlarını yansıtır (çelik deposu
+    dev, çip rafı küçük); böylece her malzemenin "tam depo kaç saat yeter"
+    süresi yaklaşık eşittir ve perakende alım parti boyutları mantıklıdır */
+export const MAT_CAP_FACTOR: Record<string, number> = {
+  steel: 1,
+  aluminum: 0.3,
+  lithium: 0.03,
+  chip: 0.003,
 };
 
 /** Fiyat dalgalanması: her adımda ±%6'ya kadar rasgele yürüyüş, geniş bant */

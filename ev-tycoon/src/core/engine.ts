@@ -7,7 +7,7 @@ import {
   EVENT_GAP_MAX, EVENT_GAP_MIN, EVENT_POSITIVE_CHANCE,
   GEM_COST_BOOST, GEM_COST_INSTANT_CLAIM, GEM_COST_INSTANT_PROD,
   IPO_SHARE_BASE, IPO_UNLOCK_EARN,
-  LOAN_REPAY_FEE, LOANS, LOCATIONS, MAT_CAPS, MAT_DRIFT_SEC, MAT_DRIFT_STEP,
+  LOAN_REPAY_FEE, LOANS, LOCATIONS, MAT_CAP_FACTOR, MAT_CAPS, MAT_DRIFT_SEC, MAT_DRIFT_STEP,
   MAT_MULT_MAX, MAT_MULT_MIN, MATERIALS, NEWS_EVENTS, OFFLINE_MIN_SECONDS,
   RECIPES, SUPPLY_MANAGER_COST, SUPPLY_PREMIUM, VEHICLES,
 } from './config';
@@ -94,7 +94,7 @@ function tickNewsEvents(s: GameState, dt: number): void {
       (e.kind !== 'buyout' || buyoutTarget(s) !== null) &&
       // matgift: o hammaddeyi kullanan açık bir hat olmalı ve depo dolu olmamalı
       (e.kind !== 'matgift' ||
-        ((s.materials[e.mat ?? 'steel'] ?? 0) < matCap(s) * 0.85 &&
+        ((s.materials[e.mat ?? 'steel'] ?? 0) < matCap(s, e.mat ?? 'steel') * 0.85 &&
           VEHICLES.some((v) => s.lines[v.id].unlocked && RECIPES[v.id]?.[e.mat ?? 'steel']))) &&
       // matPrice şoku: o hammaddeyi kullanan açık bir hat olmalı (anlamsız şok çıkmasın)
       (e.kind !== 'matPrice' ||
@@ -133,7 +133,7 @@ function tickNewsEvents(s: GameState, dt: number): void {
     // Anlık olay: depo kapasitesinin belirli oranı kadar hammadde hediye.
     // Bedava mal ortalama alış maliyetini de düşürür (araç gideri lehine).
     const mat = def.mat ?? 'steel';
-    const cap = matCap(s);
+    const cap = matCap(s, mat);
     const before = s.materials[mat] ?? 0;
     const granted = Math.max(1, Math.min(Math.round(cap * (def.pct ?? 0.25)), cap - before));
     updateAvgCost(s, mat, granted, 0);
@@ -483,13 +483,14 @@ export function matPrice(s: GameState, matId: string): number {
   return Math.max(1, Math.round(def.basePrice * mult));
 }
 
-/** Depo kapasitesi (hammadde başına) — açık en büyük tesise göre */
-export function matCap(s: GameState): number {
-  let cap = MAT_CAPS.garage;
+/** Depo kapasitesi — açık en büyük tesise VE malzemeye göre:
+    çelik deposu dev, çip rafı küçük (tüketim oranlarıyla uyumlu) */
+export function matCap(s: GameState, matId: string): number {
+  let base = MAT_CAPS.garage;
   for (const l of LOCATIONS) {
-    if (s.locations[l.id] && MAT_CAPS[l.id] > cap) cap = MAT_CAPS[l.id];
+    if (s.locations[l.id] && MAT_CAPS[l.id] > base) base = MAT_CAPS[l.id];
   }
-  return cap;
+  return Math.max(10, Math.round(base * (MAT_CAP_FACTOR[matId] ?? 1)));
 }
 
 /** Depo ortalama alış maliyetini güncelle (ağırlıklı ortalama) —
@@ -504,7 +505,7 @@ function updateAvgCost(s: GameState, matId: string, addUnits: number, unitPrice:
 export function buyMaterial(s: GameState, matId: string, units: number): number {
   if (s.money < 0) return 0; // eksi bakiyede satın alma yok (banka kuralı)
   const price = matPrice(s, matId);
-  const room = matCap(s) - (s.materials[matId] ?? 0);
+  const room = matCap(s, matId) - (s.materials[matId] ?? 0);
   let n = Math.max(0, Math.min(units, room, Math.floor(s.money / price)));
   if (n <= 0) return 0;
   const cost = n * price;
