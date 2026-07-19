@@ -337,6 +337,11 @@ html, body {
   letter-spacing: 2px;
 }
 .loc-unlock .loc-lock { color: #ffd35e99; }
+/* Kilit simgeleri sabit boyutlu — kartı şişirmesin (mobil/tablet) */
+.loc-lock .icon,
+.loc-lock .icon svg { width: 46px; height: 46px; }
+.vcard.locked .vcard-stock .icon,
+.vcard.locked .vcard-stock .icon svg { width: 34px; height: 34px; }
 .btn-unlock.btn-milestone {
   background: linear-gradient(180deg, #ffca3a, #d99a12);
   color: #241c08;
