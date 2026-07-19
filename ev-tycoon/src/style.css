@@ -519,6 +519,33 @@ html, body {
 .scn-doorglow { animation: scn-glowpulse 3.2s ease-in-out infinite; }
 .scn-tip { animation: scn-glowpulse 2.4s ease-in-out infinite; }
 
+/* Mark yükseltme düğmesi + rozet */
+.btn-mark {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--gold);
+  background: linear-gradient(180deg, #241d08, #191405);
+  border: 1.4px solid #ffd35e88;
+  border-radius: 10px;
+  box-shadow: 0 0 8px #ffd35e22;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-mark:active { box-shadow: 0 0 14px #ffd35e66; }
+.btn-mark:disabled { opacity: 0.45; box-shadow: none; }
+.vcard-title .mk-badge {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 8px #ffd35e66;
+  letter-spacing: 0.5px;
+}
+
 /* ============ Hammadde deposu ============ */
 
 /* Home şeridi: 4 stok bir arada, dokununca Market'e götürür */

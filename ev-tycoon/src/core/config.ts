@@ -714,6 +714,26 @@ export const MAT_MULT_MAX = 1.75;
 export const SUPPLY_MANAGER_COST = 40_000;
 export const SUPPLY_PREMIUM = 1.1;
 
+// ---------- Araç kademeleri (Mark II/III) + model eskimesi ----------
+// Yeni kasa hype ile hızlı satar, zamanla yavaşlar ama ASLA tabanın altına
+// inmez (eski araba da satılır — özellikle hype geçince). Üretim hızı
+// kademeyle DEĞİŞMEZ (kullanıcı kararı); satış fiyatı kademe başına artar.
+export const MARK_MAX = 2; // Mk I → II → III
+export const MARK_PRICE_BONUS = 0.12; // kademe başına satış fiyatı +%12
+export const MARK_HYPE = 1.25; // yeni kasa satış hızı çarpanı
+// Taban 0.9: denge kapısı 0.8'i reddetti (giga +%33 uzadı; +%10 sınırı aşıldı).
+// 0.9 ile eskime hissedilir ama boğmaz; Mk III (+%24 fiyat) fazlasıyla telafi eder.
+export const MARK_FLOOR = 0.92;
+/** Her Mark tabanı yükseltir: Mk II 0.95, Mk III 1.0 — yeni kasa eskimeye
+    dirençlidir; yükseltme, eskime baskısına kalıcı cevaptır */
+export const MARK_FLOOR_PER_MARK = 0.05;
+export const MARK_TAU = 3600; // sn — hype ~3 saatte tabana iner (üstel)
+/** Yükseltme bedeli: para = basePrice × 18 × hedefKademe; RP = tesisSırası×10×hedefKademe
+    (40 denendi: geç oyunda tesis birikimini boğdu — denge kapısı 18'e indirdi;
+    +%12 fiyatla geri ödeme ~15-30 dk) */
+export const MARK_COST_UNITS = 18;
+export const MARK_RP_BASE = 5; // 10 denendi: research'ten RP çalması pacing'i bozdu
+
 export const SAVE_KEY = 'evtycoon_save_v1';
 export const SAVE_VERSION = 1;
 export const AUTOSAVE_INTERVAL = 10; // saniye

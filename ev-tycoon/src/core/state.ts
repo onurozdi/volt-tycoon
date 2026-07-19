@@ -18,6 +18,10 @@ export interface LineState {
   totalProduced: number;
   /** oyuncu oto-satışı duraklatıp stok biriktiriyor (sözleşmeler için) */
   sellPaused: boolean;
+  /** araç kademesi: 0 = Mk I, 1 = Mk II, 2 = Mk III */
+  mark: number;
+  /** model yaşı (sn) — hype eğrisi; kilit açma ve Mark yükseltmesi sıfırlar */
+  modelAge: number;
   /** bu hattın toplam satış geliri (ciro) */
   revenue: number;
   /** bu hatta yapılan para harcaması (lisans + personel + müdürler) */
@@ -120,6 +124,8 @@ export function newLine(unlocked: boolean): LineState {
     totalSold: 0,
     totalProduced: 0,
     sellPaused: false,
+    mark: 0,
+    modelAge: 0,
     revenue: 0,
     spent: 0,
   };
@@ -242,6 +248,13 @@ export function loadGame(): GameState | null {
     if (typeof s.lastDailyDay !== 'string') s.lastDailyDay = '';
     for (const v of VEHICLES) {
       if (typeof s.lines[v.id].sellPaused !== 'boolean') s.lines[v.id].sellPaused = false;
+      if (typeof s.lines[v.id].mark !== 'number') s.lines[v.id].mark = 0;
+      // Eskime sistemi eklenmeden önceki kayıtlar: NÖTR yaşta başlat
+      // (çarpan ≈ 1.0 — mevcut oyuncular ani yavaşlama hissetmez, oradan
+      // yavaşça tabana süzülür); kilitli hatlar 0'da kalır (açılışta hype)
+      if (typeof s.lines[v.id].modelAge !== 'number') {
+        s.lines[v.id].modelAge = s.lines[v.id].unlocked ? 5100 : 0; // çarpan ≈ 1.0 (nötr)
+      }
     }
     // Finansal grafik alanları eski kayıtlarda yok: mevcut toplamlardan tohumla
     if (typeof s.stats.totalSpent !== 'number') {

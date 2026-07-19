@@ -13,7 +13,7 @@ import {
 import type { ActiveContract } from './state';
 import type { NewsEventDef } from './config';
 import {
-  batchSize, claimDuration, claimReward, hasAutoClaim, homeCapFor, offlineCapSeconds,
+  batchSize, claimDuration, claimReward, hasAutoClaim, homeCapFor, markCost, offlineCapSeconds,
   prodInterval, researchCost, sellInterval, sellPrice, sellPriceNoBoost, staffCapFor,
   staffCost, stockCap, vehicleDef,
 } from './formulas';
@@ -359,6 +359,24 @@ export function deliverContract(s: GameState, c: ActiveContract): number | null 
   return payout;
 }
 
+/** Mark yükseltmesi: para + RP karşılığı yeni kasa — satış fiyatı +%12,
+    hype sıfırlanır (yeni model yüksek hızla satmaya başlar).
+    Üretim hızı bilinçli olarak DEĞİŞMEZ. */
+export function buyMark(s: GameState, vehicleId: string): boolean {
+  const v = vehicleDef(vehicleId);
+  const line = s.lines[vehicleId];
+  if (!line.unlocked) return false;
+  const cost = markCost(s, v);
+  if (!cost || s.money < cost.money || s.rp < cost.rp) return false;
+  s.money -= cost.money;
+  s.rp -= cost.rp;
+  s.stats.totalSpent += cost.money;
+  line.spent += cost.money;
+  line.mark = cost.next;
+  line.modelAge = 0; // yeni kasa hype'ı
+  return true;
+}
+
 /** Günün Sözleşmesi: günde bir kez, piyasa ÜSTÜ fiyat + gem ödüllü özel
     teklif ("yarın yine gel" nezaketi — zorlamasız retention). Teklif
     sunulduğu an gün işaretlenir; reddetmek de hakkı kullanır. */
@@ -554,6 +572,9 @@ export function tick(s: GameState, dt: number): void {
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
     if (!line.unlocked) continue;
+
+    // Model yaşlanır: hype eğrisi tabana doğru süzülür (formulas.hypeMult)
+    line.modelAge += dt;
 
     // --- Üretim ---
     const cap = stockCap(s, v);
@@ -770,6 +791,7 @@ export function unlockVehicle(s: GameState, id: string): boolean {
   s.gems -= v.unlockGems;
   line.spent += v.unlockCost;
   line.unlocked = true;
+  line.modelAge = 0; // yeni model: satış hype ile başlar
   return true;
 }
 
@@ -876,6 +898,7 @@ export function timeWarp(s: GameState, seconds: number): OfflineReport {
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
     if (!line.unlocked) continue;
+    line.modelAge += seconds;
     const cap = stockCap(s, v);
     const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
     const sellRate = line.salesManager && !line.sellPaused ? 1 / sellInterval(s, v, line) : 0;
@@ -965,6 +988,7 @@ export function computeOffline(s: GameState, now: number): OfflineReport | null 
   for (const v of VEHICLES) {
     const line = s.lines[v.id];
     if (!line.unlocked) continue;
+    line.modelAge += T; // model offline'da da eskir
     const cap = stockCap(s, v);
     const prodRate = line.prodManager ? batchSize(s) / prodInterval(s, v, line) : 0;
     const sellRate = line.salesManager && !line.sellPaused ? 1 / sellInterval(s, v, line) : 0;

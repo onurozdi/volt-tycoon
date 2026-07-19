@@ -11,7 +11,7 @@ import {
   activeIssuers, buyProdManager, buyResearch, buySalesManager, buySalesRep, buyTechnician,
   claim, gemBuyBoost, gemInstantClaim, gemInstantProd, startProduce, startSell,
   unlockVehicle, unlockLocation, acceptContract, adFillClaim, adRewardBoost, adRewardGems,
-  buyMaterial, buySupplyManager, canTakeLoan, contractDecay, deliverContract,
+  buyMark, buyMaterial, buySupplyManager, canTakeLoan, contractDecay, deliverContract,
   doubleOfflineEarnings, gemInstantSell,
   hasAnyManager, issuerRep, matCap, matDrainPerMin, matPrice, payoffLoan,
   repayCost, takeLoan, timeWarp, toggleSellPause,
@@ -20,8 +20,8 @@ import type { ContractOffer } from '../core/engine';
 import type { OfflineReport } from '../core/engine';
 import {
   batchSize, claimDuration, claimReward, fmt, fmtMoney, fmtTime, hasAutoClaim, homeCapFor,
-  prodInterval, researchCost, researchLevel, sellInterval, sellPrice, staffCapFor, staffCost,
-  staffSpeed, stockCap,
+  markCost, prodInterval, researchCost, researchLevel, sellInterval, sellPrice, staffCapFor,
+  staffCost, staffSpeed, stockCap,
 } from '../core/formulas';
 import type { GameState } from '../core/state';
 import { resetGame, saveGame } from '../core/state';
@@ -358,7 +358,7 @@ function vehicleCard(id: string): HTMLElement {
     <div class="vcard-head">
       <div class="vcard-icon">${icon(v.icon)}</div>
       <div>
-        <div class="vcard-title">${v.name}</div>
+        <div class="vcard-title">${v.name}<span class="mk-badge"></span></div>
         <div class="vcard-class">${t(v.classKey)}</div>
         <div class="vcard-price"></div>
       </div>
@@ -403,6 +403,7 @@ function vehicleCard(id: string): HTMLElement {
         </button>
       </div>
     </div>
+    <button class="btn btn-mark buy-mark"></button>
   </div>`);
 
   const q = (sel: string): HTMLElement => card.querySelector(sel) as HTMLElement;
@@ -427,6 +428,30 @@ function vehicleCard(id: string): HTMLElement {
   } else {
     recipeEl.remove();
   }
+
+  // Mark yükseltmesi: kartın altındaki düğme + başlıkta Mk rozeti
+  const mkBadge = q('.mk-badge');
+  const btnMark = q('.buy-mark') as HTMLButtonElement;
+  const ROMAN = ['I', 'II', 'III'];
+  btnMark.addEventListener('click', () => {
+    if (buyMark(S, id)) {
+      sfx.achievement();
+      toast(`${v.name} Mk ${ROMAN[S.lines[id].mark]}! 🚗`, 'gold');
+    } else {
+      toast(t('toast.notEnoughMoney'), 'err');
+      sfx.error();
+    }
+  });
+  updaters.push(() => {
+    mkBadge.textContent = line.mark > 0 ? ` Mk ${ROMAN[line.mark]}` : '';
+    const mc = markCost(S, v);
+    if (!mc) {
+      btnMark.style.display = 'none';
+      return;
+    }
+    btnMark.textContent = `⬆ MARK ${ROMAN[mc.next]} · ${fmtMoney(mc.money)} + ${fmt(mc.rp)} RP`;
+    btnMark.disabled = S.money < mc.money || S.rp < mc.rp;
+  });
 
   const priceEl = q('.vcard-price');
   const stockEl = q('.vcard-stock b');

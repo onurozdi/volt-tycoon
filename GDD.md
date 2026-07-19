@@ -340,9 +340,13 @@ Son-oyun döngüsü (bot: mevcut içerik ~31 saatte bitiyor). **Koşul:** gigafa
 
 Günde bir kez (yerel gün), açılıştan ~8 sn sonra "Günün Siparişi" popup'ı: en büyük açık araçtan depo %60'ı kadar sipariş, **piyasanın ×1,2'si** + tesise göre **3-6 gem** ödül, süre cömert (dolum ×2). Reddetmek de günü kullanır; aktif günlük sözleşme varken yenisi gelmez; öğretici bitmeden hiç gelmez. Zorlamasız "yarın yine gel" nezaketi.
 
-## 9j. Araç Kademeleri — Mark II/III + model eskimesi (PLANLI, IPO sonrası; sim kapılı)
+## 9j. Araç Kademeleri — Mark II/III + model eskimesi (19.07.2026 — YAYINDA)
 
-Kullanıcı tasarımı: her kasanın satış hızı zamanla yavaşlar ama **asla sıfırlanmaz** (taban), yeni kasa hype ile yüksek başlar. Parametre önerisi: hype ×1,25 → ~2 saatte taban ×0,8; Mark yükseltmesi para+RP, satış fiyatı +%12/kademe, **üretim hızı değişmez**; kartta Mk II/III rozeti. Denge kapısı: bot koşusunda giga süresi %10'dan fazla uzarsa yayın öncesi yumuşatılır. Mevcut keyif dengesi ("biraz risk, ilerleyen sayılar") korunacak.
+Kullanıcı tasarımı: her kasanın satış hızı zamanla yavaşlar ama **asla sıfırlanmaz**, yeni kasa hype ile yüksek başlar; **üretim hızı kademeyle değişmez**. Düğme araştırma ağacında DEĞİL, **aracın kendi kartında** (kullanıcı kararı).
+
+**Nihai parametreler (denge kapısından geçen):** hype ×1,25 → üstel, ~3 saatte tabana (tau 3600 sn); taban **0,92** + her Mark **+0,05** (Mk II 0,97, Mk III **1,02** — tam kademeli araç eskimeye dirençli, hafif kazançlı); satış fiyatı **+%12/kademe**; bedel = basePrice×**18**×hedefKademe + tesisSırası×**5**×hedefKademe RP; kilit açma ve Mark yükseltmesi hype'ı tazeler. Kartta başlık rozeti "Mk II/III" + altın tam-genişlik yükseltme düğmesi.
+
+**Denge kapısı süreci (kayıt):** ilk parametreler (taban 0,8; bedel 40×; RP 10×) giga süresini 15h32m→20h39m (+%33) uzattı → kademeli yumuşatma (taban 0,9→0,92, tau 3600, bedel 18×, taban/Mark +0,05, RP 5×) → 3 koşu ortalaması **16h21m (+%5,3)** ✓ (+%10 sınırı içinde). Eski kayıtlara nötr migrasyon (modelAge=5100 → çarpan ≈1,0; ani yavaşlama hissi yok).
 
 ## 9k. Yol haritası notları (18.07.2026)
 

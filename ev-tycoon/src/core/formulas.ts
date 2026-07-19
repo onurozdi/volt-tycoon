@@ -1,5 +1,7 @@
 import {
-  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, LOCATIONS, NEWS_EVENTS, OVERSTAFF_GROWTH,
+  BOOST_MULT, CLAIM_DURATION, CLAIM_REWARD, FX, LOCATIONS,
+  MARK_COST_UNITS, MARK_FLOOR, MARK_FLOOR_PER_MARK, MARK_HYPE, MARK_MAX, MARK_PRICE_BONUS, MARK_RP_BASE, MARK_TAU,
+  NEWS_EVENTS, OVERSTAFF_GROWTH,
   RESEARCH, STAFF_COST_GROWTH, STAFF_SMAX, STAFF_TAU, VEHICLES,
 } from './config';
 import type { EventKind, ResearchFx, VehicleDef } from './config';
@@ -98,19 +100,44 @@ export function prodInterval(s: GameState, v: VehicleDef, line: LineState): numb
     / staffSpeed(line.technicians) / eventMult(s, 'prodSpeed', v.id);
 }
 
+/** Model hype eğrisi: yeni kasa ×1.25 hızlı satar, üstel olarak ~2 saatte
+    ×0.8 tabana iner — ASLA tabanın altına düşmez (eski araba da satılır) */
+export function hypeMult(line: LineState): number {
+  const floor = MARK_FLOOR + MARK_FLOOR_PER_MARK * line.mark;
+  return floor + (MARK_HYPE - floor) * Math.exp(-line.modelAge / MARK_TAU);
+}
+
+/** Kademe fiyat çarpanı: Mk II +%12, Mk III +%24 (üretim hızına dokunmaz) */
+export function markPriceMult(line: LineState): number {
+  return 1 + MARK_PRICE_BONUS * line.mark;
+}
+
+/** Sıradaki kademenin bedeli (para + RP); kademe doluysa null */
+export function markCost(s: GameState, v: VehicleDef): { money: number; rp: number; next: number } | null {
+  const line = s.lines[v.id];
+  if (line.mark >= MARK_MAX) return null;
+  const next = line.mark + 1;
+  const tierIdx = LOCATIONS.findIndex((l) => l.id === v.locationId);
+  return {
+    money: v.basePrice * MARK_COST_UNITS * next,
+    rp: (tierIdx + 1) * MARK_RP_BASE * next,
+    next,
+  };
+}
+
 export function sellInterval(s: GameState, v: VehicleDef, line: LineState): number {
   return (v.baseSellTime * rMult(s, 'sellTime') * retrofitMult(s, v.locationId))
-    / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id);
+    / staffSpeed(line.salesReps) / eventMult(s, 'sellSpeed', v.id) / hypeMult(line);
 }
 
 export function sellPrice(s: GameState, v: VehicleDef): number {
   const boost = Date.now() < s.boostUntil ? BOOST_MULT : 1;
-  return Math.round(v.basePrice * rMult(s, 'price') * boost * eventMult(s, 'price', v.id));
+  return Math.round(v.basePrice * markPriceMult(s.lines[v.id]) * rMult(s, 'price') * boost * eventMult(s, 'price', v.id));
 }
 
 /** Boost'suz taban fiyat (offline hesap ve UI için) */
 export function sellPriceNoBoost(s: GameState, v: VehicleDef): number {
-  return Math.round(v.basePrice * rMult(s, 'price'));
+  return Math.round(v.basePrice * markPriceMult(s.lines[v.id]) * rMult(s, 'price'));
 }
 
 export function stockCap(s: GameState, v: VehicleDef): number {

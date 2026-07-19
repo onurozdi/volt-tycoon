@@ -7,7 +7,7 @@
 
 import { LOANS, LOCATIONS, RECIPES, RESEARCH, VEHICLES } from '../core/config';
 import {
-  buyMaterial, buyProdManager, buyResearch, buySalesManager, buySalesRep,
+  buyMark, buyMaterial, buyProdManager, buyResearch, buySalesManager, buySalesRep,
   buySupplyManager, buyTechnician,
   claim, setEngineEvents, startProduce, startSell, takeLoan, tick,
   unlockLocation, unlockVehicle,
@@ -158,6 +158,15 @@ export function runSim(opt: SimOptions): SimReport {
       for (const x of buyable) {
         if (buyResearch(s, x.id)) { bought = 'rs:' + x.id; break; }
         break; // en ucuzu alınamıyorsa gerisi de alınamaz
+      }
+    }
+
+    // 4b) Mark yükseltmeleri — müdür/araştırmadan SONRA (fiyat +%12 + hype)
+    if (!bought) {
+      for (const v of VEHICLES) {
+        const l = s.lines[v.id];
+        if (!l.unlocked || !l.salesManager) continue; // satış oturmadan Mark israf
+        if (buyMark(s, v.id)) { bought = 'mark:' + v.id; break; }
       }
     }
 
